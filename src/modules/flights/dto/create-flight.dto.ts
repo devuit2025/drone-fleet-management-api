@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsInt, IsDecimal, IsDateString, IsUUID, Min } from 'class-validator';
+import { IsString, IsOptional, IsInt, IsNumber, IsDateString, IsUUID, Min } from 'class-validator';
 
 export class CreateFlightDto {
   @ApiProperty({ description: 'Flight name' })
@@ -21,15 +21,15 @@ export class CreateFlightDto {
   plannedDuration: number;
 
   @ApiProperty({ description: 'Starting latitude' })
-  @IsDecimal()
+  @IsNumber()
   startLatitude: number;
 
   @ApiProperty({ description: 'Starting longitude' })
-  @IsDecimal()
+  @IsNumber()
   startLongitude: number;
 
   @ApiProperty({ description: 'Starting altitude' })
-  @IsDecimal()
+  @IsNumber()
   startAltitude: number;
 
   @ApiProperty({ description: 'Pilot ID' })

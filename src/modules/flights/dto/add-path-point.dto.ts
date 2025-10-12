@@ -1,21 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDecimal, IsInt, Min, Max } from 'class-validator';
+import { IsNumber, IsInt, Min, Max } from 'class-validator';
 
 export class AddPathPointDto {
   @ApiProperty({ description: 'Latitude' })
-  @IsDecimal()
+  @IsNumber()
   latitude: number;
 
   @ApiProperty({ description: 'Longitude' })
-  @IsDecimal()
+  @IsNumber()
   longitude: number;
 
   @ApiProperty({ description: 'Altitude in meters' })
-  @IsDecimal()
+  @IsNumber()
   altitude: number;
 
   @ApiProperty({ description: 'Speed in km/h' })
-  @IsDecimal()
+  @IsNumber()
   speed: number;
 
   @ApiProperty({ description: 'Battery level (0-100)' })

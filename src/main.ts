@@ -19,12 +19,15 @@ async function bootstrap() {
     transform: true,
   }));
 
+  // Global API prefix removed - using controller-level prefixes instead
+
   // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('Drone Fleet Management API')
     .setDescription('API for managing drone fleet with real-time tracking')
     .setVersion('1.0')
     .addBearerAuth()
+    .addServer('http://localhost:3000/api/v1', 'Development server')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

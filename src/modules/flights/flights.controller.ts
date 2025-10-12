@@ -29,7 +29,7 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Flights')
-@Controller('flights')
+@Controller('api/v1/flights')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class FlightsController {

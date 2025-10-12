@@ -5,17 +5,14 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install all dependencies (including dev dependencies for development)
+RUN npm ci
 
 # Copy source code
 COPY . .
 
-# Build the application
-RUN npm run build
-
 # Expose port
 EXPOSE 3000
 
-# Start the application
-CMD ["npm", "run", "start:prod"]
+# Default command (can be overridden in docker-compose.yml)
+CMD ["npm", "run", "start:dev"]

@@ -25,7 +25,7 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Drones')
-@Controller('drones')
+@Controller('api/v1/drones')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class DronesController {

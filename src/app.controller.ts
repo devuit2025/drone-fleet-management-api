@@ -22,6 +22,8 @@ export class AppController {
       status: 'ok',
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
+      version: '1.0.0',
+      api_prefix: 'api/v1',
     };
   }
 }

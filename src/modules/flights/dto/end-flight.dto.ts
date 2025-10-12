@@ -1,17 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDecimal } from 'class-validator';
+import { IsNumber } from 'class-validator';
 
 export class EndFlightDto {
   @ApiProperty({ description: 'Ending latitude' })
-  @IsDecimal()
+  @IsNumber()
   endLatitude: number;
 
   @ApiProperty({ description: 'Ending longitude' })
-  @IsDecimal()
+  @IsNumber()
   endLongitude: number;
 
   @ApiProperty({ description: 'Ending altitude' })
-  @IsDecimal()
+  @IsNumber()
   endAltitude: number;
 
   @ApiProperty({ description: 'Flight notes', required: false })
