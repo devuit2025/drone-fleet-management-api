@@ -13,48 +13,47 @@ import { SimulationSeeder } from './simulation.seeder';
 
 @Injectable()
 export class SeederService {
-  private readonly logger = new Logger(SeederService.name);
+    private readonly logger = new Logger(SeederService.name);
 
-  constructor(
-    private readonly userSeeder: UserSeeder,
-    private readonly pilotSeeder: PilotSeeder,
-    private readonly licenseSeeder: LicenseSeeder,
-    private readonly droneSeeder: DroneSeeder,
-    private readonly missionSeeder: MissionSeeder,
-    private readonly waypointSeeder: WaypointSeeder,
-    private readonly telemetrySeeder: TelemetrySeeder,
-    private readonly noFlyZoneSeeder: NoFlyZoneSeeder,
-    private readonly flightLogSeeder: FlightLogSeeder,
-    private readonly missionReportSeeder: MissionReportSeeder,
-    private readonly simulationSeeder: SimulationSeeder,
-  ) { }
+    constructor(
+        private readonly userSeeder: UserSeeder,
+        private readonly pilotSeeder: PilotSeeder,
+        private readonly licenseSeeder: LicenseSeeder,
+        private readonly droneSeeder: DroneSeeder,
+        private readonly missionSeeder: MissionSeeder,
+        private readonly waypointSeeder: WaypointSeeder,
+        private readonly telemetrySeeder: TelemetrySeeder,
+        private readonly noFlyZoneSeeder: NoFlyZoneSeeder,
+        private readonly flightLogSeeder: FlightLogSeeder,
+        private readonly missionReportSeeder: MissionReportSeeder,
+        private readonly simulationSeeder: SimulationSeeder,
+    ) {}
 
-  async seed(): Promise<void> {
-    this.logger.log('🌱 Starting database seeding...');
-    const startTime = Date.now();
+    async seed(): Promise<void> {
+        this.logger.log('🌱 Starting database seeding...');
+        const startTime = Date.now();
 
-    try {
-      // Seed in order to maintain foreign key relationships
-      await this.userSeeder.seed();
-      await this.pilotSeeder.seed();
-      await this.licenseSeeder.seed();
-      await this.droneSeeder.seed();
-      await this.missionSeeder.seed();
-      await this.waypointSeeder.seed();
-      await this.telemetrySeeder.seed();
-      await this.noFlyZoneSeeder.seed();
-      await this.flightLogSeeder.seed();
-      await this.missionReportSeeder.seed();
-      await this.simulationSeeder.seed();
+        try {
+            // Seed in order to maintain foreign key relationships
+            await this.userSeeder.seed();
+            await this.pilotSeeder.seed();
+            await this.licenseSeeder.seed();
+            await this.droneSeeder.seed();
+            await this.missionSeeder.seed();
+            await this.waypointSeeder.seed();
+            await this.telemetrySeeder.seed();
+            await this.noFlyZoneSeeder.seed();
+            await this.flightLogSeeder.seed();
+            await this.missionReportSeeder.seed();
+            await this.simulationSeeder.seed();
 
-      const endTime = Date.now();
-      const duration = (endTime - startTime) / 1000;
+            const endTime = Date.now();
+            const duration = (endTime - startTime) / 1000;
 
-      this.logger.log(`✅ Database seeding completed successfully in ${duration}s`);
-    } catch (error) {
-      this.logger.error('❌ Database seeding failed:', error);
-      throw error;
+            this.logger.log(`✅ Database seeding completed successfully in ${duration}s`);
+        } catch (error) {
+            this.logger.error('❌ Database seeding failed:', error);
+            throw error;
+        }
     }
-  }
-
 }

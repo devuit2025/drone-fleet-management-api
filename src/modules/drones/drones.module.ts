@@ -6,9 +6,9 @@ import { Drone } from '../../entities/drone.entity';
 import { DroneRepository } from '../../repositories/drone.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Drone])],
-  controllers: [DronesController],
-  providers: [DronesService, DroneRepository],
-  exports: [DronesService, DroneRepository],
+    imports: [TypeOrmModule.forFeature([Drone])],
+    controllers: [DronesController],
+    providers: [DronesService, DroneRepository],
+    exports: [DronesService, DroneRepository],
 })
-export class DronesModule { }
+export class DronesModule {}

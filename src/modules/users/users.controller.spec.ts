@@ -7,291 +7,285 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UserRole } from '../../entities/user.entity';
 
 describe('UsersController', () => {
-  let app: INestApplication;
-  let usersService: UsersService;
-  let module: TestingModule;
+    let app: INestApplication;
+    let usersService: UsersService;
+    let module: TestingModule;
 
-  const mockUsersService = {
-    create: jest.fn(),
-    findAll: jest.fn(),
-    findById: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    findByRole: jest.fn(),
-  };
-
-  const mockJwtAuthGuard = {
-    canActivate: jest.fn().mockReturnValue(true),
-  };
-
-  beforeEach(async () => {
-    module = await Test.createTestingModule({
-      controllers: [UsersController],
-      providers: [
-        {
-          provide: UsersService,
-          useValue: mockUsersService,
-        },
-      ],
-    })
-      .overrideGuard(JwtAuthGuard)
-      .useValue(mockJwtAuthGuard)
-      .compile();
-
-    app = module.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe());
-    await app.init();
-
-    usersService = module.get<UsersService>(UsersService);
-  });
-
-  afterEach(async () => {
-    await app.close();
-  });
-
-  describe('POST /api/v1/users', () => {
-    const createUserDto = {
-      name: 'Test User',
-      email: 'test@example.com',
-      password: 'password123',
-      role: UserRole.OPERATOR,
+    const mockUsersService = {
+        create: jest.fn(),
+        findAll: jest.fn(),
+        findById: jest.fn(),
+        update: jest.fn(),
+        delete: jest.fn(),
+        findByRole: jest.fn(),
     };
 
-    const mockUser = {
-      id: 1,
-      name: 'Test User',
-      email: 'test@example.com',
-      password: 'hashed-password',
-      role: UserRole.OPERATOR,
-      created_at: new Date(),
-      updated_at: new Date(),
+    const mockJwtAuthGuard = {
+        canActivate: jest.fn().mockReturnValue(true),
     };
 
-    it('should create a new user successfully', async () => {
-      mockUsersService.create.mockResolvedValue(mockUser);
+    beforeEach(async () => {
+        module = await Test.createTestingModule({
+            controllers: [UsersController],
+            providers: [
+                {
+                    provide: UsersService,
+                    useValue: mockUsersService,
+                },
+            ],
+        })
+            .overrideGuard(JwtAuthGuard)
+            .useValue(mockJwtAuthGuard)
+            .compile();
 
-      const response = await request(app.getHttpServer())
-        .post('/api/v1/users')
-        .send(createUserDto)
-        .expect(201);
+        app = module.createNestApplication();
+        app.useGlobalPipes(new ValidationPipe());
+        await app.init();
 
-      expect(response.body).toEqual({
-        id: mockUser.id,
-        name: mockUser.name,
-        email: mockUser.email,
-        role: mockUser.role,
-        created_at: mockUser.created_at.toISOString(),
-        updated_at: mockUser.updated_at.toISOString(),
-      });
-
-      expect(mockUsersService.create).toHaveBeenCalledWith(createUserDto);
+        usersService = module.get<UsersService>(UsersService);
     });
 
-    it('should return 409 when user already exists', async () => {
-      mockUsersService.create.mockRejectedValue(
-        new HttpException('User with this email already exists', HttpStatus.CONFLICT)
-      );
-
-      const response = await request(app.getHttpServer())
-        .post('/api/v1/users')
-        .send(createUserDto)
-        .expect(409);
-
-      expect(response.body).toEqual({
-        message: 'User with this email already exists',
-        statusCode: 409,
-      });
-
-      expect(mockUsersService.create).toHaveBeenCalledWith(createUserDto);
+    afterEach(async () => {
+        await app.close();
     });
 
-    it('should validate required fields', async () => {
-      const invalidDto = {
-        name: 'Test',
-        email: 'invalid-email',
-        password: '123', // too short
-      };
+    describe('POST /api/v1/users', () => {
+        const createUserDto = {
+            name: 'Test User',
+            email: 'test@example.com',
+            password: 'password123',
+            role: UserRole.OPERATOR,
+        };
 
-      const response = await request(app.getHttpServer())
-        .post('/api/v1/users')
-        .send(invalidDto)
-        .expect(400);
+        const mockUser = {
+            id: 1,
+            name: 'Test User',
+            email: 'test@example.com',
+            password: 'hashed-password',
+            role: UserRole.OPERATOR,
+            created_at: new Date(),
+            updated_at: new Date(),
+        };
 
-      expect(response.body.message).toEqual([
-        'email must be an email',
-        'password must be longer than or equal to 6 characters',
-      ]);
-    });
-  });
+        it('should create a new user successfully', async () => {
+            mockUsersService.create.mockResolvedValue(mockUser);
 
-  describe('GET /api/v1/users', () => {
-    const mockUsers = [
-      {
-        id: 1,
-        name: 'User 1',
-        email: 'user1@example.com',
-        role: UserRole.ADMIN,
-        created_at: new Date(),
-        updated_at: new Date(),
-      },
-      {
-        id: 2,
-        name: 'User 2',
-        email: 'user2@example.com',
-        role: UserRole.OPERATOR,
-        created_at: new Date(),
-        updated_at: new Date(),
-      },
-    ];
+            const response = await request(app.getHttpServer())
+                .post('/api/v1/users')
+                .send(createUserDto)
+                .expect(201);
 
-    it('should return all users', async () => {
-      mockUsersService.findAll.mockResolvedValue(mockUsers);
+            expect(response.body).toEqual({
+                id: mockUser.id,
+                name: mockUser.name,
+                email: mockUser.email,
+                role: mockUser.role,
+                created_at: mockUser.created_at.toISOString(),
+                updated_at: mockUser.updated_at.toISOString(),
+            });
 
-      const response = await request(app.getHttpServer())
-        .get('/api/v1/users')
-        .expect(200);
+            expect(mockUsersService.create).toHaveBeenCalledWith(createUserDto);
+        });
 
-      expect(response.body).toHaveLength(2);
-      expect(response.body[0]).toEqual({
-        id: mockUsers[0].id,
-        name: mockUsers[0].name,
-        email: mockUsers[0].email,
-        role: mockUsers[0].role,
-        created_at: mockUsers[0].created_at.toISOString(),
-        updated_at: mockUsers[0].updated_at.toISOString(),
-      });
+        it('should return 409 when user already exists', async () => {
+            mockUsersService.create.mockRejectedValue(
+                new HttpException('User with this email already exists', HttpStatus.CONFLICT),
+            );
 
-      expect(mockUsersService.findAll).toHaveBeenCalled();
-    });
-  });
+            const response = await request(app.getHttpServer())
+                .post('/api/v1/users')
+                .send(createUserDto)
+                .expect(409);
 
-  describe('GET /api/v1/users/:id', () => {
-    const mockUser = {
-      id: 1,
-      name: 'Test User',
-      email: 'test@example.com',
-      role: UserRole.OPERATOR,
-      created_at: new Date(),
-      updated_at: new Date(),
-    };
+            expect(response.body).toEqual({
+                message: 'User with this email already exists',
+                statusCode: 409,
+            });
 
-    it('should return user by ID', async () => {
-      mockUsersService.findById.mockResolvedValue(mockUser);
+            expect(mockUsersService.create).toHaveBeenCalledWith(createUserDto);
+        });
 
-      const response = await request(app.getHttpServer())
-        .get('/api/v1/users/1')
-        .expect(200);
+        it('should validate required fields', async () => {
+            const invalidDto = {
+                name: 'Test',
+                email: 'invalid-email',
+                password: '123', // too short
+            };
 
-      expect(response.body).toEqual({
-        id: mockUser.id,
-        name: mockUser.name,
-        email: mockUser.email,
-        role: mockUser.role,
-        created_at: mockUser.created_at.toISOString(),
-        updated_at: mockUser.updated_at.toISOString(),
-      });
+            const response = await request(app.getHttpServer())
+                .post('/api/v1/users')
+                .send(invalidDto)
+                .expect(400);
 
-      expect(mockUsersService.findById).toHaveBeenCalledWith('1');
+            expect(response.body.message).toEqual([
+                'email must be an email',
+                'password must be longer than or equal to 6 characters',
+            ]);
+        });
     });
 
-    it('should return 404 when user not found', async () => {
-      mockUsersService.findById.mockRejectedValue(
-        new HttpException('User not found', HttpStatus.NOT_FOUND)
-      );
+    describe('GET /api/v1/users', () => {
+        const mockUsers = [
+            {
+                id: 1,
+                name: 'User 1',
+                email: 'user1@example.com',
+                role: UserRole.ADMIN,
+                created_at: new Date(),
+                updated_at: new Date(),
+            },
+            {
+                id: 2,
+                name: 'User 2',
+                email: 'user2@example.com',
+                role: UserRole.OPERATOR,
+                created_at: new Date(),
+                updated_at: new Date(),
+            },
+        ];
 
-      const response = await request(app.getHttpServer())
-        .get('/api/v1/users/999')
-        .expect(404);
+        it('should return all users', async () => {
+            mockUsersService.findAll.mockResolvedValue(mockUsers);
 
-      expect(response.body).toEqual({
-        message: 'User not found',
-        statusCode: 404,
-      });
+            const response = await request(app.getHttpServer()).get('/api/v1/users').expect(200);
 
-      expect(mockUsersService.findById).toHaveBeenCalledWith('999');
-    });
-  });
+            expect(response.body).toHaveLength(2);
+            expect(response.body[0]).toEqual({
+                id: mockUsers[0].id,
+                name: mockUsers[0].name,
+                email: mockUsers[0].email,
+                role: mockUsers[0].role,
+                created_at: mockUsers[0].created_at.toISOString(),
+                updated_at: mockUsers[0].updated_at.toISOString(),
+            });
 
-  describe('PATCH /api/v1/users/:id', () => {
-    const updateUserDto = {
-      name: 'Updated User',
-      email: 'updated@example.com',
-    };
-
-    const mockUpdatedUser = {
-      id: 1,
-      name: 'Updated User',
-      email: 'updated@example.com',
-      role: UserRole.OPERATOR,
-      created_at: new Date(),
-      updated_at: new Date(),
-    };
-
-    it('should update user successfully', async () => {
-      mockUsersService.update.mockResolvedValue(mockUpdatedUser);
-
-      const response = await request(app.getHttpServer())
-        .patch('/api/v1/users/1')
-        .send(updateUserDto)
-        .expect(200);
-
-      expect(response.body).toEqual({
-        id: mockUpdatedUser.id,
-        name: mockUpdatedUser.name,
-        email: mockUpdatedUser.email,
-        role: mockUpdatedUser.role,
-        created_at: mockUpdatedUser.created_at.toISOString(),
-        updated_at: mockUpdatedUser.updated_at.toISOString(),
-      });
-
-      expect(mockUsersService.update).toHaveBeenCalledWith('1', updateUserDto);
+            expect(mockUsersService.findAll).toHaveBeenCalled();
+        });
     });
 
-    it('should return 404 when user not found', async () => {
-      mockUsersService.update.mockRejectedValue(
-        new HttpException('User not found', HttpStatus.NOT_FOUND)
-      );
+    describe('GET /api/v1/users/:id', () => {
+        const mockUser = {
+            id: 1,
+            name: 'Test User',
+            email: 'test@example.com',
+            role: UserRole.OPERATOR,
+            created_at: new Date(),
+            updated_at: new Date(),
+        };
 
-      const response = await request(app.getHttpServer())
-        .patch('/api/v1/users/999')
-        .send(updateUserDto)
-        .expect(404);
+        it('should return user by ID', async () => {
+            mockUsersService.findById.mockResolvedValue(mockUser);
 
-      expect(response.body).toEqual({
-        message: 'User not found',
-        statusCode: 404,
-      });
+            const response = await request(app.getHttpServer()).get('/api/v1/users/1').expect(200);
 
-      expect(mockUsersService.update).toHaveBeenCalledWith('999', updateUserDto);
+            expect(response.body).toEqual({
+                id: mockUser.id,
+                name: mockUser.name,
+                email: mockUser.email,
+                role: mockUser.role,
+                created_at: mockUser.created_at.toISOString(),
+                updated_at: mockUser.updated_at.toISOString(),
+            });
+
+            expect(mockUsersService.findById).toHaveBeenCalledWith('1');
+        });
+
+        it('should return 404 when user not found', async () => {
+            mockUsersService.findById.mockRejectedValue(
+                new HttpException('User not found', HttpStatus.NOT_FOUND),
+            );
+
+            const response = await request(app.getHttpServer())
+                .get('/api/v1/users/999')
+                .expect(404);
+
+            expect(response.body).toEqual({
+                message: 'User not found',
+                statusCode: 404,
+            });
+
+            expect(mockUsersService.findById).toHaveBeenCalledWith('999');
+        });
     });
-  });
 
-  describe('DELETE /api/v1/users/:id', () => {
-    it('should delete user successfully', async () => {
-      mockUsersService.delete.mockResolvedValue(undefined);
+    describe('PATCH /api/v1/users/:id', () => {
+        const updateUserDto = {
+            name: 'Updated User',
+            email: 'updated@example.com',
+        };
 
-      await request(app.getHttpServer())
-        .delete('/api/v1/users/1')
-        .expect(200);
+        const mockUpdatedUser = {
+            id: 1,
+            name: 'Updated User',
+            email: 'updated@example.com',
+            role: UserRole.OPERATOR,
+            created_at: new Date(),
+            updated_at: new Date(),
+        };
 
-      expect(mockUsersService.delete).toHaveBeenCalledWith('1');
+        it('should update user successfully', async () => {
+            mockUsersService.update.mockResolvedValue(mockUpdatedUser);
+
+            const response = await request(app.getHttpServer())
+                .patch('/api/v1/users/1')
+                .send(updateUserDto)
+                .expect(200);
+
+            expect(response.body).toEqual({
+                id: mockUpdatedUser.id,
+                name: mockUpdatedUser.name,
+                email: mockUpdatedUser.email,
+                role: mockUpdatedUser.role,
+                created_at: mockUpdatedUser.created_at.toISOString(),
+                updated_at: mockUpdatedUser.updated_at.toISOString(),
+            });
+
+            expect(mockUsersService.update).toHaveBeenCalledWith('1', updateUserDto);
+        });
+
+        it('should return 404 when user not found', async () => {
+            mockUsersService.update.mockRejectedValue(
+                new HttpException('User not found', HttpStatus.NOT_FOUND),
+            );
+
+            const response = await request(app.getHttpServer())
+                .patch('/api/v1/users/999')
+                .send(updateUserDto)
+                .expect(404);
+
+            expect(response.body).toEqual({
+                message: 'User not found',
+                statusCode: 404,
+            });
+
+            expect(mockUsersService.update).toHaveBeenCalledWith('999', updateUserDto);
+        });
     });
 
-    it('should return 404 when user not found', async () => {
-      mockUsersService.delete.mockRejectedValue(
-        new HttpException('User not found', HttpStatus.NOT_FOUND)
-      );
+    describe('DELETE /api/v1/users/:id', () => {
+        it('should delete user successfully', async () => {
+            mockUsersService.delete.mockResolvedValue(undefined);
 
-      const response = await request(app.getHttpServer())
-        .delete('/api/v1/users/999')
-        .expect(404);
+            await request(app.getHttpServer()).delete('/api/v1/users/1').expect(200);
 
-      expect(response.body).toEqual({
-        message: 'User not found',
-        statusCode: 404,
-      });
+            expect(mockUsersService.delete).toHaveBeenCalledWith('1');
+        });
 
-      expect(mockUsersService.delete).toHaveBeenCalledWith('999');
+        it('should return 404 when user not found', async () => {
+            mockUsersService.delete.mockRejectedValue(
+                new HttpException('User not found', HttpStatus.NOT_FOUND),
+            );
+
+            const response = await request(app.getHttpServer())
+                .delete('/api/v1/users/999')
+                .expect(404);
+
+            expect(response.body).toEqual({
+                message: 'User not found',
+                statusCode: 404,
+            });
+
+            expect(mockUsersService.delete).toHaveBeenCalledWith('999');
+        });
     });
-  });
 });

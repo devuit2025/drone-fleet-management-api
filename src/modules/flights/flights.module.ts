@@ -8,9 +8,9 @@ import { FlightRepository } from '../../repositories/flight.repository';
 import { FlightPathRepository } from '../../repositories/flight-path.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Mission, Waypoint])],
-  controllers: [FlightsController],
-  providers: [FlightsService, FlightRepository, FlightPathRepository],
-  exports: [FlightsService, FlightRepository, FlightPathRepository],
+    imports: [TypeOrmModule.forFeature([Mission, Waypoint])],
+    controllers: [FlightsController],
+    providers: [FlightsService, FlightRepository, FlightPathRepository],
+    exports: [FlightsService, FlightRepository, FlightPathRepository],
 })
-export class FlightsModule { }
+export class FlightsModule {}

@@ -6,48 +6,48 @@ import { Drone, DroneStatus } from '../entities/drone.entity';
 
 @Injectable()
 export class DroneRepository extends BaseRepository<Drone> {
-  constructor(
-    @InjectRepository(Drone)
-    private readonly droneRepository: Repository<Drone>,
-  ) {
-    super(droneRepository);
-  }
+    constructor(
+        @InjectRepository(Drone)
+        private readonly droneRepository: Repository<Drone>,
+    ) {
+        super(droneRepository);
+    }
 
-  async findBySerialNumber(serialNumber: string): Promise<Drone | null> {
-    return await this.droneRepository.findOne({
-      where: { serial_number: serialNumber },
-    });
-  }
+    async findBySerialNumber(serialNumber: string): Promise<Drone | null> {
+        return await this.droneRepository.findOne({
+            where: { serial_number: serialNumber },
+        });
+    }
 
-  async findByStatus(status: DroneStatus): Promise<Drone[]> {
-    return await this.droneRepository.find({
-      where: { status },
-    });
-  }
+    async findByStatus(status: DroneStatus): Promise<Drone[]> {
+        return await this.droneRepository.find({
+            where: { status },
+        });
+    }
 
-  async findActiveDrones(): Promise<Drone[]> {
-    return await this.droneRepository.find({
-      where: { status: DroneStatus.AVAILABLE },
-    });
-  }
+    async findActiveDrones(): Promise<Drone[]> {
+        return await this.droneRepository.find({
+            where: { status: DroneStatus.AVAILABLE },
+        });
+    }
 
-  async findAvailableDrones(): Promise<Drone[]> {
-    return await this.droneRepository.find({
-      where: {
-        status: DroneStatus.AVAILABLE,
-      },
-    });
-  }
+    async findAvailableDrones(): Promise<Drone[]> {
+        return await this.droneRepository.find({
+            where: {
+                status: DroneStatus.AVAILABLE,
+            },
+        });
+    }
 
-  async updateBatteryCapacity(id: number, battery_capacity: number): Promise<void> {
-    await this.droneRepository.update(id, {
-      battery_capacity,
-    });
-  }
+    async updateBatteryCapacity(id: number, battery_capacity: number): Promise<void> {
+        await this.droneRepository.update(id, {
+            battery_capacity,
+        });
+    }
 
-  async updateStatus(id: number, status: DroneStatus): Promise<void> {
-    await this.droneRepository.update(id, {
-      status,
-    });
-  }
+    async updateStatus(id: number, status: DroneStatus): Promise<void> {
+        await this.droneRepository.update(id, {
+            status,
+        });
+    }
 }

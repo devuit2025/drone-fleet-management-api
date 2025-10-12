@@ -16,470 +16,491 @@ import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class NoFakerSeeder {
-  constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-    @InjectRepository(Pilot)
-    private readonly pilotRepository: Repository<Pilot>,
-    @InjectRepository(License)
-    private readonly licenseRepository: Repository<License>,
-    @InjectRepository(Drone)
-    private readonly droneRepository: Repository<Drone>,
-    @InjectRepository(Mission)
-    private readonly missionRepository: Repository<Mission>,
-    @InjectRepository(Waypoint)
-    private readonly waypointRepository: Repository<Waypoint>,
-    @InjectRepository(Telemetry)
-    private readonly telemetryRepository: Repository<Telemetry>,
-    @InjectRepository(NoFlyZone)
-    private readonly noFlyZoneRepository: Repository<NoFlyZone>,
-    @InjectRepository(FlightLog)
-    private readonly flightLogRepository: Repository<FlightLog>,
-    @InjectRepository(MissionReport)
-    private readonly missionReportRepository: Repository<MissionReport>,
-    @InjectRepository(Simulation)
-    private readonly simulationRepository: Repository<Simulation>,
-  ) { }
+    constructor(
+        @InjectRepository(User)
+        private readonly userRepository: Repository<User>,
+        @InjectRepository(Pilot)
+        private readonly pilotRepository: Repository<Pilot>,
+        @InjectRepository(License)
+        private readonly licenseRepository: Repository<License>,
+        @InjectRepository(Drone)
+        private readonly droneRepository: Repository<Drone>,
+        @InjectRepository(Mission)
+        private readonly missionRepository: Repository<Mission>,
+        @InjectRepository(Waypoint)
+        private readonly waypointRepository: Repository<Waypoint>,
+        @InjectRepository(Telemetry)
+        private readonly telemetryRepository: Repository<Telemetry>,
+        @InjectRepository(NoFlyZone)
+        private readonly noFlyZoneRepository: Repository<NoFlyZone>,
+        @InjectRepository(FlightLog)
+        private readonly flightLogRepository: Repository<FlightLog>,
+        @InjectRepository(MissionReport)
+        private readonly missionReportRepository: Repository<MissionReport>,
+        @InjectRepository(Simulation)
+        private readonly simulationRepository: Repository<Simulation>,
+    ) {}
 
-  async seed(): Promise<void> {
-    console.log('🌱 Seeding database without faker...');
+    async seed(): Promise<void> {
+        console.log('🌱 Seeding database without faker...');
 
-    // Seed Users
-    await this.seedUsers();
+        // Seed Users
+        await this.seedUsers();
 
-    // Seed Pilots
-    await this.seedPilots();
+        // Seed Pilots
+        await this.seedPilots();
 
-    // Seed Licenses
-    await this.seedLicenses();
+        // Seed Licenses
+        await this.seedLicenses();
 
-    // Seed Drones
-    await this.seedDrones();
+        // Seed Drones
+        await this.seedDrones();
 
-    // Seed Missions
-    await this.seedMissions();
+        // Seed Missions
+        await this.seedMissions();
 
-    // Skip geometry fields for now
-    console.log('⚠️ Skipping Waypoints, Telemetry, and No-Fly Zones due to geometry issues');
+        // Skip geometry fields for now
+        console.log('⚠️ Skipping Waypoints, Telemetry, and No-Fly Zones due to geometry issues');
 
-    // Seed Flight Logs
-    await this.seedFlightLogs();
+        // Seed Flight Logs
+        await this.seedFlightLogs();
 
-    // Seed Mission Reports
-    await this.seedMissionReports();
+        // Seed Mission Reports
+        await this.seedMissionReports();
 
-    // Seed Simulations
-    await this.seedSimulations();
+        // Seed Simulations
+        await this.seedSimulations();
 
-    console.log('✅ Database seeding completed successfully!');
-  }
-
-  private async seedUsers(): Promise<void> {
-    console.log('🌱 Seeding Users...');
-
-    const existingUsers = await this.userRepository.count();
-    if (existingUsers > 0) {
-      console.log('Users already exist, skipping...');
-      return;
+        console.log('✅ Database seeding completed successfully!');
     }
 
-    const users: Partial<User>[] = [
-      {
-        name: 'Admin User',
-        email: 'admin@dronefleet.com',
-        password: await bcrypt.hash('admin123', 10),
-        role: UserRole.ADMIN,
-      },
-      {
-        name: 'Operator One',
-        email: 'operator1@dronefleet.com',
-        password: await bcrypt.hash('operator123', 10),
-        role: UserRole.OPERATOR,
-      },
-      {
-        name: 'Operator Two',
-        email: 'operator2@dronefleet.com',
-        password: await bcrypt.hash('operator123', 10),
-        role: UserRole.OPERATOR,
-      },
-      {
-        name: 'Viewer One',
-        email: 'viewer1@dronefleet.com',
-        password: await bcrypt.hash('viewer123', 10),
-        role: UserRole.VIEWER,
-      },
-    ];
+    private async seedUsers(): Promise<void> {
+        console.log('🌱 Seeding Users...');
 
-    await this.userRepository.save(users);
-    console.log(`✅ Created ${users.length} users`);
-  }
+        const existingUsers = await this.userRepository.count();
+        if (existingUsers > 0) {
+            console.log('Users already exist, skipping...');
+            return;
+        }
 
-  private async seedPilots(): Promise<void> {
-    console.log('🌱 Seeding Pilots...');
+        const users: Partial<User>[] = [
+            {
+                name: 'Admin User',
+                email: 'admin@dronefleet.com',
+                password: await bcrypt.hash('admin123', 10),
+                role: UserRole.ADMIN,
+            },
+            {
+                name: 'Operator One',
+                email: 'operator1@dronefleet.com',
+                password: await bcrypt.hash('operator123', 10),
+                role: UserRole.OPERATOR,
+            },
+            {
+                name: 'Operator Two',
+                email: 'operator2@dronefleet.com',
+                password: await bcrypt.hash('operator123', 10),
+                role: UserRole.OPERATOR,
+            },
+            {
+                name: 'Viewer One',
+                email: 'viewer1@dronefleet.com',
+                password: await bcrypt.hash('viewer123', 10),
+                role: UserRole.VIEWER,
+            },
+        ];
 
-    const existingPilots = await this.pilotRepository.count();
-    if (existingPilots > 0) {
-      console.log('Pilots already exist, skipping...');
-      return;
+        await this.userRepository.save(users);
+        console.log(`✅ Created ${users.length} users`);
     }
 
-    // Get any users (not just operators) to create pilots
-    const users = await this.userRepository.find({ take: 3 });
+    private async seedPilots(): Promise<void> {
+        console.log('🌱 Seeding Pilots...');
 
-    if (users.length === 0) {
-      console.log('No users found, skipping pilot seeding...');
-      return;
+        const existingPilots = await this.pilotRepository.count();
+        if (existingPilots > 0) {
+            console.log('Pilots already exist, skipping...');
+            return;
+        }
+
+        // Get any users (not just operators) to create pilots
+        const users = await this.userRepository.find({ take: 3 });
+
+        if (users.length === 0) {
+            console.log('No users found, skipping pilot seeding...');
+            return;
+        }
+
+        const pilots: Partial<Pilot>[] = users.map(user => ({
+            user_id: user.id,
+            name: user.name,
+            status: PilotStatus.ACTIVE,
+        }));
+
+        await this.pilotRepository.save(pilots);
+        console.log(`✅ Created ${pilots.length} pilots`);
     }
 
-    const pilots: Partial<Pilot>[] = users.map(user => ({
-      user_id: user.id,
-      name: user.name,
-      status: PilotStatus.ACTIVE,
-    }));
+    private async seedLicenses(): Promise<void> {
+        console.log('🌱 Seeding Licenses...');
 
-    await this.pilotRepository.save(pilots);
-    console.log(`✅ Created ${pilots.length} pilots`);
-  }
+        const existingLicenses = await this.licenseRepository.count();
+        if (existingLicenses > 0) {
+            console.log('Licenses already exist, skipping...');
+            return;
+        }
 
-  private async seedLicenses(): Promise<void> {
-    console.log('🌱 Seeding Licenses...');
+        const pilots = await this.pilotRepository.find();
+        if (pilots.length === 0) {
+            console.log('No pilots found, skipping license seeding...');
+            return;
+        }
 
-    const existingLicenses = await this.licenseRepository.count();
-    if (existingLicenses > 0) {
-      console.log('Licenses already exist, skipping...');
-      return;
+        const licenses: Partial<License>[] = pilots.map((pilot, index) => ({
+            pilot_id: pilot.id,
+            license_number: `LIC-${String(index + 1).padStart(3, '0')}`,
+            license_type: LicenseType.COMMERCIAL,
+            qualification_level: QualificationLevel.ADVANCED,
+            issued_date: new Date('2023-01-01'),
+            expiry_date: new Date('2025-12-31'),
+            issuing_authority: 'Federal Aviation Administration',
+            active: true,
+        }));
+
+        await this.licenseRepository.save(licenses);
+        console.log(`✅ Created ${licenses.length} licenses`);
     }
 
-    const pilots = await this.pilotRepository.find();
-    if (pilots.length === 0) {
-      console.log('No pilots found, skipping license seeding...');
-      return;
+    private async seedDrones(): Promise<void> {
+        console.log('🌱 Seeding Drones...');
+
+        const existingDrones = await this.droneRepository.count();
+        if (existingDrones > 0) {
+            console.log('Drones already exist, skipping...');
+            return;
+        }
+
+        const drones: Partial<Drone>[] = [
+            {
+                name: 'Phantom 4 Drone',
+                serial_number: 'DRONE-001',
+                model: 'DJI Phantom 4',
+                status: DroneStatus.AVAILABLE,
+                max_payload: 1000,
+                battery_capacity: 100,
+                last_maintenance: new Date('2024-01-01'),
+            },
+            {
+                name: 'Mavic Pro Drone',
+                serial_number: 'DRONE-002',
+                model: 'DJI Mavic Pro',
+                status: DroneStatus.AVAILABLE,
+                max_payload: 500,
+                battery_capacity: 100,
+                last_maintenance: new Date('2024-01-15'),
+            },
+            {
+                name: 'Inspire 2 Drone',
+                serial_number: 'DRONE-003',
+                model: 'DJI Inspire 2',
+                status: DroneStatus.IN_MISSION,
+                max_payload: 2000,
+                battery_capacity: 85,
+                last_maintenance: new Date('2024-02-01'),
+            },
+        ];
+
+        await this.droneRepository.save(drones);
+        console.log(`✅ Created ${drones.length} drones`);
     }
 
-    const licenses: Partial<License>[] = pilots.map((pilot, index) => ({
-      pilot_id: pilot.id,
-      license_number: `LIC-${String(index + 1).padStart(3, '0')}`,
-      license_type: LicenseType.COMMERCIAL,
-      qualification_level: QualificationLevel.ADVANCED,
-      issued_date: new Date('2023-01-01'),
-      expiry_date: new Date('2025-12-31'),
-      issuing_authority: 'Federal Aviation Administration',
-      active: true,
-    }));
+    private async seedMissions(): Promise<void> {
+        console.log('🌱 Seeding Missions...');
 
-    await this.licenseRepository.save(licenses);
-    console.log(`✅ Created ${licenses.length} licenses`);
-  }
+        const existingMissions = await this.missionRepository.count();
+        if (existingMissions > 0) {
+            console.log('Missions already exist, skipping...');
+            return;
+        }
 
-  private async seedDrones(): Promise<void> {
-    console.log('🌱 Seeding Drones...');
+        const pilots = await this.pilotRepository.find();
+        const licenses = await this.licenseRepository.find();
 
-    const existingDrones = await this.droneRepository.count();
-    if (existingDrones > 0) {
-      console.log('Drones already exist, skipping...');
-      return;
+        if (pilots.length === 0 || licenses.length === 0) {
+            console.log('No pilots or licenses found, skipping mission seeding...');
+            return;
+        }
+
+        const missions: Partial<Mission>[] = [
+            {
+                pilot_id: pilots[0].id,
+                license_id: licenses[0].id,
+                mission_name: 'Surveillance Mission 1',
+                status: MissionStatus.COMPLETED,
+                start_time: new Date('2024-01-01T08:00:00'),
+                end_time: new Date('2024-01-01T10:00:00'),
+            },
+            {
+                pilot_id: pilots[1]?.id || pilots[0].id,
+                license_id: licenses[1]?.id || licenses[0].id,
+                mission_name: 'Delivery Mission 1',
+                status: MissionStatus.IN_PROGRESS,
+                start_time: new Date('2024-01-02T09:00:00'),
+                end_time: null,
+            },
+            {
+                pilot_id: pilots[0].id,
+                license_id: licenses[0].id,
+                mission_name: 'Mapping Mission 1',
+                status: MissionStatus.PLANNED,
+                start_time: new Date('2024-01-03T10:00:00'),
+                end_time: null,
+            },
+        ];
+
+        await this.missionRepository.save(missions);
+        console.log(`✅ Created ${missions.length} missions`);
     }
 
-    const drones: Partial<Drone>[] = [
-      {
-        name: 'Phantom 4 Drone',
-        serial_number: 'DRONE-001',
-        model: 'DJI Phantom 4',
-        status: DroneStatus.AVAILABLE,
-        max_payload: 1000,
-        battery_capacity: 100,
-        last_maintenance: new Date('2024-01-01'),
-      },
-      {
-        name: 'Mavic Pro Drone',
-        serial_number: 'DRONE-002',
-        model: 'DJI Mavic Pro',
-        status: DroneStatus.AVAILABLE,
-        max_payload: 500,
-        battery_capacity: 100,
-        last_maintenance: new Date('2024-01-15'),
-      },
-      {
-        name: 'Inspire 2 Drone',
-        serial_number: 'DRONE-003',
-        model: 'DJI Inspire 2',
-        status: DroneStatus.IN_MISSION,
-        max_payload: 2000,
-        battery_capacity: 85,
-        last_maintenance: new Date('2024-02-01'),
-      },
-    ];
+    private async seedWaypoints(): Promise<void> {
+        console.log('🌱 Seeding Waypoints...');
 
-    await this.droneRepository.save(drones);
-    console.log(`✅ Created ${drones.length} drones`);
-  }
+        const existingWaypoints = await this.waypointRepository.count();
+        if (existingWaypoints > 0) {
+            console.log('Waypoints already exist, skipping...');
+            return;
+        }
 
-  private async seedMissions(): Promise<void> {
-    console.log('🌱 Seeding Missions...');
+        const missions = await this.missionRepository.find();
+        if (missions.length === 0) {
+            console.log('No missions found, skipping waypoint seeding...');
+            return;
+        }
 
-    const existingMissions = await this.missionRepository.count();
-    if (existingMissions > 0) {
-      console.log('Missions already exist, skipping...');
-      return;
-    }
+        const waypoints: Partial<Waypoint>[] = [];
 
-    const pilots = await this.pilotRepository.find();
-    const licenses = await this.licenseRepository.find();
-
-    if (pilots.length === 0 || licenses.length === 0) {
-      console.log('No pilots or licenses found, skipping mission seeding...');
-      return;
-    }
-
-    const missions: Partial<Mission>[] = [
-      {
-        pilot_id: pilots[0].id,
-        license_id: licenses[0].id,
-        mission_name: 'Surveillance Mission 1',
-        status: MissionStatus.COMPLETED,
-        start_time: new Date('2024-01-01T08:00:00'),
-        end_time: new Date('2024-01-01T10:00:00'),
-      },
-      {
-        pilot_id: pilots[1]?.id || pilots[0].id,
-        license_id: licenses[1]?.id || licenses[0].id,
-        mission_name: 'Delivery Mission 1',
-        status: MissionStatus.IN_PROGRESS,
-        start_time: new Date('2024-01-02T09:00:00'),
-        end_time: null,
-      },
-      {
-        pilot_id: pilots[0].id,
-        license_id: licenses[0].id,
-        mission_name: 'Mapping Mission 1',
-        status: MissionStatus.PLANNED,
-        start_time: new Date('2024-01-03T10:00:00'),
-        end_time: null,
-      },
-    ];
-
-    await this.missionRepository.save(missions);
-    console.log(`✅ Created ${missions.length} missions`);
-  }
-
-  private async seedWaypoints(): Promise<void> {
-    console.log('🌱 Seeding Waypoints...');
-
-    const existingWaypoints = await this.waypointRepository.count();
-    if (existingWaypoints > 0) {
-      console.log('Waypoints already exist, skipping...');
-      return;
-    }
-
-    const missions = await this.missionRepository.find();
-    if (missions.length === 0) {
-      console.log('No missions found, skipping waypoint seeding...');
-      return;
-    }
-
-    const waypoints: Partial<Waypoint>[] = [];
-
-    missions.forEach((mission, missionIndex) => {
-      for (let i = 0; i < 3; i++) {
-        waypoints.push({
-          mission_id: mission.id,
-          seq_number: i + 1,
-          geo_point: JSON.stringify({
-            type: 'Point',
-            coordinates: [106.6 + i * 0.01, 10.7 + i * 0.01]
-          }),
-          altitude_m: 100 + i * 50,
-          speed_mps: 10 + i * 5,
-          action: i === 0 ? 'takeoff' : i === 2 ? 'landing' : 'waypoint',
+        missions.forEach((mission, missionIndex) => {
+            for (let i = 0; i < 3; i++) {
+                waypoints.push({
+                    mission_id: mission.id,
+                    seq_number: i + 1,
+                    geo_point: JSON.stringify({
+                        type: 'Point',
+                        coordinates: [106.6 + i * 0.01, 10.7 + i * 0.01],
+                    }),
+                    altitude_m: 100 + i * 50,
+                    speed_mps: 10 + i * 5,
+                    action: i === 0 ? 'takeoff' : i === 2 ? 'landing' : 'waypoint',
+                });
+            }
         });
-      }
-    });
 
-    await this.waypointRepository.save(waypoints);
-    console.log(`✅ Created ${waypoints.length} waypoints`);
-  }
-
-  private async seedTelemetry(): Promise<void> {
-    console.log('🌱 Seeding Telemetry...');
-
-    const existingTelemetry = await this.telemetryRepository.count();
-    if (existingTelemetry > 0) {
-      console.log('Telemetry already exist, skipping...');
-      return;
+        await this.waypointRepository.save(waypoints);
+        console.log(`✅ Created ${waypoints.length} waypoints`);
     }
 
-    const drones = await this.droneRepository.find();
-    const missions = await this.missionRepository.find();
+    private async seedTelemetry(): Promise<void> {
+        console.log('🌱 Seeding Telemetry...');
 
-    if (drones.length === 0) {
-      console.log('No drones found, skipping telemetry seeding...');
-      return;
-    }
+        const existingTelemetry = await this.telemetryRepository.count();
+        if (existingTelemetry > 0) {
+            console.log('Telemetry already exist, skipping...');
+            return;
+        }
 
-    const telemetryData: Partial<Telemetry>[] = [];
+        const drones = await this.droneRepository.find();
+        const missions = await this.missionRepository.find();
 
-    drones.forEach((drone, droneIndex) => {
-      for (let i = 0; i < 10; i++) {
-        const lat = 10.7 + i * 0.001;
-        const lng = 106.6 + i * 0.001;
-        const timestamp = new Date(Date.now() - i * 60000); // 1 minute intervals
+        if (drones.length === 0) {
+            console.log('No drones found, skipping telemetry seeding...');
+            return;
+        }
 
-        telemetryData.push({
-          drone_id: drone.id,
-          mission_id: missions[i % missions.length]?.id || null,
-          timestamp,
-          location: JSON.stringify({
-            type: 'Point',
-            coordinates: [lng, lat]
-          }),
-          altitude_m: 100 + i * 10,
-          speed_mps: 10 + i * 2,
-          battery_pct: 100 - i * 5,
-          status: 'flying',
-          payload_weight: 200 + i * 50,
+        const telemetryData: Partial<Telemetry>[] = [];
+
+        drones.forEach((drone, droneIndex) => {
+            for (let i = 0; i < 10; i++) {
+                const lat = 10.7 + i * 0.001;
+                const lng = 106.6 + i * 0.001;
+                const timestamp = new Date(Date.now() - i * 60000); // 1 minute intervals
+
+                telemetryData.push({
+                    drone_id: drone.id,
+                    mission_id: missions[i % missions.length]?.id || null,
+                    timestamp,
+                    location: JSON.stringify({
+                        type: 'Point',
+                        coordinates: [lng, lat],
+                    }),
+                    altitude_m: 100 + i * 10,
+                    speed_mps: 10 + i * 2,
+                    battery_pct: 100 - i * 5,
+                    status: 'flying',
+                    payload_weight: 200 + i * 50,
+                });
+            }
         });
-      }
-    });
 
-    await this.telemetryRepository.save(telemetryData);
-    console.log(`✅ Created ${telemetryData.length} telemetry entries`);
-  }
-
-  private async seedNoFlyZones(): Promise<void> {
-    console.log('🌱 Seeding No-Fly Zones...');
-
-    const existingNoFlyZones = await this.noFlyZoneRepository.count();
-    if (existingNoFlyZones > 0) {
-      console.log('No-Fly Zones already exist, skipping...');
-      return;
+        await this.telemetryRepository.save(telemetryData);
+        console.log(`✅ Created ${telemetryData.length} telemetry entries`);
     }
 
-    const noFlyZones: Partial<NoFlyZone>[] = [
-      {
-        name: 'International Airport Zone',
-        zone_type: ZoneType.POLYGON,
-        geometry: JSON.stringify({
-          type: 'Polygon',
-          coordinates: [[[106.6297, 10.7769], [106.6400, 10.7769], [106.6400, 10.7869], [106.6297, 10.7869], [106.6297, 10.7769]]]
-        }),
-        description: 'Airport restricted airspace',
-      },
-      {
-        name: 'Military Base Alpha',
-        zone_type: ZoneType.POLYGON,
-        geometry: JSON.stringify({
-          type: 'Polygon',
-          coordinates: [[[106.7000, 10.8000], [106.7100, 10.8000], [106.7100, 10.8100], [106.7000, 10.8100], [106.7000, 10.8000]]]
-        }),
-        description: 'Military restricted area',
-      },
-    ];
+    private async seedNoFlyZones(): Promise<void> {
+        console.log('🌱 Seeding No-Fly Zones...');
 
-    await this.noFlyZoneRepository.save(noFlyZones);
-    console.log(`✅ Created ${noFlyZones.length} no-fly zones`);
-  }
+        const existingNoFlyZones = await this.noFlyZoneRepository.count();
+        if (existingNoFlyZones > 0) {
+            console.log('No-Fly Zones already exist, skipping...');
+            return;
+        }
 
-  private async seedFlightLogs(): Promise<void> {
-    console.log('🌱 Seeding Flight Logs...');
+        const noFlyZones: Partial<NoFlyZone>[] = [
+            {
+                name: 'International Airport Zone',
+                zone_type: ZoneType.POLYGON,
+                geometry: JSON.stringify({
+                    type: 'Polygon',
+                    coordinates: [
+                        [
+                            [106.6297, 10.7769],
+                            [106.64, 10.7769],
+                            [106.64, 10.7869],
+                            [106.6297, 10.7869],
+                            [106.6297, 10.7769],
+                        ],
+                    ],
+                }),
+                description: 'Airport restricted airspace',
+            },
+            {
+                name: 'Military Base Alpha',
+                zone_type: ZoneType.POLYGON,
+                geometry: JSON.stringify({
+                    type: 'Polygon',
+                    coordinates: [
+                        [
+                            [106.7, 10.8],
+                            [106.71, 10.8],
+                            [106.71, 10.81],
+                            [106.7, 10.81],
+                            [106.7, 10.8],
+                        ],
+                    ],
+                }),
+                description: 'Military restricted area',
+            },
+        ];
 
-    const existingFlightLogs = await this.flightLogRepository.count();
-    if (existingFlightLogs > 0) {
-      console.log('Flight Logs already exist, skipping...');
-      return;
+        await this.noFlyZoneRepository.save(noFlyZones);
+        console.log(`✅ Created ${noFlyZones.length} no-fly zones`);
     }
 
-    const missions = await this.missionRepository.find({
-      where: [{ status: MissionStatus.IN_PROGRESS }, { status: MissionStatus.COMPLETED }],
-    });
+    private async seedFlightLogs(): Promise<void> {
+        console.log('🌱 Seeding Flight Logs...');
 
-    if (missions.length === 0) {
-      console.log('No in-progress or completed missions found, skipping flight log seeding...');
-      return;
-    }
+        const existingFlightLogs = await this.flightLogRepository.count();
+        if (existingFlightLogs > 0) {
+            console.log('Flight Logs already exist, skipping...');
+            return;
+        }
 
-    const flightLogs: Partial<FlightLog>[] = [];
-
-    missions.forEach(mission => {
-      for (let i = 0; i < 5; i++) {
-        flightLogs.push({
-          mission_id: mission.id,
-          timestamp: new Date(Date.now() - i * 300000), // 5 minute intervals
-          event_type: i === 0 ? 'info' : i === 4 ? 'info' : 'debug',
-          description: i === 0 ? 'Mission started successfully' :
-            i === 4 ? 'Mission completed successfully' :
-              `Waypoint ${i} reached`,
+        const missions = await this.missionRepository.find({
+            where: [{ status: MissionStatus.IN_PROGRESS }, { status: MissionStatus.COMPLETED }],
         });
-      }
-    });
 
-    await this.flightLogRepository.save(flightLogs);
-    console.log(`✅ Created ${flightLogs.length} flight logs`);
-  }
+        if (missions.length === 0) {
+            console.log(
+                'No in-progress or completed missions found, skipping flight log seeding...',
+            );
+            return;
+        }
 
-  private async seedMissionReports(): Promise<void> {
-    console.log('🌱 Seeding Mission Reports...');
+        const flightLogs: Partial<FlightLog>[] = [];
 
-    const existingMissionReports = await this.missionReportRepository.count();
-    if (existingMissionReports > 0) {
-      console.log('Mission Reports already exist, skipping...');
-      return;
+        missions.forEach(mission => {
+            for (let i = 0; i < 5; i++) {
+                flightLogs.push({
+                    mission_id: mission.id,
+                    timestamp: new Date(Date.now() - i * 300000), // 5 minute intervals
+                    event_type: i === 0 ? 'info' : i === 4 ? 'info' : 'debug',
+                    description:
+                        i === 0
+                            ? 'Mission started successfully'
+                            : i === 4
+                              ? 'Mission completed successfully'
+                              : `Waypoint ${i} reached`,
+                });
+            }
+        });
+
+        await this.flightLogRepository.save(flightLogs);
+        console.log(`✅ Created ${flightLogs.length} flight logs`);
     }
 
-    const missions = await this.missionRepository.find({
-      where: { status: MissionStatus.COMPLETED },
-    });
+    private async seedMissionReports(): Promise<void> {
+        console.log('🌱 Seeding Mission Reports...');
 
-    if (missions.length === 0) {
-      console.log('No completed missions found, skipping mission report seeding...');
-      return;
+        const existingMissionReports = await this.missionReportRepository.count();
+        if (existingMissionReports > 0) {
+            console.log('Mission Reports already exist, skipping...');
+            return;
+        }
+
+        const missions = await this.missionRepository.find({
+            where: { status: MissionStatus.COMPLETED },
+        });
+
+        if (missions.length === 0) {
+            console.log('No completed missions found, skipping mission report seeding...');
+            return;
+        }
+
+        const missionReports: Partial<MissionReport>[] = missions.map(mission => ({
+            mission_id: mission.id,
+            flight_time_sec: 3600, // 1 hour
+            distance_m: 10000,
+            avg_speed_mps: 15.5,
+            battery_consumed_pct: 45.2,
+            incident_count: 0,
+        }));
+
+        await this.missionReportRepository.save(missionReports);
+        console.log(`✅ Created ${missionReports.length} mission reports`);
     }
 
-    const missionReports: Partial<MissionReport>[] = missions.map(mission => ({
-      mission_id: mission.id,
-      flight_time_sec: 3600, // 1 hour
-      distance_m: 10000,
-      avg_speed_mps: 15.5,
-      battery_consumed_pct: 45.2,
-      incident_count: 0,
-    }));
+    private async seedSimulations(): Promise<void> {
+        console.log('🌱 Seeding Simulations...');
 
-    await this.missionReportRepository.save(missionReports);
-    console.log(`✅ Created ${missionReports.length} mission reports`);
-  }
+        const existingSimulations = await this.simulationRepository.count();
+        if (existingSimulations > 0) {
+            console.log('Simulations already exist, skipping...');
+            return;
+        }
 
-  private async seedSimulations(): Promise<void> {
-    console.log('🌱 Seeding Simulations...');
+        const missions = await this.missionRepository.find();
+        const pilots = await this.pilotRepository.find();
 
-    const existingSimulations = await this.simulationRepository.count();
-    if (existingSimulations > 0) {
-      console.log('Simulations already exist, skipping...');
-      return;
+        if (missions.length === 0 || pilots.length === 0) {
+            console.log('No missions or pilots found, skipping simulation seeding...');
+            return;
+        }
+
+        const simulations: Partial<Simulation>[] = missions.map((mission, index) => ({
+            pilot_id: pilots[index % pilots.length].id,
+            mission_id: mission.id,
+            sim_start_time: new Date(Date.now() - 86400000), // 1 day ago
+            sim_end_time: new Date(Date.now() - 3600000), // 1 hour ago
+            parameters: {
+                simulation_type: 'Weather Impact Analysis',
+                weather_conditions: 'Clear',
+                wind_speed: 10,
+                temperature: 25,
+                humidity: 60,
+                mission_duration: 60,
+            },
+        }));
+
+        await this.simulationRepository.save(simulations);
+        console.log(`✅ Created ${simulations.length} simulations`);
     }
-
-    const missions = await this.missionRepository.find();
-    const pilots = await this.pilotRepository.find();
-
-    if (missions.length === 0 || pilots.length === 0) {
-      console.log('No missions or pilots found, skipping simulation seeding...');
-      return;
-    }
-
-    const simulations: Partial<Simulation>[] = missions.map((mission, index) => ({
-      pilot_id: pilots[index % pilots.length].id,
-      mission_id: mission.id,
-      sim_start_time: new Date(Date.now() - 86400000), // 1 day ago
-      sim_end_time: new Date(Date.now() - 3600000), // 1 hour ago
-      parameters: {
-        simulation_type: 'Weather Impact Analysis',
-        weather_conditions: 'Clear',
-        wind_speed: 10,
-        temperature: 25,
-        humidity: 60,
-        mission_duration: 60,
-      },
-    }));
-
-    await this.simulationRepository.save(simulations);
-    console.log(`✅ Created ${simulations.length} simulations`);
-  }
 }

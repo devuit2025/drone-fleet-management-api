@@ -23,41 +23,41 @@ import { Simulation } from './entities/simulation.entity';
 import { SeederModule } from './seeders/seeder.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT) || 5432,
-      username: process.env.DB_USERNAME || 'postgres',
-      password: process.env.DB_PASSWORD || 'postgres',
-      database: process.env.DB_DATABASE || 'drone_fleet',
-      entities: [
-        User,
-        Pilot,
-        License,
-        Drone,
-        DroneConfiguration,
-        Mission,
-        Waypoint,
-        Telemetry,
-        NoFlyZone,
-        FlightLog,
-        MissionReport,
-        Simulation
-      ],
-      synchronize: process.env.NODE_ENV !== 'production',
-      logging: process.env.NODE_ENV === 'development',
-    }),
-    UsersModule,
-    DronesModule,
-    FlightsModule,
-    AuthModule,
-    SeederModule,
-  ],
-  controllers: [AppController],
-  providers: [AppService, DroneGateway],
+    imports: [
+        ConfigModule.forRoot({
+            isGlobal: true,
+        }),
+        TypeOrmModule.forRoot({
+            type: 'postgres',
+            host: process.env.DB_HOST || 'localhost',
+            port: parseInt(process.env.DB_PORT) || 5432,
+            username: process.env.DB_USERNAME || 'postgres',
+            password: process.env.DB_PASSWORD || 'postgres',
+            database: process.env.DB_DATABASE || 'drone_fleet',
+            entities: [
+                User,
+                Pilot,
+                License,
+                Drone,
+                DroneConfiguration,
+                Mission,
+                Waypoint,
+                Telemetry,
+                NoFlyZone,
+                FlightLog,
+                MissionReport,
+                Simulation,
+            ],
+            synchronize: process.env.NODE_ENV !== 'production',
+            logging: process.env.NODE_ENV === 'development',
+        }),
+        UsersModule,
+        DronesModule,
+        FlightsModule,
+        AuthModule,
+        SeederModule,
+    ],
+    controllers: [AppController],
+    providers: [AppService, DroneGateway],
 })
-export class AppModule { }
+export class AppModule {}
