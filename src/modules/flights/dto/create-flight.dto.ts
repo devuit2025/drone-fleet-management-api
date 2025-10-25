@@ -33,11 +33,11 @@ export class CreateFlightDto {
     startAltitude: number;
 
     @ApiProperty({ description: 'Pilot ID' })
-    @IsUUID()
+    // @IsUUID()
     pilotId: string;
 
     @ApiProperty({ description: 'Drone ID' })
-    @IsUUID()
+    // @IsUUID()
     droneId: string;
 
     @ApiProperty({ description: 'Weather conditions', required: false })

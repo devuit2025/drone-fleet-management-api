@@ -7,6 +7,8 @@ import { UsersModule } from './modules/users/users.module';
 import { DronesModule } from './modules/drones/drones.module';
 import { FlightsModule } from './modules/flights/flights.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { LicensesModule } from './modules/licenses/licenses.module';
+import { PilotsModule } from './modules/pilots/pilots.module';
 import { DroneGateway } from './gateways/drone.gateway';
 import { User } from './entities/user.entity';
 import { Pilot } from './entities/pilot.entity';
@@ -55,9 +57,11 @@ import { SeederModule } from './seeders/seeder.module';
         DronesModule,
         FlightsModule,
         AuthModule,
+        LicensesModule,
+        PilotsModule,
         SeederModule,
     ],
     controllers: [AppController],
     providers: [AppService, DroneGateway],
 })
-export class AppModule {}
+export class AppModule { }

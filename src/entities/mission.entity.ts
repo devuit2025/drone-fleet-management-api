@@ -25,8 +25,10 @@ export class Mission {
     pilot_id: number;
 
     @ApiProperty({ description: 'License ID' })
-    @Column()
-    license_id: number;
+    @Column({
+        nullable: true,
+    })
+    license_id: number | null;
 
     @ApiProperty({ description: 'Mission name' })
     @Column()

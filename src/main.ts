@@ -6,10 +6,21 @@ import { AppModule } from './app.module';
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
 
+    // Get environment variables
+    const port = process.env.PORT || 3000;
+    const nodeEnv = process.env.NODE_ENV || 'development';
+    const corsOrigins = process.env.CORS_ORIGIN
+        ? process.env.CORS_ORIGIN.split(',')
+        : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:8080', 'http://localhost:5500'];
+
     // Enable CORS
     app.enableCors({
-        origin: ['http://localhost:5173', 'http://localhost:3000'],
+        origin: corsOrigins,
         credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+        preflightContinue: false,
+        optionsSuccessStatus: 204,
     });
 
     // Global validation pipe
@@ -25,18 +36,19 @@ async function bootstrap() {
 
     // Swagger configuration
     const config = new DocumentBuilder()
-        .setTitle('Drone Fleet Management API')
-        .setDescription('API for managing drone fleet with real-time tracking')
-        .setVersion('1.0')
+        .setTitle(process.env.SWAGGER_TITLE || 'Drone Fleet Management API')
+        .setDescription(process.env.SWAGGER_DESCRIPTION || 'API for managing drone fleet with real-time tracking')
+        .setVersion(process.env.SWAGGER_VERSION || '1.0')
         .addBearerAuth()
-        .addServer('http://localhost:3000/api/v1', 'Development server')
+        .addServer(`http://localhost:${port}/${process.env.API_PREFIX || 'api/v1'}`, 'Development server')
         .build();
 
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api-docs', app, document);
 
-    await app.listen(3000);
-    console.log('🚀 Application is running on: http://localhost:3000');
-    console.log('📚 Swagger documentation: http://localhost:3000/api-docs');
+    await app.listen(port);
+    console.log(`🚀 Application is running on: http://localhost:${port}`);
+    console.log(`📚 Swagger documentation: http://localhost:${port}/api-docs`);
+    console.log(`🌍 Environment: ${nodeEnv}`);
 }
 bootstrap();

@@ -16,7 +16,7 @@ import { AddPathPointDto } from '../modules/flights/dto';
 
 @WebSocketGateway({
     cors: {
-        origin: ['http://localhost:5173', 'http://localhost:3000'],
+        origin: ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:8080', 'http://localhost:5500'],
         credentials: true,
     },
     namespace: '/drone',
@@ -30,7 +30,7 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
     constructor(
         private readonly dronesService: DronesService,
         private readonly flightsService: FlightsService,
-    ) {}
+    ) { }
 
     handleConnection(client: Socket) {
         this.logger.log(`Client connected: ${client.id}`);
