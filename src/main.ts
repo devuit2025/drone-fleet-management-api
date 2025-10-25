@@ -40,7 +40,7 @@ async function bootstrap() {
         .setDescription(process.env.SWAGGER_DESCRIPTION || 'API for managing drone fleet with real-time tracking')
         .setVersion(process.env.SWAGGER_VERSION || '1.0')
         .addBearerAuth()
-        .addServer(`http://localhost:${port}/${process.env.API_PREFIX || 'api/v1'}`, 'Development server')
+        .addServer(`http://localhost:${port}`, 'Development server')
         .build();
 
     const document = SwaggerModule.createDocument(app, config);
