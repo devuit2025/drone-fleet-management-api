@@ -5,17 +5,27 @@ import { CreateDroneDto, UpdateDroneDto, UpdateLocationDto, UpdateStatusDto } fr
 
 @Injectable()
 export class DronesService {
-    constructor(private readonly droneRepository: DroneRepository) {}
+    constructor(private readonly droneRepository: DroneRepository) { }
 
     async create(createDroneDto: CreateDroneDto): Promise<Drone> {
         const existingDrone = await this.droneRepository.findBySerialNumber(
-            createDroneDto.serial_number,
+            createDroneDto.serialNumber,
         );
         if (existingDrone) {
             throw new ConflictException('Drone with this serial number already exists');
         }
 
-        return await this.droneRepository.create(createDroneDto);
+        const droneData = {
+            name: createDroneDto.name,
+            model: createDroneDto.model,
+            serial_number: createDroneDto.serialNumber,
+            status: createDroneDto.status || DroneStatus.AVAILABLE,
+            max_payload: createDroneDto.maxPayload,
+            battery_capacity: createDroneDto.batteryCapacity,
+            last_maintenance: createDroneDto.lastMaintenance,
+        };
+
+        return await this.droneRepository.create(droneData);
     }
 
     async findAll(): Promise<Drone[]> {
@@ -41,16 +51,24 @@ export class DronesService {
     async update(id: number, updateDroneDto: UpdateDroneDto): Promise<Drone> {
         const drone = await this.findById(id);
 
-        if (updateDroneDto.serial_number && updateDroneDto.serial_number !== drone.serial_number) {
+        if (updateDroneDto.serialNumber && updateDroneDto.serialNumber !== drone.serial_number) {
             const existingDrone = await this.droneRepository.findBySerialNumber(
-                updateDroneDto.serial_number,
+                updateDroneDto.serialNumber,
             );
             if (existingDrone) {
                 throw new ConflictException('Drone with this serial number already exists');
             }
         }
 
-        return await this.droneRepository.update(id, updateDroneDto);
+        const updateData = {
+            ...updateDroneDto,
+            serial_number: updateDroneDto.serialNumber,
+            max_payload: updateDroneDto.maxPayload,
+            battery_capacity: updateDroneDto.batteryCapacity,
+            last_maintenance: updateDroneDto.lastMaintenance,
+        };
+
+        return await this.droneRepository.update(id, updateData);
     }
 
     async delete(id: number): Promise<void> {

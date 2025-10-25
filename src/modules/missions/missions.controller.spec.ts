@@ -3,18 +3,18 @@ import { INestApplication, ValidationPipe, HttpException, HttpStatus } from '@ne
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import * as request from 'supertest';
-import { FlightsController } from './flights.controller';
-import { FlightsService } from './flights.service';
+import { MissionsController } from './missions.controller';
+import { MissionsService } from './missions.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { JwtStrategy } from '../auth/strategies/jwt.strategy';
 import { MissionStatus } from '../../entities/mission.entity';
 
-describe('FlightsController', () => {
+describe('MissionsController', () => {
     let app: INestApplication;
-    let flightsService: FlightsService;
+    let missionsService: MissionsService;
     let module: TestingModule;
 
-    const mockFlightsService = {
+    const mockMissionsService = {
         create: jest.fn(),
         findAll: jest.fn(),
         findById: jest.fn(),
@@ -53,11 +53,11 @@ describe('FlightsController', () => {
                     signOptions: { expiresIn: '24h' },
                 }),
             ],
-            controllers: [FlightsController],
+            controllers: [MissionsController],
             providers: [
                 {
-                    provide: FlightsService,
-                    useValue: mockFlightsService,
+                    provide: MissionsService,
+                    useValue: mockMissionsService,
                 },
                 {
                     provide: JwtStrategy,
@@ -73,7 +73,7 @@ describe('FlightsController', () => {
         app.useGlobalPipes(new ValidationPipe());
         await app.init();
 
-        flightsService = module.get<FlightsService>(FlightsService);
+        missionsService = module.get<MissionsService>(MissionsService);
     });
 
     afterEach(async () => {
@@ -108,7 +108,7 @@ describe('FlightsController', () => {
         };
 
         it('should create a new flight successfully', async () => {
-            mockFlightsService.create.mockResolvedValue(mockFlight);
+            mockMissionsService.create.mockResolvedValue(mockFlight);
 
             const response = await request(app.getHttpServer())
                 .post('/api/v1/flights')
@@ -127,7 +127,7 @@ describe('FlightsController', () => {
                 updated_at: mockFlight.updated_at.toISOString(),
             });
 
-            expect(mockFlightsService.create).toHaveBeenCalledWith(createFlightDto);
+            expect(mockMissionsService.create).toHaveBeenCalledWith(createFlightDto);
         });
 
         it('should validate required fields', async () => {
@@ -171,7 +171,7 @@ describe('FlightsController', () => {
         ];
 
         it('should return all flights', async () => {
-            mockFlightsService.findAll.mockResolvedValue(mockFlights);
+            mockMissionsService.findAll.mockResolvedValue(mockFlights);
 
             const response = await request(app.getHttpServer()).get('/api/v1/flights').expect(200);
 
@@ -188,7 +188,7 @@ describe('FlightsController', () => {
                 updated_at: mockFlights[0].updated_at.toISOString(),
             });
 
-            expect(mockFlightsService.findAll).toHaveBeenCalled();
+            expect(mockMissionsService.findAll).toHaveBeenCalled();
         });
     });
 
@@ -208,7 +208,7 @@ describe('FlightsController', () => {
         ];
 
         it('should return active flights', async () => {
-            mockFlightsService.findActiveFlights.mockResolvedValue(mockActiveFlights);
+            mockMissionsService.findActiveFlights.mockResolvedValue(mockActiveFlights);
 
             const response = await request(app.getHttpServer())
                 .get('/api/v1/flights/active')
@@ -216,7 +216,7 @@ describe('FlightsController', () => {
 
             expect(response.body).toHaveLength(1);
             expect(response.body[0].status).toBe(MissionStatus.IN_PROGRESS);
-            expect(mockFlightsService.findActiveFlights).toHaveBeenCalled();
+            expect(mockMissionsService.findActiveFlights).toHaveBeenCalled();
         });
     });
 
@@ -236,7 +236,7 @@ describe('FlightsController', () => {
         ];
 
         it('should return flights by status', async () => {
-            mockFlightsService.findByStatus.mockResolvedValue(mockFlightsByStatus);
+            mockMissionsService.findByStatus.mockResolvedValue(mockFlightsByStatus);
 
             const response = await request(app.getHttpServer())
                 .get('/api/v1/flights/status/planned')
@@ -244,7 +244,7 @@ describe('FlightsController', () => {
 
             expect(response.body).toHaveLength(1);
             expect(response.body[0].status).toBe(MissionStatus.PLANNED);
-            expect(mockFlightsService.findByStatus).toHaveBeenCalledWith(MissionStatus.PLANNED);
+            expect(mockMissionsService.findByStatus).toHaveBeenCalledWith(MissionStatus.PLANNED);
         });
     });
 
@@ -264,7 +264,7 @@ describe('FlightsController', () => {
         ];
 
         it('should return flights by pilot', async () => {
-            mockFlightsService.findByPilot.mockResolvedValue(mockPilotFlights);
+            mockMissionsService.findByPilot.mockResolvedValue(mockPilotFlights);
 
             const response = await request(app.getHttpServer())
                 .get('/api/v1/flights/pilot/1')
@@ -272,7 +272,7 @@ describe('FlightsController', () => {
 
             expect(response.body).toHaveLength(1);
             expect(response.body[0].pilot_id).toBe(1);
-            expect(mockFlightsService.findByPilot).toHaveBeenCalledWith('1');
+            expect(mockMissionsService.findByPilot).toHaveBeenCalledWith('1');
         });
     });
 
@@ -292,14 +292,14 @@ describe('FlightsController', () => {
         ];
 
         it('should return flights by drone', async () => {
-            mockFlightsService.findByDrone.mockResolvedValue(mockDroneFlights);
+            mockMissionsService.findByDrone.mockResolvedValue(mockDroneFlights);
 
             const response = await request(app.getHttpServer())
                 .get('/api/v1/flights/drone/1')
                 .expect(200);
 
             expect(response.body).toHaveLength(1);
-            expect(mockFlightsService.findByDrone).toHaveBeenCalledWith('1');
+            expect(mockMissionsService.findByDrone).toHaveBeenCalledWith('1');
         });
     });
 
@@ -319,7 +319,7 @@ describe('FlightsController', () => {
         ];
 
         it('should return flights by date range', async () => {
-            mockFlightsService.findFlightsByDateRange.mockResolvedValue(mockDateRangeFlights);
+            mockMissionsService.findFlightsByDateRange.mockResolvedValue(mockDateRangeFlights);
 
             const response = await request(app.getHttpServer())
                 .get('/api/v1/flights/date-range')
@@ -330,7 +330,7 @@ describe('FlightsController', () => {
                 .expect(200);
 
             expect(response.body).toHaveLength(1);
-            expect(mockFlightsService.findFlightsByDateRange).toHaveBeenCalledWith(
+            expect(mockMissionsService.findFlightsByDateRange).toHaveBeenCalledWith(
                 new Date('2024-01-01T00:00:00Z'),
                 new Date('2024-01-02T00:00:00Z'),
             );
@@ -351,7 +351,7 @@ describe('FlightsController', () => {
         };
 
         it('should return flight by ID', async () => {
-            mockFlightsService.findById.mockResolvedValue(mockFlight);
+            mockMissionsService.findById.mockResolvedValue(mockFlight);
 
             const response = await request(app.getHttpServer())
                 .get('/api/v1/flights/1')
@@ -369,11 +369,11 @@ describe('FlightsController', () => {
                 updated_at: mockFlight.updated_at.toISOString(),
             });
 
-            expect(mockFlightsService.findById).toHaveBeenCalledWith('1');
+            expect(mockMissionsService.findById).toHaveBeenCalledWith('1');
         });
 
         it('should return 404 when flight not found', async () => {
-            mockFlightsService.findById.mockRejectedValue(
+            mockMissionsService.findById.mockRejectedValue(
                 new HttpException('Flight not found', HttpStatus.NOT_FOUND),
             );
 
@@ -386,7 +386,7 @@ describe('FlightsController', () => {
                 statusCode: 404,
             });
 
-            expect(mockFlightsService.findById).toHaveBeenCalledWith('999');
+            expect(mockMissionsService.findById).toHaveBeenCalledWith('999');
         });
     });
 
@@ -405,7 +405,7 @@ describe('FlightsController', () => {
         ];
 
         it('should return flight path', async () => {
-            mockFlightsService.getFlightPath.mockResolvedValue(mockFlightPath);
+            mockMissionsService.getFlightPath.mockResolvedValue(mockFlightPath);
 
             const response = await request(app.getHttpServer())
                 .get('/api/v1/flights/1/path')
@@ -417,7 +417,7 @@ describe('FlightsController', () => {
                     created_at: mockFlightPath[0].created_at.toISOString(),
                 },
             ]);
-            expect(mockFlightsService.getFlightPath).toHaveBeenCalledWith('1');
+            expect(mockMissionsService.getFlightPath).toHaveBeenCalledWith('1');
         });
     });
 
@@ -440,7 +440,7 @@ describe('FlightsController', () => {
         };
 
         it('should update flight successfully', async () => {
-            mockFlightsService.update.mockResolvedValue(mockUpdatedFlight);
+            mockMissionsService.update.mockResolvedValue(mockUpdatedFlight);
 
             const response = await request(app.getHttpServer())
                 .patch('/api/v1/flights/1')
@@ -459,11 +459,11 @@ describe('FlightsController', () => {
                 updated_at: mockUpdatedFlight.updated_at.toISOString(),
             });
 
-            expect(mockFlightsService.update).toHaveBeenCalledWith('1', updateFlightDto);
+            expect(mockMissionsService.update).toHaveBeenCalledWith('1', updateFlightDto);
         });
 
         it('should return 404 when flight not found', async () => {
-            mockFlightsService.update.mockRejectedValue(
+            mockMissionsService.update.mockRejectedValue(
                 new HttpException('Flight not found', HttpStatus.NOT_FOUND),
             );
 
@@ -477,7 +477,7 @@ describe('FlightsController', () => {
                 statusCode: 404,
             });
 
-            expect(mockFlightsService.update).toHaveBeenCalledWith('999', updateFlightDto);
+            expect(mockMissionsService.update).toHaveBeenCalledWith('999', updateFlightDto);
         });
     });
 
@@ -487,21 +487,21 @@ describe('FlightsController', () => {
         };
 
         it('should start flight successfully', async () => {
-            mockFlightsService.startFlight.mockResolvedValue(undefined);
+            mockMissionsService.startFlight.mockResolvedValue(undefined);
 
             await request(app.getHttpServer())
                 .patch('/api/v1/flights/1/start')
                 .send(startFlightDto)
                 .expect(200);
 
-            expect(mockFlightsService.startFlight).toHaveBeenCalledWith('1', {
+            expect(mockMissionsService.startFlight).toHaveBeenCalledWith('1', {
                 ...startFlightDto,
                 actualStartTime: startFlightDto.actualStartTime.toISOString(),
             });
         });
 
         it('should return 404 when flight not found', async () => {
-            mockFlightsService.startFlight.mockRejectedValue(
+            mockMissionsService.startFlight.mockRejectedValue(
                 new HttpException('Flight not found', HttpStatus.NOT_FOUND),
             );
 
@@ -515,7 +515,7 @@ describe('FlightsController', () => {
                 statusCode: 404,
             });
 
-            expect(mockFlightsService.startFlight).toHaveBeenCalledWith('999', {
+            expect(mockMissionsService.startFlight).toHaveBeenCalledWith('999', {
                 ...startFlightDto,
                 actualStartTime: startFlightDto.actualStartTime.toISOString(),
             });
@@ -530,18 +530,18 @@ describe('FlightsController', () => {
         };
 
         it('should end flight successfully', async () => {
-            mockFlightsService.endFlight.mockResolvedValue(undefined);
+            mockMissionsService.endFlight.mockResolvedValue(undefined);
 
             await request(app.getHttpServer())
                 .patch('/api/v1/flights/1/end')
                 .send(endFlightDto)
                 .expect(200);
 
-            expect(mockFlightsService.endFlight).toHaveBeenCalledWith('1', endFlightDto);
+            expect(mockMissionsService.endFlight).toHaveBeenCalledWith('1', endFlightDto);
         });
 
         it('should return 404 when flight not found', async () => {
-            mockFlightsService.endFlight.mockRejectedValue(
+            mockMissionsService.endFlight.mockRejectedValue(
                 new HttpException('Flight not found', HttpStatus.NOT_FOUND),
             );
 
@@ -555,7 +555,7 @@ describe('FlightsController', () => {
                 statusCode: 404,
             });
 
-            expect(mockFlightsService.endFlight).toHaveBeenCalledWith('999', endFlightDto);
+            expect(mockMissionsService.endFlight).toHaveBeenCalledWith('999', endFlightDto);
         });
     });
 
@@ -580,7 +580,7 @@ describe('FlightsController', () => {
         };
 
         it('should add path point successfully', async () => {
-            mockFlightsService.addPathPoint.mockResolvedValue(mockPathPoint);
+            mockMissionsService.addPathPoint.mockResolvedValue(mockPathPoint);
 
             const response = await request(app.getHttpServer())
                 .post('/api/v1/flights/1/path-point')
@@ -591,11 +591,11 @@ describe('FlightsController', () => {
                 ...mockPathPoint,
                 created_at: mockPathPoint.created_at.toISOString(),
             });
-            expect(mockFlightsService.addPathPoint).toHaveBeenCalledWith('1', addPathPointDto);
+            expect(mockMissionsService.addPathPoint).toHaveBeenCalledWith('1', addPathPointDto);
         });
 
         it('should return 404 when flight not found', async () => {
-            mockFlightsService.addPathPoint.mockRejectedValue(
+            mockMissionsService.addPathPoint.mockRejectedValue(
                 new HttpException('Flight not found', HttpStatus.NOT_FOUND),
             );
 
@@ -609,21 +609,21 @@ describe('FlightsController', () => {
                 statusCode: 404,
             });
 
-            expect(mockFlightsService.addPathPoint).toHaveBeenCalledWith('999', addPathPointDto);
+            expect(mockMissionsService.addPathPoint).toHaveBeenCalledWith('999', addPathPointDto);
         });
     });
 
     describe('DELETE /api/v1/flights/:id', () => {
         it('should delete flight successfully', async () => {
-            mockFlightsService.delete.mockResolvedValue(undefined);
+            mockMissionsService.delete.mockResolvedValue(undefined);
 
             await request(app.getHttpServer()).delete('/api/v1/flights/1').expect(200);
 
-            expect(mockFlightsService.delete).toHaveBeenCalledWith('1');
+            expect(mockMissionsService.delete).toHaveBeenCalledWith('1');
         });
 
         it('should return 404 when flight not found', async () => {
-            mockFlightsService.delete.mockRejectedValue(
+            mockMissionsService.delete.mockRejectedValue(
                 new HttpException('Flight not found', HttpStatus.NOT_FOUND),
             );
 
@@ -636,7 +636,7 @@ describe('FlightsController', () => {
                 statusCode: 404,
             });
 
-            expect(mockFlightsService.delete).toHaveBeenCalledWith('999');
+            expect(mockMissionsService.delete).toHaveBeenCalledWith('999');
         });
     });
 });

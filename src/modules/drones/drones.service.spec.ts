@@ -45,11 +45,11 @@ describe('DronesService', () => {
         const createDroneDto = {
             name: 'Test Drone',
             model: 'DJI Phantom 4',
-            serial_number: 'DRONE-001',
+            serialNumber: 'DRONE-001',
             status: DroneStatus.AVAILABLE,
-            max_payload: 1000,
-            battery_capacity: 100,
-            last_maintenance: new Date(),
+            maxPayload: 1000,
+            batteryCapacity: 100,
+            lastMaintenance: new Date(),
         };
 
         const mockDrone = {
@@ -73,7 +73,7 @@ describe('DronesService', () => {
 
             expect(result).toEqual(mockDrone);
             expect(mockDroneRepository.findBySerialNumber).toHaveBeenCalledWith(
-                createDroneDto.serial_number,
+                createDroneDto.serialNumber,
             );
             expect(mockDroneRepository.create).toHaveBeenCalledWith(createDroneDto);
         });
@@ -83,7 +83,7 @@ describe('DronesService', () => {
 
             await expect(service.create(createDroneDto)).rejects.toThrow(ConflictException);
             expect(mockDroneRepository.findBySerialNumber).toHaveBeenCalledWith(
-                createDroneDto.serial_number,
+                createDroneDto.serialNumber,
             );
         });
     });
@@ -235,7 +235,7 @@ describe('DronesService', () => {
 
         it('should throw ConflictException when serial number already exists', async () => {
             const updateWithSerialDto = {
-                serial_number: 'DRONE-002',
+                serialNumber: 'DRONE-002',
             };
 
             mockDroneRepository.findById.mockResolvedValue(existingDrone);
@@ -247,7 +247,7 @@ describe('DronesService', () => {
             await expect(service.update(1, updateWithSerialDto)).rejects.toThrow(ConflictException);
             expect(mockDroneRepository.findById).toHaveBeenCalledWith(1);
             expect(mockDroneRepository.findBySerialNumber).toHaveBeenCalledWith(
-                updateWithSerialDto.serial_number,
+                updateWithSerialDto.serialNumber,
             );
         });
 

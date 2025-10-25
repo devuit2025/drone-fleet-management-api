@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber } from 'class-validator';
 
-export class EndFlightDto {
+export class EndMissionDto {
     @ApiProperty({ description: 'Ending latitude' })
     @IsNumber()
     endLatitude: number;

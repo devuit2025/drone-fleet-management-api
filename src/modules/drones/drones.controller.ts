@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { DronesService } from './drones.service';
 import { DroneStatus } from '../../entities/drone.entity';
@@ -10,7 +10,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class DronesController {
-    constructor(private readonly dronesService: DronesService) {}
+    constructor(private readonly dronesService: DronesService) { }
 
     @Post()
     @ApiOperation({ summary: 'Create a new drone' })
@@ -65,7 +65,7 @@ export class DronesController {
         type: DroneResponseDto,
     })
     @ApiResponse({ status: 404, description: 'Drone not found' })
-    async findOne(@Param('id') id: number): Promise<DroneResponseDto> {
+    async findOne(@Param('id', ParseIntPipe) id: number): Promise<DroneResponseDto> {
         const drone = await this.dronesService.findById(id);
         return new DroneResponseDto(drone);
     }
@@ -75,7 +75,7 @@ export class DronesController {
     @ApiResponse({ status: 200, description: 'Drone updated successfully', type: DroneResponseDto })
     @ApiResponse({ status: 404, description: 'Drone not found' })
     async update(
-        @Param('id') id: number,
+        @Param('id', ParseIntPipe) id: number,
         @Body() updateDroneDto: UpdateDroneDto,
     ): Promise<DroneResponseDto> {
         const drone = await this.dronesService.update(id, updateDroneDto);
@@ -87,7 +87,7 @@ export class DronesController {
     @ApiResponse({ status: 200, description: 'Drone status updated successfully' })
     @ApiResponse({ status: 404, description: 'Drone not found' })
     async updateStatus(
-        @Param('id') id: number,
+        @Param('id', ParseIntPipe) id: number,
         @Body() updateStatusDto: UpdateStatusDto,
     ): Promise<void> {
         await this.dronesService.updateStatus(id, updateStatusDto);
@@ -97,7 +97,7 @@ export class DronesController {
     @ApiOperation({ summary: 'Delete drone' })
     @ApiResponse({ status: 200, description: 'Drone deleted successfully' })
     @ApiResponse({ status: 404, description: 'Drone not found' })
-    async remove(@Param('id') id: number): Promise<void> {
+    async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
         await this.dronesService.delete(id);
     }
 }

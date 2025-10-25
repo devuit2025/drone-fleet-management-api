@@ -4,21 +4,21 @@ import { FlightPathRepository } from '../../repositories/flight-path.repository'
 import { Mission, MissionStatus } from '../../entities/mission.entity';
 import { Waypoint } from '../../entities/waypoint.entity';
 import {
-    CreateFlightDto,
-    UpdateFlightDto,
-    StartFlightDto,
-    EndFlightDto,
+    CreateMissionDto,
+    UpdateMissionDto,
+    StartMissionDto,
+    EndMissionDto,
     AddPathPointDto,
 } from './dto';
 
 @Injectable()
-export class FlightsService {
+export class MissionsService {
     constructor(
         private readonly flightRepository: FlightRepository,
         private readonly flightPathRepository: FlightPathRepository,
-    ) {}
+    ) { }
 
-    async create(createFlightDto: CreateFlightDto): Promise<Mission> {
+    async create(createFlightDto: CreateMissionDto): Promise<Mission> {
         return await this.flightRepository.create({
             ...createFlightDto,
             start_time: new Date(createFlightDto.plannedStartTime),
@@ -37,7 +37,7 @@ export class FlightsService {
         return flight;
     }
 
-    async update(id: number, updateFlightDto: UpdateFlightDto): Promise<Mission> {
+    async update(id: number, updateFlightDto: UpdateMissionDto): Promise<Mission> {
         const flight = await this.findById(id);
 
         if (flight.status !== MissionStatus.PLANNED) {
@@ -82,7 +82,7 @@ export class FlightsService {
         return await this.flightRepository.findFlightsByDateRange(startDate, endDate);
     }
 
-    async startFlight(id: number, startFlightDto: StartFlightDto): Promise<void> {
+    async startFlight(id: number, startFlightDto: StartMissionDto): Promise<void> {
         const flight = await this.findById(id);
 
         if (flight.status !== MissionStatus.PLANNED) {
@@ -92,7 +92,7 @@ export class FlightsService {
         await this.flightRepository.startFlight(id);
     }
 
-    async endFlight(id: number, endFlightDto: EndFlightDto): Promise<void> {
+    async endFlight(id: number, endFlightDto: EndMissionDto): Promise<void> {
         const flight = await this.findById(id);
 
         if (flight.status !== MissionStatus.IN_PROGRESS) {

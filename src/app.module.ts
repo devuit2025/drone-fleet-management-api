@@ -5,7 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './modules/users/users.module';
 import { DronesModule } from './modules/drones/drones.module';
-import { FlightsModule } from './modules/flights/flights.module';
+import { MissionsModule } from './modules/missions/missions.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { LicensesModule } from './modules/licenses/licenses.module';
 import { PilotsModule } from './modules/pilots/pilots.module';
@@ -55,7 +55,7 @@ import { SeederModule } from './seeders/seeder.module';
         }),
         UsersModule,
         DronesModule,
-        FlightsModule,
+        MissionsModule,
         AuthModule,
         LicensesModule,
         PilotsModule,

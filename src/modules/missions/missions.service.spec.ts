@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
-import { FlightsService } from './flights.service';
+import { MissionsService } from './missions.service';
 import { FlightRepository } from '../../repositories/flight.repository';
 import { FlightPathRepository } from '../../repositories/flight-path.repository';
 import { MissionStatus } from '../../entities/mission.entity';
 
-describe('FlightsService', () => {
-    let service: FlightsService;
+describe('MissionsService', () => {
+    let service: MissionsService;
     let flightRepository: FlightRepository;
     let flightPathRepository: FlightPathRepository;
 
@@ -34,7 +34,7 @@ describe('FlightsService', () => {
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
-                FlightsService,
+                MissionsService,
                 {
                     provide: FlightRepository,
                     useValue: mockFlightRepository,
@@ -46,7 +46,7 @@ describe('FlightsService', () => {
             ],
         }).compile();
 
-        service = module.get<FlightsService>(FlightsService);
+        service = module.get<MissionsService>(MissionsService);
         flightRepository = module.get<FlightRepository>(FlightRepository);
         flightPathRepository = module.get<FlightPathRepository>(FlightPathRepository);
     });

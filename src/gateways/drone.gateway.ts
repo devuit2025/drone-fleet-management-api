@@ -10,13 +10,27 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
 import { DronesService } from '../modules/drones/drones.service';
-import { FlightsService } from '../modules/flights/flights.service';
+import { MissionsService } from '../modules/missions/missions.service';
 import { UpdateLocationDto, UpdateStatusDto } from '../modules/drones/dto';
-import { AddPathPointDto } from '../modules/flights/dto';
+import { AddPathPointDto } from '../modules/missions/dto';
 
 @WebSocketGateway({
     cors: {
-        origin: ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:8080', 'http://localhost:5500'],
+        origin: [
+            'http://localhost:5173',
+            'http://localhost:3000',
+            'http://localhost:8080',
+            'http://localhost:5500',
+            'http://127.0.0.1:5173',
+            'http://127.0.0.1:3000',
+            'http://127.0.0.1:8080',
+            'http://127.0.0.1:5500',
+            'http://localhost:4173',
+            'http://127.0.0.1:4173',
+            'file://'
+        ],
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
         credentials: true,
     },
     namespace: '/drone',
@@ -29,7 +43,7 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     constructor(
         private readonly dronesService: DronesService,
-        private readonly flightsService: FlightsService,
+        private readonly flightsService: MissionsService,
     ) { }
 
     handleConnection(client: Socket) {

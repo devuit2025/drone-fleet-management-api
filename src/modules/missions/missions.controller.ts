@@ -8,37 +8,38 @@ import {
     Delete,
     UseGuards,
     Query,
+    ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
-import { FlightsService } from './flights.service';
+import { MissionsService } from './missions.service';
 import { MissionStatus } from '../../entities/mission.entity';
 import {
-    CreateFlightDto,
-    UpdateFlightDto,
-    FlightResponseDto,
-    StartFlightDto,
-    EndFlightDto,
+    CreateMissionDto,
+    UpdateMissionDto,
+    MissionResponseDto,
+    StartMissionDto,
+    EndMissionDto,
     AddPathPointDto,
 } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-@ApiTags('Flights')
-@Controller('api/v1/flights')
+@ApiTags('Missions')
+@Controller('api/v1/missions')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-export class FlightsController {
-    constructor(private readonly flightsService: FlightsService) {}
+export class MissionsController {
+    constructor(private readonly missionsService: MissionsService) { }
 
     @Post()
-    @ApiOperation({ summary: 'Create a new flight' })
+    @ApiOperation({ summary: 'Create a new mission' })
     @ApiResponse({
         status: 201,
-        description: 'Flight created successfully',
-        type: FlightResponseDto,
+        description: 'Mission created successfully',
+        type: MissionResponseDto,
     })
-    async create(@Body() createFlightDto: CreateFlightDto): Promise<FlightResponseDto> {
-        const flight = await this.flightsService.create(createFlightDto);
-        return new FlightResponseDto(flight);
+    async create(@Body() createMissionDto: CreateMissionDto): Promise<MissionResponseDto> {
+        const mission = await this.missionsService.create(createMissionDto);
+        return new MissionResponseDto(mission);
     }
 
     @Get()
@@ -46,11 +47,11 @@ export class FlightsController {
     @ApiResponse({
         status: 200,
         description: 'Flights retrieved successfully',
-        type: [FlightResponseDto],
+        type: [MissionResponseDto],
     })
-    async findAll(): Promise<FlightResponseDto[]> {
-        const flights = await this.flightsService.findAll();
-        return flights.map(flight => new FlightResponseDto(flight));
+    async findAll(): Promise<MissionResponseDto[]> {
+        const flights = await this.missionsService.findAll();
+        return flights.map(flight => new MissionResponseDto(flight));
     }
 
     @Get('active')
@@ -58,11 +59,11 @@ export class FlightsController {
     @ApiResponse({
         status: 200,
         description: 'Active flights retrieved successfully',
-        type: [FlightResponseDto],
+        type: [MissionResponseDto],
     })
-    async findActive(): Promise<FlightResponseDto[]> {
-        const flights = await this.flightsService.findActiveFlights();
-        return flights.map(flight => new FlightResponseDto(flight));
+    async findActive(): Promise<MissionResponseDto[]> {
+        const flights = await this.missionsService.findActiveFlights();
+        return flights.map(flight => new MissionResponseDto(flight));
     }
 
     @Get('status/:status')
@@ -70,11 +71,11 @@ export class FlightsController {
     @ApiResponse({
         status: 200,
         description: 'Flights retrieved successfully',
-        type: [FlightResponseDto],
+        type: [MissionResponseDto],
     })
-    async findByStatus(@Param('status') status: MissionStatus): Promise<FlightResponseDto[]> {
-        const flights = await this.flightsService.findByStatus(status);
-        return flights.map(flight => new FlightResponseDto(flight));
+    async findByStatus(@Param('status') status: MissionStatus): Promise<MissionResponseDto[]> {
+        const flights = await this.missionsService.findByStatus(status);
+        return flights.map(flight => new MissionResponseDto(flight));
     }
 
     @Get('pilot/:pilotId')
@@ -82,11 +83,11 @@ export class FlightsController {
     @ApiResponse({
         status: 200,
         description: 'Flights retrieved successfully',
-        type: [FlightResponseDto],
+        type: [MissionResponseDto],
     })
-    async findByPilot(@Param('pilotId') pilotId: number): Promise<FlightResponseDto[]> {
-        const flights = await this.flightsService.findByPilot(pilotId);
-        return flights.map(flight => new FlightResponseDto(flight));
+    async findByPilot(@Param('pilotId', ParseIntPipe) pilotId: number): Promise<MissionResponseDto[]> {
+        const flights = await this.missionsService.findByPilot(pilotId);
+        return flights.map(flight => new MissionResponseDto(flight));
     }
 
     @Get('drone/:droneId')
@@ -94,11 +95,11 @@ export class FlightsController {
     @ApiResponse({
         status: 200,
         description: 'Flights retrieved successfully',
-        type: [FlightResponseDto],
+        type: [MissionResponseDto],
     })
-    async findByDrone(@Param('droneId') droneId: number): Promise<FlightResponseDto[]> {
-        const flights = await this.flightsService.findByDrone(droneId);
-        return flights.map(flight => new FlightResponseDto(flight));
+    async findByDrone(@Param('droneId', ParseIntPipe) droneId: number): Promise<MissionResponseDto[]> {
+        const flights = await this.missionsService.findByDrone(droneId);
+        return flights.map(flight => new MissionResponseDto(flight));
     }
 
     @Get('date-range')
@@ -106,19 +107,19 @@ export class FlightsController {
     @ApiResponse({
         status: 200,
         description: 'Flights retrieved successfully',
-        type: [FlightResponseDto],
+        type: [MissionResponseDto],
     })
     @ApiQuery({ name: 'startDate', description: 'Start date (ISO string)' })
     @ApiQuery({ name: 'endDate', description: 'End date (ISO string)' })
     async findByDateRange(
         @Query('startDate') startDate: string,
         @Query('endDate') endDate: string,
-    ): Promise<FlightResponseDto[]> {
-        const flights = await this.flightsService.findFlightsByDateRange(
+    ): Promise<MissionResponseDto[]> {
+        const flights = await this.missionsService.findFlightsByDateRange(
             new Date(startDate),
             new Date(endDate),
         );
-        return flights.map(flight => new FlightResponseDto(flight));
+        return flights.map(flight => new MissionResponseDto(flight));
     }
 
     @Get(':id')
@@ -126,19 +127,19 @@ export class FlightsController {
     @ApiResponse({
         status: 200,
         description: 'Flight retrieved successfully',
-        type: FlightResponseDto,
+        type: MissionResponseDto,
     })
     @ApiResponse({ status: 404, description: 'Flight not found' })
-    async findOne(@Param('id') id: number): Promise<FlightResponseDto> {
-        const flight = await this.flightsService.findById(id);
-        return new FlightResponseDto(flight);
+    async findOne(@Param('id', ParseIntPipe) id: number): Promise<MissionResponseDto> {
+        const flight = await this.missionsService.findById(id);
+        return new MissionResponseDto(flight);
     }
 
     @Get(':id/path')
     @ApiOperation({ summary: 'Get flight path' })
     @ApiResponse({ status: 200, description: 'Flight path retrieved successfully' })
-    async getFlightPath(@Param('id') id: number) {
-        return await this.flightsService.getFlightPath(id);
+    async getFlightPath(@Param('id', ParseIntPipe) id: number) {
+        return await this.missionsService.getFlightPath(id);
     }
 
     @Patch(':id')
@@ -146,15 +147,15 @@ export class FlightsController {
     @ApiResponse({
         status: 200,
         description: 'Flight updated successfully',
-        type: FlightResponseDto,
+        type: MissionResponseDto,
     })
     @ApiResponse({ status: 404, description: 'Flight not found' })
     async update(
-        @Param('id') id: number,
-        @Body() updateFlightDto: UpdateFlightDto,
-    ): Promise<FlightResponseDto> {
-        const flight = await this.flightsService.update(id, updateFlightDto);
-        return new FlightResponseDto(flight);
+        @Param('id', ParseIntPipe) id: number,
+        @Body() updateFlightDto: UpdateMissionDto,
+    ): Promise<MissionResponseDto> {
+        const flight = await this.missionsService.update(id, updateFlightDto);
+        return new MissionResponseDto(flight);
     }
 
     @Patch(':id/start')
@@ -162,33 +163,33 @@ export class FlightsController {
     @ApiResponse({ status: 200, description: 'Flight started successfully' })
     @ApiResponse({ status: 404, description: 'Flight not found' })
     async startFlight(
-        @Param('id') id: number,
-        @Body() startFlightDto: StartFlightDto,
+        @Param('id', ParseIntPipe) id: number,
+        @Body() startFlightDto: StartMissionDto,
     ): Promise<void> {
-        await this.flightsService.startFlight(id, startFlightDto);
+        await this.missionsService.startFlight(id, startFlightDto);
     }
 
     @Patch(':id/end')
     @ApiOperation({ summary: 'End flight' })
     @ApiResponse({ status: 200, description: 'Flight ended successfully' })
     @ApiResponse({ status: 404, description: 'Flight not found' })
-    async endFlight(@Param('id') id: number, @Body() endFlightDto: EndFlightDto): Promise<void> {
-        await this.flightsService.endFlight(id, endFlightDto);
+    async endFlight(@Param('id', ParseIntPipe) id: number, @Body() endFlightDto: EndMissionDto): Promise<void> {
+        await this.missionsService.endFlight(id, endFlightDto);
     }
 
     @Post(':id/path-point')
     @ApiOperation({ summary: 'Add path point to flight' })
     @ApiResponse({ status: 201, description: 'Path point added successfully' })
     @ApiResponse({ status: 404, description: 'Flight not found' })
-    async addPathPoint(@Param('id') id: number, @Body() addPathPointDto: AddPathPointDto) {
-        return await this.flightsService.addPathPoint(id, addPathPointDto);
+    async addPathPoint(@Param('id', ParseIntPipe) id: number, @Body() addPathPointDto: AddPathPointDto) {
+        return await this.missionsService.addPathPoint(id, addPathPointDto);
     }
 
     @Delete(':id')
     @ApiOperation({ summary: 'Delete flight' })
     @ApiResponse({ status: 200, description: 'Flight deleted successfully' })
     @ApiResponse({ status: 404, description: 'Flight not found' })
-    async remove(@Param('id') id: number): Promise<void> {
-        await this.flightsService.delete(id);
+    async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+        await this.missionsService.delete(id);
     }
 }

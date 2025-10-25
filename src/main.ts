@@ -13,12 +13,34 @@ async function bootstrap() {
         ? process.env.CORS_ORIGIN.split(',')
         : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:8080', 'http://localhost:5500'];
 
-    // Enable CORS
+    // Enable CORS with comprehensive settings
     app.enableCors({
-        origin: corsOrigins,
+        origin: [
+            'http://localhost:5173',
+            'http://localhost:3000',
+            'http://localhost:8080',
+            'http://localhost:5500',
+            'http://127.0.0.1:5173',
+            'http://127.0.0.1:3000',
+            'http://127.0.0.1:8080',
+            'http://127.0.0.1:5500',
+            'http://localhost:4173', // Vite preview
+            'http://127.0.0.1:4173',
+            'file://', // For local HTML files
+            ...corsOrigins
+        ],
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+        allowedHeaders: [
+            'Content-Type',
+            'Authorization',
+            'Accept',
+            'Origin',
+            'X-Requested-With',
+            'Access-Control-Allow-Origin',
+            'Access-Control-Allow-Headers',
+            'Access-Control-Allow-Methods'
+        ],
         preflightContinue: false,
         optionsSuccessStatus: 204,
     });

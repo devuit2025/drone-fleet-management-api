@@ -13,7 +13,7 @@ export class CreateDroneDto {
 
     @ApiProperty({ description: 'Drone serial number' })
     @IsString()
-    serial_number: string;
+    serialNumber: string;
 
     @ApiProperty({ description: 'Drone status', enum: DroneStatus, required: false })
     @IsOptional()
@@ -23,14 +23,14 @@ export class CreateDroneDto {
     @ApiProperty({ description: 'Maximum payload weight' })
     @IsNumber()
     @Min(0)
-    max_payload: number;
+    maxPayload: number;
 
     @ApiProperty({ description: 'Battery capacity' })
     @IsNumber()
     @Min(0)
-    battery_capacity: number;
+    batteryCapacity: number;
 
     @ApiProperty({ description: 'Last maintenance date', required: false })
     @IsOptional()
-    last_maintenance?: Date;
+    lastMaintenance?: Date;
 }

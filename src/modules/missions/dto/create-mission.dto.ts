@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional, IsInt, IsNumber, IsDateString, IsUUID, Min } from 'class-validator';
 
-export class CreateFlightDto {
-    @ApiProperty({ description: 'Flight name' })
+export class CreateMissionDto {
+    @ApiProperty({ description: 'Mission name' })
     @IsString()
     name: string;
 
-    @ApiProperty({ description: 'Flight description', required: false })
+    @ApiProperty({ description: 'Mission description', required: false })
     @IsOptional()
     @IsString()
     description?: string;
@@ -45,7 +45,7 @@ export class CreateFlightDto {
     @IsString()
     weatherConditions?: string;
 
-    @ApiProperty({ description: 'Flight notes', required: false })
+    @ApiProperty({ description: 'Mission notes', required: false })
     @IsOptional()
     @IsString()
     notes?: string;
