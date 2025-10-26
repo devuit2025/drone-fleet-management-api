@@ -1,5 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    CreateDateColumn,
+    ManyToOne,
+    JoinColumn,
+} from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Mission } from './mission.entity';
 
 @Entity('waypoints')
 export class Waypoint {
@@ -8,30 +16,34 @@ export class Waypoint {
     id: number;
 
     @ApiProperty({ description: 'Mission ID' })
-    @Column()
-    mission_id: number;
+    @Column({ name: 'mission_id' })
+    missionId: number;
+
+    @ManyToOne(() => Mission, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'mission_id' })
+    mission: Mission;
 
     @ApiProperty({ description: 'Sequence number' })
-    @Column()
-    seq_number: number;
+    @Column({ name: 'seq_number' })
+    seqNumber: number;
 
     @ApiProperty({ description: 'Geographic point (PostGIS Point SRID=4326)' })
-    @Column({ type: 'geometry', spatialFeatureType: 'Point', srid: 4326 })
-    geo_point: string;
+    @Column({ name: 'geo_point', type: 'geometry', spatialFeatureType: 'Point', srid: 4326 })
+    geoPoint: string;
 
     @ApiProperty({ description: 'Altitude in meters' })
-    @Column({ type: 'numeric' })
-    altitude_m: number;
+    @Column({ name: 'altitude_m', type: 'numeric' })
+    altitudeM: number;
 
     @ApiProperty({ description: 'Speed in meters per second' })
-    @Column({ type: 'numeric' })
-    speed_mps: number;
+    @Column({ name: 'speed_mps', type: 'numeric' })
+    speedMps: number;
 
     @ApiProperty({ description: 'Action to perform at waypoint' })
     @Column()
     action: string;
 
     @ApiProperty({ description: 'Creation date' })
-    @CreateDateColumn()
-    created_at: Date;
+    @CreateDateColumn({ name: 'created_at' })
+    createdAt: Date;
 }

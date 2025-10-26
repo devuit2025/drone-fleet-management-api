@@ -4,8 +4,10 @@ import {
     Column,
     CreateDateColumn,
     UpdateDateColumn,
+    OneToMany,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Waypoint } from './waypoint.entity';
 
 export enum MissionStatus {
     PLANNED = 'planned',
@@ -58,4 +60,7 @@ export class Mission {
     @ApiProperty({ description: 'Last update date' })
     @UpdateDateColumn({ name: 'updated_at' })
     updatedAt: Date;
+
+    @OneToMany(() => Waypoint, waypoint => waypoint.mission, { createForeignKeyConstraints: false })
+    waypoints: Waypoint[];
 }
