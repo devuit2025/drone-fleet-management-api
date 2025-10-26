@@ -17,6 +17,7 @@ import { DroneModelsModule } from './modules/drone-models/drone-models.module';
 import { DroneSensorsModule } from './modules/drone-sensors/drone-sensors.module';
 import { WaypointsModule } from './modules/waypoints/waypoints.module';
 import { MissionDronesModule } from './modules/mission-drones/mission-drones.module';
+import { TelemetryModule } from './modules/telemetry/telemetry.module';
 import { DroneGateway } from './gateways/drone.gateway';
 import { User } from './entities/user.entity';
 import { Pilot } from './entities/pilot.entity';
@@ -89,6 +90,7 @@ import { SeederModule } from './seeders/seeder.module';
         DroneSensorsModule,
         WaypointsModule,
         MissionDronesModule,
+        TelemetryModule,
         SeederModule,
     ],
     controllers: [AppController],

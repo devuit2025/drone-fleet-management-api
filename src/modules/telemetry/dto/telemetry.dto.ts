@@ -1,14 +1,15 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString, IsOptional, IsDateString, IsObject } from 'class-validator';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { IsNumber, IsString, IsOptional, IsDateString } from 'class-validator';
+import { Telemetry } from '../../../entities/telemetry.entity';
 
 export class CreateTelemetryDto {
   @ApiProperty({ description: 'Drone ID' })
   @IsNumber()
-  drone_id: number;
+  droneId: number;
 
   @ApiProperty({ description: 'Mission ID' })
   @IsNumber()
-  mission_id: number;
+  missionId: number;
 
   @ApiProperty({ description: 'Timestamp' })
   @IsDateString()
@@ -20,15 +21,15 @@ export class CreateTelemetryDto {
 
   @ApiProperty({ description: 'Altitude in meters' })
   @IsNumber()
-  altitude_m: number;
+  altitudeM: number;
 
   @ApiProperty({ description: 'Speed in meters per second' })
   @IsNumber()
-  speed_mps: number;
+  speedMps: number;
 
   @ApiProperty({ description: 'Battery percentage' })
   @IsNumber()
-  battery_pct: number;
+  batteryPct: number;
 
   @ApiProperty({ description: 'Status' })
   @IsString()
@@ -36,65 +37,20 @@ export class CreateTelemetryDto {
 
   @ApiProperty({ description: 'Payload weight' })
   @IsNumber()
-  payload_weight: number;
+  payloadWeight: number;
 }
 
-export class UpdateTelemetryDto {
-  @ApiProperty({ description: 'Drone ID', required: false })
-  @IsOptional()
-  @IsNumber()
-  drone_id?: number;
-
-  @ApiProperty({ description: 'Mission ID', required: false })
-  @IsOptional()
-  @IsNumber()
-  mission_id?: number;
-
-  @ApiProperty({ description: 'Timestamp', required: false })
-  @IsOptional()
-  @IsDateString()
-  timestamp?: string;
-
-  @ApiProperty({ description: 'Location (PostGIS Point SRID=4326)', required: false })
-  @IsOptional()
-  @IsString()
-  location?: string;
-
-  @ApiProperty({ description: 'Altitude in meters', required: false })
-  @IsOptional()
-  @IsNumber()
-  altitude_m?: number;
-
-  @ApiProperty({ description: 'Speed in meters per second', required: false })
-  @IsOptional()
-  @IsNumber()
-  speed_mps?: number;
-
-  @ApiProperty({ description: 'Battery percentage', required: false })
-  @IsOptional()
-  @IsNumber()
-  battery_pct?: number;
-
-  @ApiProperty({ description: 'Status', required: false })
-  @IsOptional()
-  @IsString()
-  status?: string;
-
-  @ApiProperty({ description: 'Payload weight', required: false })
-  @IsOptional()
-  @IsNumber()
-  payload_weight?: number;
-}
+export class UpdateTelemetryDto extends PartialType(CreateTelemetryDto) { }
 
 export class TelemetryResponseDto {
   @ApiProperty({ description: 'Telemetry ID' })
   id: number;
 
   @ApiProperty({ description: 'Drone ID' })
-  drone_id: number;
+  droneId: number;
 
   @ApiProperty({ description: 'Mission ID' })
-  mission_id: number;
+  missionId: number;
 
   @ApiProperty({ description: 'Timestamp' })
   timestamp: Date;
@@ -103,17 +59,30 @@ export class TelemetryResponseDto {
   location: string;
 
   @ApiProperty({ description: 'Altitude in meters' })
-  altitude_m: number;
+  altitudeM: number;
 
   @ApiProperty({ description: 'Speed in meters per second' })
-  speed_mps: number;
+  speedMps: number;
 
   @ApiProperty({ description: 'Battery percentage' })
-  battery_pct: number;
+  batteryPct: number;
 
   @ApiProperty({ description: 'Status' })
   status: string;
 
   @ApiProperty({ description: 'Payload weight' })
-  payload_weight: number;
+  payloadWeight: number;
+
+  constructor(telemetry: Telemetry) {
+    this.id = telemetry.id;
+    this.droneId = telemetry.droneId;
+    this.missionId = telemetry.missionId;
+    this.timestamp = telemetry.timestamp;
+    this.location = telemetry.location;
+    this.altitudeM = telemetry.altitudeM;
+    this.speedMps = telemetry.speedMps;
+    this.batteryPct = telemetry.batteryPct;
+    this.status = telemetry.status;
+    this.payloadWeight = telemetry.payloadWeight;
+  }
 }
