@@ -134,6 +134,43 @@ describe('MissionsController', () => {
 
             expect(Array.isArray(response.body)).toBe(true);
             expect(response.body.length).toBe(1);
+            expect(mockMissionsService.findAll).toHaveBeenCalledWith();
+        });
+
+        it('should return multiple missions', async () => {
+            const mockMissions = [
+                new MissionResponseDto({
+                    id: 2,
+                    pilotId: 1,
+                    licenseId: null,
+                    missionName: 'Mission 2',
+                    status: MissionStatus.PLANNED,
+                    startTime: null,
+                    endTime: null,
+                    createdAt: new Date('2023-02-01'),
+                    updatedAt: new Date(),
+                } as Mission),
+                new MissionResponseDto({
+                    id: 1,
+                    pilotId: 1,
+                    licenseId: null,
+                    missionName: 'Mission 1',
+                    status: MissionStatus.PLANNED,
+                    startTime: null,
+                    endTime: null,
+                    createdAt: new Date('2023-01-01'),
+                    updatedAt: new Date(),
+                } as Mission),
+            ];
+
+            mockMissionsService.findAll.mockResolvedValue(mockMissions);
+
+            const response = await request(app.getHttpServer())
+                .get('/api/v1/missions')
+                .expect(200);
+
+            expect(Array.isArray(response.body)).toBe(true);
+            expect(response.body.length).toBe(2);
             expect(mockMissionsService.findAll).toHaveBeenCalled();
         });
     });

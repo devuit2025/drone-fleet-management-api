@@ -3,12 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { NoFlyZone } from '../../entities/no-fly-zone.entity';
 import { CreateNoFlyZoneDto, UpdateNoFlyZoneDto } from './dto';
+import { NoFlyZoneRepository } from '../../repositories/no-fly-zone.repository';
 
 @Injectable()
 export class NoFlyZonesService {
   constructor(
     @InjectRepository(NoFlyZone)
     private readonly noFlyZoneRepository: Repository<NoFlyZone>,
+    private readonly noFlyZoneRepo: NoFlyZoneRepository,
   ) { }
 
   async create(createNoFlyZoneDto: CreateNoFlyZoneDto): Promise<NoFlyZone> {
@@ -22,7 +24,7 @@ export class NoFlyZonesService {
   }
 
   async findAll(): Promise<NoFlyZone[]> {
-    return await this.noFlyZoneRepository.find();
+    return await this.noFlyZoneRepo.findAll();
   }
 
   async findById(id: number): Promise<NoFlyZone> {

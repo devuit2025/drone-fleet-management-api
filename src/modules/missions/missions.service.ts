@@ -3,12 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Mission, MissionStatus } from '../../entities/mission.entity';
 import { CreateMissionDto, UpdateMissionDto } from './dto';
+import { MissionRepository } from '../../repositories/mission.repository';
 
 @Injectable()
 export class MissionsService {
     constructor(
         @InjectRepository(Mission)
         private readonly missionRepository: Repository<Mission>,
+        private readonly missionRepo: MissionRepository,
     ) { }
 
     async create(createMissionDto: CreateMissionDto): Promise<Mission> {
@@ -24,7 +26,7 @@ export class MissionsService {
     }
 
     async findAll(): Promise<Mission[]> {
-        return await this.missionRepository.find();
+        return await this.missionRepo.findAll();
     }
 
     async findById(id: number): Promise<Mission> {

@@ -3,12 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DroneSensor, SensorStatus } from '../../entities/drone-sensor.entity';
 import { CreateDroneSensorDto, UpdateDroneSensorDto } from './dto';
+import { DroneSensorRepository } from '../../repositories/drone-sensor.repository';
 
 @Injectable()
 export class DroneSensorsService {
   constructor(
     @InjectRepository(DroneSensor)
     private readonly droneSensorRepository: Repository<DroneSensor>,
+    private readonly droneSensorRepo: DroneSensorRepository,
   ) { }
 
   async create(createDroneSensorDto: CreateDroneSensorDto): Promise<DroneSensor> {
@@ -20,7 +22,7 @@ export class DroneSensorsService {
   }
 
   async findAll(): Promise<DroneSensor[]> {
-    return await this.droneSensorRepository.find({
+    return await this.droneSensorRepo.findAll({
       relations: ['drone'],
     });
   }

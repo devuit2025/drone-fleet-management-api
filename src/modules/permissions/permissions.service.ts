@@ -3,18 +3,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Permission } from '../../entities/permission.entity';
 import { CreatePermissionDto, UpdatePermissionDto } from './dto';
+import { PermissionRepository } from '../../repositories/permission.repository';
 
 @Injectable()
 export class PermissionsService {
   constructor(
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>,
+    private readonly permissionRepo: PermissionRepository,
   ) { }
 
   async create(createPermissionDto: CreatePermissionDto): Promise<Permission> {
-    const existingPermission = await this.permissionRepository.findOne({
-      where: { name: createPermissionDto.name },
-    });
+    const existingPermission = await this.permissionRepo.findByName(createPermissionDto.name);
     if (existingPermission) {
       throw new ConflictException('Permission with this name already exists');
     }
@@ -24,7 +24,7 @@ export class PermissionsService {
   }
 
   async findAll(): Promise<Permission[]> {
-    return await this.permissionRepository.find();
+    return await this.permissionRepo.findAll();
   }
 
   async findById(id: number): Promise<Permission> {
@@ -41,9 +41,7 @@ export class PermissionsService {
     const permission = await this.findById(id);
 
     if (updatePermissionDto.name && updatePermissionDto.name !== permission.name) {
-      const existingPermission = await this.permissionRepository.findOne({
-        where: { name: updatePermissionDto.name },
-      });
+      const existingPermission = await this.permissionRepo.findByName(updatePermissionDto.name);
       if (existingPermission) {
         throw new ConflictException('Permission with this name already exists');
       }

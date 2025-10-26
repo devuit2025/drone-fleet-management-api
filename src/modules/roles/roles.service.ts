@@ -4,20 +4,22 @@ import { Repository, In } from 'typeorm';
 import { Role } from '../../entities/role.entity';
 import { Permission } from '../../entities/permission.entity';
 import { CreateRoleDto, UpdateRoleDto } from './dto';
+import { RoleRepository } from '../../repositories/role.repository';
+import { PermissionRepository } from '../../repositories/permission.repository';
 
 @Injectable()
 export class RolesService {
   constructor(
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
+    private readonly roleRepo: RoleRepository,
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>,
+    private readonly permissionRepo: PermissionRepository,
   ) { }
 
   async create(createRoleDto: CreateRoleDto): Promise<Role> {
-    const existingRole = await this.roleRepository.findOne({
-      where: { name: createRoleDto.name },
-    });
+    const existingRole = await this.roleRepo.findByName(createRoleDto.name);
     if (existingRole) {
       throw new ConflictException('Role with this name already exists');
     }
@@ -38,8 +40,9 @@ export class RolesService {
   }
 
   async findAll(): Promise<Role[]> {
-    return await this.roleRepository.find({
+    return await this.roleRepo.findAll({
       relations: ['permissions'],
+      sort: 'name',
     });
   }
 
@@ -58,9 +61,7 @@ export class RolesService {
     const role = await this.findById(id);
 
     if (updateRoleDto.name && updateRoleDto.name !== role.name) {
-      const existingRole = await this.roleRepository.findOne({
-        where: { name: updateRoleDto.name },
-      });
+      const existingRole = await this.roleRepo.findByName(updateRoleDto.name);
       if (existingRole) {
         throw new ConflictException('Role with this name already exists');
       }

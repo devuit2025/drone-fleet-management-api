@@ -5,12 +5,14 @@ import { MissionDrone } from '../../entities/mission-drone.entity';
 import { Mission } from '../../entities/mission.entity';
 import { Drone } from '../../entities/drone.entity';
 import { CreateMissionDroneDto, UpdateMissionDroneDto } from './dto';
+import { MissionDroneRepository } from '../../repositories/mission-drone.repository';
 
 @Injectable()
 export class MissionDronesService {
   constructor(
     @InjectRepository(MissionDrone)
     private readonly missionDroneRepository: Repository<MissionDrone>,
+    private readonly missionDroneRepo: MissionDroneRepository,
     @InjectRepository(Mission)
     private readonly missionRepository: Repository<Mission>,
     @InjectRepository(Drone)
@@ -50,7 +52,7 @@ export class MissionDronesService {
   }
 
   async findAll(): Promise<MissionDrone[]> {
-    return await this.missionDroneRepository.find({
+    return await this.missionDroneRepo.findAll({
       relations: ['mission', 'drone'],
     });
   }
@@ -67,17 +69,11 @@ export class MissionDronesService {
   }
 
   async findByMission(missionId: number): Promise<MissionDrone[]> {
-    return await this.missionDroneRepository.find({
-      where: { missionId },
-      relations: ['mission', 'drone'],
-    });
+    return await this.missionDroneRepo.findByMissionId(missionId);
   }
 
   async findByDrone(droneId: number): Promise<MissionDrone[]> {
-    return await this.missionDroneRepository.find({
-      where: { droneId },
-      relations: ['mission', 'drone'],
-    });
+    return await this.missionDroneRepo.findByDroneId(droneId);
   }
 
   async update(id: number, updateMissionDroneDto: UpdateMissionDroneDto): Promise<MissionDrone> {

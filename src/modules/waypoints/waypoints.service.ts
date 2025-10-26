@@ -3,12 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Waypoint } from '../../entities/waypoint.entity';
 import { CreateWaypointDto, UpdateWaypointDto } from './dto';
+import { WaypointRepository } from '../../repositories/waypoint.repository';
 
 @Injectable()
 export class WaypointsService {
   constructor(
     @InjectRepository(Waypoint)
     private readonly waypointRepository: Repository<Waypoint>,
+    private readonly waypointRepo: WaypointRepository,
   ) { }
 
   async create(createWaypointDto: CreateWaypointDto): Promise<Waypoint> {
@@ -24,8 +26,8 @@ export class WaypointsService {
   }
 
   async findAll(): Promise<Waypoint[]> {
-    return await this.waypointRepository.find({
-      order: { missionId: 'ASC', seqNumber: 'ASC' },
+    return await this.waypointRepo.findAll({
+      sort: 'missionId,seqNumber',
     });
   }
 
@@ -40,10 +42,7 @@ export class WaypointsService {
   }
 
   async findByMissionId(missionId: number): Promise<Waypoint[]> {
-    return await this.waypointRepository.find({
-      where: { missionId },
-      order: { seqNumber: 'ASC' },
-    });
+    return await this.waypointRepo.findByMissionId(missionId);
   }
 
   async update(id: number, updateWaypointDto: UpdateWaypointDto): Promise<Waypoint> {

@@ -69,19 +69,11 @@ export class TelemetryService {
   }
 
   async findByDrone(droneId: number): Promise<Telemetry[]> {
-    return await this.telemetryRepository.find({
-      where: { droneId },
-      relations: ['mission', 'drone'],
-      order: { timestamp: 'DESC' },
-    });
+    return await this.telemetryRepo.findByDroneId(droneId);
   }
 
   async findByMission(missionId: number): Promise<Telemetry[]> {
-    return await this.telemetryRepository.find({
-      where: { missionId },
-      relations: ['mission', 'drone'],
-      order: { timestamp: 'ASC' },
-    });
+    return await this.telemetryRepo.findByMissionId(missionId);
   }
 
   async update(id: number, updateTelemetryDto: UpdateTelemetryDto): Promise<Telemetry> {

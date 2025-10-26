@@ -3,12 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DroneModel } from '../../entities/drone-model.entity';
 import { CreateDroneModelDto, UpdateDroneModelDto } from './dto';
+import { DroneModelRepository } from '../../repositories/drone-model.repository';
 
 @Injectable()
 export class DroneModelsService {
   constructor(
     @InjectRepository(DroneModel)
     private readonly droneModelRepository: Repository<DroneModel>,
+    private readonly droneModelRepo: DroneModelRepository,
   ) { }
 
   async create(createDroneModelDto: CreateDroneModelDto): Promise<DroneModel> {
@@ -24,7 +26,7 @@ export class DroneModelsService {
   }
 
   async findAll(): Promise<DroneModel[]> {
-    return await this.droneModelRepository.find({
+    return await this.droneModelRepo.findAll({
       relations: ['brand', 'category'],
     });
   }

@@ -3,18 +3,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DroneCategory } from '../../entities/drone-category.entity';
 import { CreateDroneCategoryDto, UpdateDroneCategoryDto } from './dto';
+import { DroneCategoryRepository } from '../../repositories/drone-category.repository';
 
 @Injectable()
 export class DroneCategoriesService {
   constructor(
     @InjectRepository(DroneCategory)
     private readonly droneCategoryRepository: Repository<DroneCategory>,
+    private readonly droneCategoryRepo: DroneCategoryRepository,
   ) { }
 
   async create(createDroneCategoryDto: CreateDroneCategoryDto): Promise<DroneCategory> {
-    const existingCategory = await this.droneCategoryRepository.findOne({
-      where: { name: createDroneCategoryDto.name },
-    });
+    const existingCategory = await this.droneCategoryRepo.findByName(createDroneCategoryDto.name);
     if (existingCategory) {
       throw new ConflictException('Category with this name already exists');
     }
@@ -24,7 +24,7 @@ export class DroneCategoriesService {
   }
 
   async findAll(): Promise<DroneCategory[]> {
-    return await this.droneCategoryRepository.find();
+    return await this.droneCategoryRepo.findAll();
   }
 
   async findById(id: number): Promise<DroneCategory> {
@@ -44,9 +44,7 @@ export class DroneCategoriesService {
     const droneCategory = await this.findById(id);
 
     if (updateDroneCategoryDto.name && updateDroneCategoryDto.name !== droneCategory.name) {
-      const existingCategory = await this.droneCategoryRepository.findOne({
-        where: { name: updateDroneCategoryDto.name },
-      });
+      const existingCategory = await this.droneCategoryRepo.findByName(updateDroneCategoryDto.name);
       if (existingCategory) {
         throw new ConflictException('Category with this name already exists');
       }
