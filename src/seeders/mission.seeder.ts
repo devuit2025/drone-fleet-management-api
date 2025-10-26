@@ -15,7 +15,7 @@ export class MissionSeeder {
         private readonly pilotRepository: Repository<Pilot>,
         @InjectRepository(License)
         private readonly licenseRepository: Repository<License>,
-    ) {}
+    ) { }
 
     async seed(): Promise<void> {
         console.log('🌱 Seeding Missions...');
@@ -71,12 +71,12 @@ export class MissionSeeder {
             }
 
             missions.push({
-                pilot_id: pilot.id,
-                license_id: license.id,
-                mission_name: `${faker.helpers.arrayElement(missionTypes)} Mission ${i + 1}`,
+                pilotId: pilot.id,
+                licenseId: license.id,
+                missionName: `${faker.helpers.arrayElement(missionTypes)} Mission ${i + 1}`,
                 status,
-                start_time: startTime,
-                end_time: endTime,
+                startTime,
+                endTime,
             });
         }
 

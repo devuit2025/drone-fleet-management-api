@@ -39,7 +39,7 @@ export class NoFakerSeeder {
         private readonly missionReportRepository: Repository<MissionReport>,
         @InjectRepository(Simulation)
         private readonly simulationRepository: Repository<Simulation>,
-    ) {}
+    ) { }
 
     async seed(): Promise<void> {
         console.log('🌱 Seeding database without faker...');
@@ -182,30 +182,33 @@ export class NoFakerSeeder {
 
         const drones: Partial<Drone>[] = [
             {
+                modelId: 1,
                 name: 'Phantom 4 Drone',
                 serialNumber: 'DRONE-001',
-                model: 'DJI Phantom 4',
                 status: DroneStatus.AVAILABLE,
-                maxPayload: 1000,
-                batteryCapacity: 100,
+                firmwareVersion: '1.0.0',
+                batteryHealth: 100,
+                totalFlightHours: 0,
                 lastMaintenance: new Date('2024-01-01'),
             },
             {
+                modelId: 1,
                 name: 'Mavic Pro Drone',
                 serialNumber: 'DRONE-002',
-                model: 'DJI Mavic Pro',
                 status: DroneStatus.AVAILABLE,
-                maxPayload: 500,
-                batteryCapacity: 100,
+                firmwareVersion: '1.0.0',
+                batteryHealth: 100,
+                totalFlightHours: 5,
                 lastMaintenance: new Date('2024-01-15'),
             },
             {
+                modelId: 1,
                 name: 'Inspire 2 Drone',
                 serialNumber: 'DRONE-003',
-                model: 'DJI Inspire 2',
                 status: DroneStatus.IN_MISSION,
-                maxPayload: 2000,
-                batteryCapacity: 85,
+                firmwareVersion: '1.0.0',
+                batteryHealth: 85,
+                totalFlightHours: 100,
                 lastMaintenance: new Date('2024-02-01'),
             },
         ];
@@ -233,28 +236,28 @@ export class NoFakerSeeder {
 
         const missions: Partial<Mission>[] = [
             {
-                pilot_id: pilots[0].id,
-                license_id: licenses[0].id,
-                mission_name: 'Surveillance Mission 1',
+                pilotId: pilots[0].id,
+                licenseId: licenses[0].id,
+                missionName: 'Surveillance Mission 1',
                 status: MissionStatus.COMPLETED,
-                start_time: new Date('2024-01-01T08:00:00'),
-                end_time: new Date('2024-01-01T10:00:00'),
+                startTime: new Date('2024-01-01T08:00:00'),
+                endTime: new Date('2024-01-01T10:00:00'),
             },
             {
-                pilot_id: pilots[1]?.id || pilots[0].id,
-                license_id: licenses[1]?.id || licenses[0].id,
-                mission_name: 'Delivery Mission 1',
+                pilotId: pilots[1]?.id || pilots[0].id,
+                licenseId: licenses[1]?.id || licenses[0].id,
+                missionName: 'Delivery Mission 1',
                 status: MissionStatus.IN_PROGRESS,
-                start_time: new Date('2024-01-02T09:00:00'),
-                end_time: null,
+                startTime: new Date('2024-01-02T09:00:00'),
+                endTime: null,
             },
             {
-                pilot_id: pilots[0].id,
-                license_id: licenses[0].id,
-                mission_name: 'Mapping Mission 1',
+                pilotId: pilots[0].id,
+                licenseId: licenses[0].id,
+                missionName: 'Mapping Mission 1',
                 status: MissionStatus.PLANNED,
-                start_time: new Date('2024-01-03T10:00:00'),
-                end_time: null,
+                startTime: new Date('2024-01-03T10:00:00'),
+                endTime: null,
             },
         ];
 
@@ -427,8 +430,8 @@ export class NoFakerSeeder {
                         i === 0
                             ? 'Mission started successfully'
                             : i === 4
-                              ? 'Mission completed successfully'
-                              : `Waypoint ${i} reached`,
+                                ? 'Mission completed successfully'
+                                : `Waypoint ${i} reached`,
                 });
             }
         });

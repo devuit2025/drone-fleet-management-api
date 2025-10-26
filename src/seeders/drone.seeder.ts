@@ -9,7 +9,7 @@ export class DroneSeeder {
     constructor(
         @InjectRepository(Drone)
         private readonly droneRepository: Repository<Drone>,
-    ) {}
+    ) { }
 
     async seed(): Promise<void> {
         console.log('🌱 Seeding Drones...');
@@ -42,28 +42,31 @@ export class DroneSeeder {
         // Create predefined drones
         const predefinedDrones = [
             {
+                modelId: 1,
                 name: 'Drone Alpha',
-                model: 'DJI Phantom 4 Pro',
                 serialNumber: 'DJI001',
-                maxPayload: 500,
-                batteryCapacity: 100,
                 status: DroneStatus.AVAILABLE,
+                firmwareVersion: '1.0.0',
+                batteryHealth: 100,
+                totalFlightHours: 0,
             },
             {
+                modelId: 1,
                 name: 'Drone Beta',
-                model: 'DJI Mavic 3 Pro',
                 serialNumber: 'DJI002',
-                maxPayload: 300,
-                batteryCapacity: 95,
                 status: DroneStatus.AVAILABLE,
+                firmwareVersion: '1.0.0',
+                batteryHealth: 95,
+                totalFlightHours: 10,
             },
             {
+                modelId: 1,
                 name: 'Drone Gamma',
-                model: 'DJI Air 3',
                 serialNumber: 'DJI003',
-                maxPayload: 200,
-                batteryCapacity: 85,
                 status: DroneStatus.MAINTENANCE,
+                firmwareVersion: '1.0.0',
+                batteryHealth: 85,
+                totalFlightHours: 50,
             },
         ];
 
@@ -71,16 +74,18 @@ export class DroneSeeder {
 
         // Generate additional random drones
         for (let i = 4; i <= 15; i++) {
-            const model = faker.helpers.arrayElement(droneModels);
             const status = faker.helpers.arrayElement(Object.values(DroneStatus));
 
             drones.push({
+                modelId: 1,
                 name: `Drone ${faker.person.firstName()}`,
-                model,
                 serialNumber: `DRN${String(i).padStart(3, '0')}`,
-                maxPayload: faker.number.int({ min: 100, max: 1000 }),
-                batteryCapacity: faker.number.int({ min: 50, max: 100 }),
                 status,
+                firmwareVersion: faker.helpers.maybe(() => faker.system.semver(), {
+                    probability: 0.8,
+                }),
+                batteryHealth: faker.number.int({ min: 50, max: 100 }),
+                totalFlightHours: faker.number.int({ min: 0, max: 1000 }),
                 lastMaintenance: faker.helpers.maybe(() => faker.date.past({ years: 1 }), {
                     probability: 0.7,
                 }),
