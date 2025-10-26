@@ -15,17 +15,17 @@ export class UserResponseDto {
     role: UserRole;
 
     @ApiProperty({ description: 'Creation date' })
-    created_at: Date;
+    createdAt: Date;
 
     @ApiProperty({ description: 'Last update date' })
-    updated_at: Date;
+    updatedAt: Date;
 
     constructor(user: User) {
         this.id = user.id;
         this.name = user.name;
         this.email = user.email;
         this.role = user.role;
-        this.created_at = user.created_at;
-        this.updated_at = user.updated_at;
+        this.createdAt = user.createdAt;
+        this.updatedAt = user.updatedAt;
     }
 }

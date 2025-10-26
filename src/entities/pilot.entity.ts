@@ -19,8 +19,8 @@ export class Pilot {
     id: number;
 
     @ApiProperty({ description: 'User ID' })
-    @Column()
-    user_id: number;
+    @Column({ name: 'user_id' })
+    userId: number;
 
     @ApiProperty({ description: 'Pilot name' })
     @Column()
@@ -35,10 +35,10 @@ export class Pilot {
     status: PilotStatus;
 
     @ApiProperty({ description: 'Creation date' })
-    @CreateDateColumn()
-    created_at: Date;
+    @CreateDateColumn({ name: 'created_at' })
+    createdAt: Date;
 
     @ApiProperty({ description: 'Last update date' })
-    @UpdateDateColumn()
-    updated_at: Date;
+    @UpdateDateColumn({ name: 'updated_at' })
+    updatedAt: Date;
 }

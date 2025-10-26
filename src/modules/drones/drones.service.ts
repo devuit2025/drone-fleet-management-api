@@ -18,11 +18,11 @@ export class DronesService {
         const droneData = {
             name: createDroneDto.name,
             model: createDroneDto.model,
-            serial_number: createDroneDto.serialNumber,
+            serialNumber: createDroneDto.serialNumber,
             status: createDroneDto.status || DroneStatus.AVAILABLE,
-            max_payload: createDroneDto.maxPayload,
-            battery_capacity: createDroneDto.batteryCapacity,
-            last_maintenance: createDroneDto.lastMaintenance,
+            maxPayload: createDroneDto.maxPayload,
+            batteryCapacity: createDroneDto.batteryCapacity,
+            lastMaintenance: createDroneDto.lastMaintenance,
         };
 
         return await this.droneRepository.create(droneData);
@@ -51,7 +51,7 @@ export class DronesService {
     async update(id: number, updateDroneDto: UpdateDroneDto): Promise<Drone> {
         const drone = await this.findById(id);
 
-        if (updateDroneDto.serialNumber && updateDroneDto.serialNumber !== drone.serial_number) {
+        if (updateDroneDto.serialNumber && updateDroneDto.serialNumber !== drone.serialNumber) {
             const existingDrone = await this.droneRepository.findBySerialNumber(
                 updateDroneDto.serialNumber,
             );
@@ -62,10 +62,6 @@ export class DronesService {
 
         const updateData = {
             ...updateDroneDto,
-            serial_number: updateDroneDto.serialNumber,
-            max_payload: updateDroneDto.maxPayload,
-            battery_capacity: updateDroneDto.batteryCapacity,
-            last_maintenance: updateDroneDto.lastMaintenance,
         };
 
         return await this.droneRepository.update(id, updateData);

@@ -63,8 +63,8 @@ describe('UsersController', () => {
             email: 'test@example.com',
             password: 'hashed-password',
             role: UserRole.OPERATOR,
-            created_at: new Date(),
-            updated_at: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
         };
 
         it('should create a new user successfully', async () => {
@@ -80,8 +80,8 @@ describe('UsersController', () => {
                 name: mockUser.name,
                 email: mockUser.email,
                 role: mockUser.role,
-                created_at: mockUser.created_at.toISOString(),
-                updated_at: mockUser.updated_at.toISOString(),
+                createdAt: mockUser.createdAt.toISOString(),
+                updatedAt: mockUser.updatedAt.toISOString(),
             });
 
             expect(mockUsersService.create).toHaveBeenCalledWith(createUserDto);
@@ -131,16 +131,16 @@ describe('UsersController', () => {
                 name: 'User 1',
                 email: 'user1@example.com',
                 role: UserRole.ADMIN,
-                created_at: new Date(),
-                updated_at: new Date(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
             },
             {
                 id: 2,
                 name: 'User 2',
                 email: 'user2@example.com',
                 role: UserRole.OPERATOR,
-                created_at: new Date(),
-                updated_at: new Date(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
             },
         ];
 
@@ -155,8 +155,8 @@ describe('UsersController', () => {
                 name: mockUsers[0].name,
                 email: mockUsers[0].email,
                 role: mockUsers[0].role,
-                created_at: mockUsers[0].created_at.toISOString(),
-                updated_at: mockUsers[0].updated_at.toISOString(),
+                createdAt: mockUsers[0].createdAt.toISOString(),
+                updatedAt: mockUsers[0].updatedAt.toISOString(),
             });
 
             expect(mockUsersService.findAll).toHaveBeenCalled();
@@ -169,8 +169,8 @@ describe('UsersController', () => {
             name: 'Test User',
             email: 'test@example.com',
             role: UserRole.OPERATOR,
-            created_at: new Date(),
-            updated_at: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
         };
 
         it('should return user by ID', async () => {
@@ -183,8 +183,8 @@ describe('UsersController', () => {
                 name: mockUser.name,
                 email: mockUser.email,
                 role: mockUser.role,
-                created_at: mockUser.created_at.toISOString(),
-                updated_at: mockUser.updated_at.toISOString(),
+                createdAt: mockUser.createdAt.toISOString(),
+                updatedAt: mockUser.updatedAt.toISOString(),
             });
 
             expect(mockUsersService.findById).toHaveBeenCalledWith('1');
@@ -219,8 +219,8 @@ describe('UsersController', () => {
             name: 'Updated User',
             email: 'updated@example.com',
             role: UserRole.OPERATOR,
-            created_at: new Date(),
-            updated_at: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
         };
 
         it('should update user successfully', async () => {
@@ -236,8 +236,8 @@ describe('UsersController', () => {
                 name: mockUpdatedUser.name,
                 email: mockUpdatedUser.email,
                 role: mockUpdatedUser.role,
-                created_at: mockUpdatedUser.created_at.toISOString(),
-                updated_at: mockUpdatedUser.updated_at.toISOString(),
+                createdAt: mockUpdatedUser.createdAt.toISOString(),
+                updatedAt: mockUpdatedUser.updatedAt.toISOString(),
             });
 
             expect(mockUsersService.update).toHaveBeenCalledWith('1', updateUserDto);

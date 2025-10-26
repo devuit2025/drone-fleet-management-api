@@ -9,6 +9,8 @@ import { MissionsModule } from './modules/missions/missions.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { LicensesModule } from './modules/licenses/licenses.module';
 import { PilotsModule } from './modules/pilots/pilots.module';
+import { RolesModule } from './modules/roles/roles.module';
+import { PermissionsModule } from './modules/permissions/permissions.module';
 import { DroneGateway } from './gateways/drone.gateway';
 import { User } from './entities/user.entity';
 import { Pilot } from './entities/pilot.entity';
@@ -22,6 +24,8 @@ import { NoFlyZone } from './entities/no-fly-zone.entity';
 import { FlightLog } from './entities/flight-log.entity';
 import { MissionReport } from './entities/mission-report.entity';
 import { Simulation } from './entities/simulation.entity';
+import { Role } from './entities/role.entity';
+import { Permission } from './entities/permission.entity';
 import { SeederModule } from './seeders/seeder.module';
 
 @Module({
@@ -49,6 +53,8 @@ import { SeederModule } from './seeders/seeder.module';
                 FlightLog,
                 MissionReport,
                 Simulation,
+                Role,
+                Permission,
             ],
             synchronize: process.env.NODE_ENV !== 'production',
             logging: process.env.NODE_ENV === 'development',
@@ -59,6 +65,8 @@ import { SeederModule } from './seeders/seeder.module';
         AuthModule,
         LicensesModule,
         PilotsModule,
+        RolesModule,
+        PermissionsModule,
         SeederModule,
     ],
     controllers: [AppController],

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString, IsOptional, IsEnum } from 'class-validator';
-import { PilotStatus } from '../../../entities/pilot.entity';
+import { Pilot, PilotStatus } from '../../../entities/pilot.entity';
 
 export class CreatePilotDto {
   @ApiProperty({ description: 'User ID' })
@@ -52,4 +52,13 @@ export class PilotResponseDto {
 
   @ApiProperty({ description: 'Last update date' })
   updatedAt: Date;
+
+  constructor(pilot: Pilot) {
+    this.id = pilot.id;
+    this.userId = pilot.userId;
+    this.name = pilot.name;
+    this.status = pilot.status;
+    this.createdAt = pilot.createdAt;
+    this.updatedAt = pilot.updatedAt;
+  }
 }

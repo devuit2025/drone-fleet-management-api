@@ -80,7 +80,7 @@ describe('MissionsController', () => {
         await app.close();
     });
 
-    describe('POST /api/v1/flights', () => {
+    describe('POST /api/v1/missions', () => {
         const createFlightDto = {
             name: 'Test Flight',
             description: 'Test flight description',
@@ -103,15 +103,15 @@ describe('MissionsController', () => {
             status: MissionStatus.PLANNED,
             start_time: new Date('2024-01-01T08:00:00Z'),
             end_time: null,
-            created_at: new Date(),
-            updated_at: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
         };
 
         it('should create a new flight successfully', async () => {
             mockMissionsService.create.mockResolvedValue(mockFlight);
 
             const response = await request(app.getHttpServer())
-                .post('/api/v1/flights')
+                .post('/api/v1/missions')
                 .send(createFlightDto)
                 .expect(201);
 
@@ -123,8 +123,8 @@ describe('MissionsController', () => {
                 status: mockFlight.status,
                 start_time: mockFlight.start_time.toISOString(),
                 end_time: mockFlight.end_time,
-                created_at: mockFlight.created_at.toISOString(),
-                updated_at: mockFlight.updated_at.toISOString(),
+                createdAt: mockFlight.createdAt.toISOString(),
+                updatedAt: mockFlight.updatedAt.toISOString(),
             });
 
             expect(mockMissionsService.create).toHaveBeenCalledWith(createFlightDto);
@@ -140,11 +140,11 @@ describe('MissionsController', () => {
                 startAltitude: 'invalid-alt',
             };
 
-            await request(app.getHttpServer()).post('/api/v1/flights').send(invalidDto).expect(400);
+            await request(app.getHttpServer()).post('/api/v1/missions').send(invalidDto).expect(400);
         });
     });
 
-    describe('GET /api/v1/flights', () => {
+    describe('GET /api/v1/missions', () => {
         const mockFlights = [
             {
                 id: 1,
@@ -154,8 +154,8 @@ describe('MissionsController', () => {
                 status: MissionStatus.COMPLETED,
                 start_time: new Date('2024-01-01T08:00:00Z'),
                 end_time: new Date('2024-01-01T10:00:00Z'),
-                created_at: new Date(),
-                updated_at: new Date(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
             },
             {
                 id: 2,
@@ -165,15 +165,15 @@ describe('MissionsController', () => {
                 status: MissionStatus.IN_PROGRESS,
                 start_time: new Date('2024-01-02T09:00:00Z'),
                 end_time: null,
-                created_at: new Date(),
-                updated_at: new Date(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
             },
         ];
 
         it('should return all flights', async () => {
             mockMissionsService.findAll.mockResolvedValue(mockFlights);
 
-            const response = await request(app.getHttpServer()).get('/api/v1/flights').expect(200);
+            const response = await request(app.getHttpServer()).get('/api/v1/missions').expect(200);
 
             expect(response.body).toHaveLength(2);
             expect(response.body[0]).toEqual({
@@ -184,15 +184,15 @@ describe('MissionsController', () => {
                 status: mockFlights[0].status,
                 start_time: mockFlights[0].start_time.toISOString(),
                 end_time: mockFlights[0].end_time?.toISOString(),
-                created_at: mockFlights[0].created_at.toISOString(),
-                updated_at: mockFlights[0].updated_at.toISOString(),
+                createdAt: mockFlights[0].createdAt.toISOString(),
+                updatedAt: mockFlights[0].updatedAt.toISOString(),
             });
 
             expect(mockMissionsService.findAll).toHaveBeenCalled();
         });
     });
 
-    describe('GET /api/v1/flights/active', () => {
+    describe('GET /api/v1/missions/active', () => {
         const mockActiveFlights = [
             {
                 id: 1,
@@ -202,8 +202,8 @@ describe('MissionsController', () => {
                 status: MissionStatus.IN_PROGRESS,
                 start_time: new Date('2024-01-01T08:00:00Z'),
                 end_time: null,
-                created_at: new Date(),
-                updated_at: new Date(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
             },
         ];
 
@@ -211,7 +211,7 @@ describe('MissionsController', () => {
             mockMissionsService.findActiveFlights.mockResolvedValue(mockActiveFlights);
 
             const response = await request(app.getHttpServer())
-                .get('/api/v1/flights/active')
+                .get('/api/v1/missions/active')
                 .expect(200);
 
             expect(response.body).toHaveLength(1);
@@ -220,7 +220,7 @@ describe('MissionsController', () => {
         });
     });
 
-    describe('GET /api/v1/flights/status/:status', () => {
+    describe('GET /api/v1/missions/status/:status', () => {
         const mockFlightsByStatus = [
             {
                 id: 1,
@@ -230,8 +230,8 @@ describe('MissionsController', () => {
                 status: MissionStatus.PLANNED,
                 start_time: new Date('2024-01-01T08:00:00Z'),
                 end_time: null,
-                created_at: new Date(),
-                updated_at: new Date(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
             },
         ];
 
@@ -239,7 +239,7 @@ describe('MissionsController', () => {
             mockMissionsService.findByStatus.mockResolvedValue(mockFlightsByStatus);
 
             const response = await request(app.getHttpServer())
-                .get('/api/v1/flights/status/planned')
+                .get('/api/v1/missions/status/planned')
                 .expect(200);
 
             expect(response.body).toHaveLength(1);
@@ -248,7 +248,7 @@ describe('MissionsController', () => {
         });
     });
 
-    describe('GET /api/v1/flights/pilot/:pilotId', () => {
+    describe('GET /api/v1/missions/pilot/:pilotId', () => {
         const mockPilotFlights = [
             {
                 id: 1,
@@ -258,8 +258,8 @@ describe('MissionsController', () => {
                 status: MissionStatus.COMPLETED,
                 start_time: new Date('2024-01-01T08:00:00Z'),
                 end_time: new Date('2024-01-01T10:00:00Z'),
-                created_at: new Date(),
-                updated_at: new Date(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
             },
         ];
 
@@ -267,7 +267,7 @@ describe('MissionsController', () => {
             mockMissionsService.findByPilot.mockResolvedValue(mockPilotFlights);
 
             const response = await request(app.getHttpServer())
-                .get('/api/v1/flights/pilot/1')
+                .get('/api/v1/missions/pilot/1')
                 .expect(200);
 
             expect(response.body).toHaveLength(1);
@@ -276,7 +276,7 @@ describe('MissionsController', () => {
         });
     });
 
-    describe('GET /api/v1/flights/drone/:droneId', () => {
+    describe('GET /api/v1/missions/drone/:droneId', () => {
         const mockDroneFlights = [
             {
                 id: 1,
@@ -286,8 +286,8 @@ describe('MissionsController', () => {
                 status: MissionStatus.COMPLETED,
                 start_time: new Date('2024-01-01T08:00:00Z'),
                 end_time: new Date('2024-01-01T10:00:00Z'),
-                created_at: new Date(),
-                updated_at: new Date(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
             },
         ];
 
@@ -295,7 +295,7 @@ describe('MissionsController', () => {
             mockMissionsService.findByDrone.mockResolvedValue(mockDroneFlights);
 
             const response = await request(app.getHttpServer())
-                .get('/api/v1/flights/drone/1')
+                .get('/api/v1/missions/drone/1')
                 .expect(200);
 
             expect(response.body).toHaveLength(1);
@@ -303,7 +303,7 @@ describe('MissionsController', () => {
         });
     });
 
-    describe('GET /api/v1/flights/date-range', () => {
+    describe('GET /api/v1/missions/date-range', () => {
         const mockDateRangeFlights = [
             {
                 id: 1,
@@ -313,8 +313,8 @@ describe('MissionsController', () => {
                 status: MissionStatus.COMPLETED,
                 start_time: new Date('2024-01-01T08:00:00Z'),
                 end_time: new Date('2024-01-01T10:00:00Z'),
-                created_at: new Date(),
-                updated_at: new Date(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
             },
         ];
 
@@ -322,7 +322,7 @@ describe('MissionsController', () => {
             mockMissionsService.findFlightsByDateRange.mockResolvedValue(mockDateRangeFlights);
 
             const response = await request(app.getHttpServer())
-                .get('/api/v1/flights/date-range')
+                .get('/api/v1/missions/date-range')
                 .query({
                     startDate: '2024-01-01T00:00:00Z',
                     endDate: '2024-01-02T00:00:00Z',
@@ -337,7 +337,7 @@ describe('MissionsController', () => {
         });
     });
 
-    describe('GET /api/v1/flights/:id', () => {
+    describe('GET /api/v1/missions/:id', () => {
         const mockFlight = {
             id: 1,
             pilot_id: 1,
@@ -346,15 +346,15 @@ describe('MissionsController', () => {
             status: MissionStatus.PLANNED,
             start_time: new Date('2024-01-01T08:00:00Z'),
             end_time: null,
-            created_at: new Date(),
-            updated_at: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
         };
 
         it('should return flight by ID', async () => {
             mockMissionsService.findById.mockResolvedValue(mockFlight);
 
             const response = await request(app.getHttpServer())
-                .get('/api/v1/flights/1')
+                .get('/api/v1/missions/1')
                 .expect(200);
 
             expect(response.body).toEqual({
@@ -365,8 +365,8 @@ describe('MissionsController', () => {
                 status: mockFlight.status,
                 start_time: mockFlight.start_time.toISOString(),
                 end_time: mockFlight.end_time,
-                created_at: mockFlight.created_at.toISOString(),
-                updated_at: mockFlight.updated_at.toISOString(),
+                createdAt: mockFlight.createdAt.toISOString(),
+                updatedAt: mockFlight.updatedAt.toISOString(),
             });
 
             expect(mockMissionsService.findById).toHaveBeenCalledWith('1');
@@ -378,7 +378,7 @@ describe('MissionsController', () => {
             );
 
             const response = await request(app.getHttpServer())
-                .get('/api/v1/flights/999')
+                .get('/api/v1/missions/999')
                 .expect(404);
 
             expect(response.body).toEqual({
@@ -390,7 +390,7 @@ describe('MissionsController', () => {
         });
     });
 
-    describe('GET /api/v1/flights/:id/path', () => {
+    describe('GET /api/v1/missions/:id/path', () => {
         const mockFlightPath = [
             {
                 id: 1,
@@ -400,7 +400,7 @@ describe('MissionsController', () => {
                 altitude_m: 100,
                 speed_mps: 10,
                 action: 'takeoff',
-                created_at: new Date(),
+                createdAt: new Date(),
             },
         ];
 
@@ -408,20 +408,20 @@ describe('MissionsController', () => {
             mockMissionsService.getFlightPath.mockResolvedValue(mockFlightPath);
 
             const response = await request(app.getHttpServer())
-                .get('/api/v1/flights/1/path')
+                .get('/api/v1/missions/1/path')
                 .expect(200);
 
             expect(response.body).toEqual([
                 {
                     ...mockFlightPath[0],
-                    created_at: mockFlightPath[0].created_at.toISOString(),
+                    createdAt: mockFlightPath[0].createdAt.toISOString(),
                 },
             ]);
             expect(mockMissionsService.getFlightPath).toHaveBeenCalledWith('1');
         });
     });
 
-    describe('PATCH /api/v1/flights/:id', () => {
+    describe('PATCH /api/v1/missions/:id', () => {
         const updateFlightDto = {
             name: 'Updated Flight',
             plannedDuration: 90,
@@ -435,15 +435,15 @@ describe('MissionsController', () => {
             status: MissionStatus.PLANNED,
             start_time: new Date('2024-01-01T08:00:00Z'),
             end_time: null,
-            created_at: new Date(),
-            updated_at: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
         };
 
         it('should update flight successfully', async () => {
             mockMissionsService.update.mockResolvedValue(mockUpdatedFlight);
 
             const response = await request(app.getHttpServer())
-                .patch('/api/v1/flights/1')
+                .patch('/api/v1/missions/1')
                 .send(updateFlightDto)
                 .expect(200);
 
@@ -455,8 +455,8 @@ describe('MissionsController', () => {
                 status: mockUpdatedFlight.status,
                 start_time: mockUpdatedFlight.start_time.toISOString(),
                 end_time: mockUpdatedFlight.end_time,
-                created_at: mockUpdatedFlight.created_at.toISOString(),
-                updated_at: mockUpdatedFlight.updated_at.toISOString(),
+                createdAt: mockUpdatedFlight.createdAt.toISOString(),
+                updatedAt: mockUpdatedFlight.updatedAt.toISOString(),
             });
 
             expect(mockMissionsService.update).toHaveBeenCalledWith('1', updateFlightDto);
@@ -468,7 +468,7 @@ describe('MissionsController', () => {
             );
 
             const response = await request(app.getHttpServer())
-                .patch('/api/v1/flights/999')
+                .patch('/api/v1/missions/999')
                 .send(updateFlightDto)
                 .expect(404);
 
@@ -481,7 +481,7 @@ describe('MissionsController', () => {
         });
     });
 
-    describe('PATCH /api/v1/flights/:id/start', () => {
+    describe('PATCH /api/v1/missions/:id/start', () => {
         const startFlightDto = {
             actualStartTime: new Date('2024-01-01T08:00:00Z'),
         };
@@ -490,7 +490,7 @@ describe('MissionsController', () => {
             mockMissionsService.startFlight.mockResolvedValue(undefined);
 
             await request(app.getHttpServer())
-                .patch('/api/v1/flights/1/start')
+                .patch('/api/v1/missions/1/start')
                 .send(startFlightDto)
                 .expect(200);
 
@@ -506,7 +506,7 @@ describe('MissionsController', () => {
             );
 
             const response = await request(app.getHttpServer())
-                .patch('/api/v1/flights/999/start')
+                .patch('/api/v1/missions/999/start')
                 .send(startFlightDto)
                 .expect(404);
 
@@ -522,7 +522,7 @@ describe('MissionsController', () => {
         });
     });
 
-    describe('PATCH /api/v1/flights/:id/end', () => {
+    describe('PATCH /api/v1/missions/:id/end', () => {
         const endFlightDto = {
             endLatitude: 10.8,
             endLongitude: 106.7,
@@ -533,7 +533,7 @@ describe('MissionsController', () => {
             mockMissionsService.endFlight.mockResolvedValue(undefined);
 
             await request(app.getHttpServer())
-                .patch('/api/v1/flights/1/end')
+                .patch('/api/v1/missions/1/end')
                 .send(endFlightDto)
                 .expect(200);
 
@@ -546,7 +546,7 @@ describe('MissionsController', () => {
             );
 
             const response = await request(app.getHttpServer())
-                .patch('/api/v1/flights/999/end')
+                .patch('/api/v1/missions/999/end')
                 .send(endFlightDto)
                 .expect(404);
 
@@ -559,7 +559,7 @@ describe('MissionsController', () => {
         });
     });
 
-    describe('POST /api/v1/flights/:id/path-point', () => {
+    describe('POST /api/v1/missions/:id/path-point', () => {
         const addPathPointDto = {
             latitude: 10.7,
             longitude: 106.6,
@@ -576,20 +576,20 @@ describe('MissionsController', () => {
             altitude_m: 100,
             speed_mps: 10,
             action: 'waypoint',
-            created_at: new Date(),
+            createdAt: new Date(),
         };
 
         it('should add path point successfully', async () => {
             mockMissionsService.addPathPoint.mockResolvedValue(mockPathPoint);
 
             const response = await request(app.getHttpServer())
-                .post('/api/v1/flights/1/path-point')
+                .post('/api/v1/missions/1/path-point')
                 .send(addPathPointDto)
                 .expect(201);
 
             expect(response.body).toEqual({
                 ...mockPathPoint,
-                created_at: mockPathPoint.created_at.toISOString(),
+                createdAt: mockPathPoint.createdAt.toISOString(),
             });
             expect(mockMissionsService.addPathPoint).toHaveBeenCalledWith('1', addPathPointDto);
         });
@@ -600,7 +600,7 @@ describe('MissionsController', () => {
             );
 
             const response = await request(app.getHttpServer())
-                .post('/api/v1/flights/999/path-point')
+                .post('/api/v1/missions/999/path-point')
                 .send(addPathPointDto)
                 .expect(404);
 
@@ -613,11 +613,11 @@ describe('MissionsController', () => {
         });
     });
 
-    describe('DELETE /api/v1/flights/:id', () => {
+    describe('DELETE /api/v1/missions/:id', () => {
         it('should delete flight successfully', async () => {
             mockMissionsService.delete.mockResolvedValue(undefined);
 
-            await request(app.getHttpServer()).delete('/api/v1/flights/1').expect(200);
+            await request(app.getHttpServer()).delete('/api/v1/missions/1').expect(200);
 
             expect(mockMissionsService.delete).toHaveBeenCalledWith('1');
         });
@@ -628,7 +628,7 @@ describe('MissionsController', () => {
             );
 
             const response = await request(app.getHttpServer())
-                .delete('/api/v1/flights/999')
+                .delete('/api/v1/missions/999')
                 .expect(404);
 
             expect(response.body).toEqual({

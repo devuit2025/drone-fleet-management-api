@@ -12,36 +12,36 @@ export class DroneResponseDto {
     model: string;
 
     @ApiProperty({ description: 'Drone serial number' })
-    serial_number: string;
+    serialNumber: string;
 
     @ApiProperty({ description: 'Drone status', enum: DroneStatus })
     status: DroneStatus;
 
     @ApiProperty({ description: 'Maximum payload weight' })
-    max_payload: number;
+    maxPayload: number;
 
     @ApiProperty({ description: 'Battery capacity' })
-    battery_capacity: number;
+    batteryCapacity: number;
 
     @ApiProperty({ description: 'Last maintenance date' })
-    last_maintenance: Date;
+    lastMaintenance: Date;
 
     @ApiProperty({ description: 'Creation date' })
-    created_at: Date;
+    createdAt: Date;
 
     @ApiProperty({ description: 'Last update date' })
-    updated_at: Date;
+    updatedAt: Date;
 
     constructor(drone: Drone) {
         this.id = drone.id;
         this.name = drone.name;
         this.model = drone.model;
-        this.serial_number = drone.serial_number;
+        this.serialNumber = drone.serialNumber;
         this.status = drone.status;
-        this.max_payload = drone.max_payload;
-        this.battery_capacity = drone.battery_capacity;
-        this.last_maintenance = drone.last_maintenance;
-        this.created_at = drone.created_at;
-        this.updated_at = drone.updated_at;
+        this.maxPayload = drone.maxPayload;
+        this.batteryCapacity = drone.batteryCapacity;
+        this.lastMaintenance = drone.lastMaintenance;
+        this.createdAt = drone.createdAt;
+        this.updatedAt = drone.updatedAt;
     }
 }

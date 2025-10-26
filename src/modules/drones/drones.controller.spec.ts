@@ -55,24 +55,24 @@ describe('DronesController', () => {
         const createDroneDto = {
             name: 'Test Drone',
             model: 'DJI Phantom 4',
-            serial_number: 'DRONE-001',
+            serialNumber: 'DRONE-001',
             status: DroneStatus.AVAILABLE,
-            max_payload: 1000,
-            battery_capacity: 100,
-            last_maintenance: new Date(),
+            maxPayload: 1000,
+            batteryCapacity: 100,
+            lastMaintenance: new Date(),
         };
 
         const mockDrone = {
             id: 1,
             name: 'Test Drone',
             model: 'DJI Phantom 4',
-            serial_number: 'DRONE-001',
+            serialNumber: 'DRONE-001',
             status: DroneStatus.AVAILABLE,
-            max_payload: 1000,
-            battery_capacity: 100,
-            last_maintenance: new Date(),
-            created_at: new Date(),
-            updated_at: new Date(),
+            maxPayload: 1000,
+            batteryCapacity: 100,
+            lastMaintenance: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
         };
 
         it('should create a new drone successfully', async () => {
@@ -87,18 +87,18 @@ describe('DronesController', () => {
                 id: mockDrone.id,
                 name: mockDrone.name,
                 model: mockDrone.model,
-                serial_number: mockDrone.serial_number,
+                serialNumber: mockDrone.serialNumber,
                 status: mockDrone.status,
-                max_payload: mockDrone.max_payload,
-                battery_capacity: mockDrone.battery_capacity,
-                last_maintenance: mockDrone.last_maintenance.toISOString(),
-                created_at: mockDrone.created_at.toISOString(),
-                updated_at: mockDrone.updated_at.toISOString(),
+                maxPayload: mockDrone.maxPayload,
+                batteryCapacity: mockDrone.batteryCapacity,
+                lastMaintenance: mockDrone.lastMaintenance.toISOString(),
+                createdAt: mockDrone.createdAt.toISOString(),
+                updatedAt: mockDrone.updatedAt.toISOString(),
             });
 
             expect(mockDronesService.create).toHaveBeenCalledWith({
                 ...createDroneDto,
-                last_maintenance: createDroneDto.last_maintenance.toISOString(),
+                lastMaintenance: createDroneDto.lastMaintenance.toISOString(),
             });
         });
 
@@ -122,7 +122,7 @@ describe('DronesController', () => {
 
             expect(mockDronesService.create).toHaveBeenCalledWith({
                 ...createDroneDto,
-                last_maintenance: createDroneDto.last_maintenance.toISOString(),
+                lastMaintenance: createDroneDto.lastMaintenance.toISOString(),
             });
         });
 
@@ -130,9 +130,9 @@ describe('DronesController', () => {
             const invalidDto = {
                 name: 'Test',
                 model: 'DJI',
-                serial_number: 'DRONE-001',
-                max_payload: -100, // negative value
-                battery_capacity: -50, // negative value
+                serialNumber: 'DRONE-001',
+                maxPayload: -100, // negative value
+                batteryCapacity: -50, // negative value
             };
 
             const response = await request(app.getHttpServer())
@@ -153,25 +153,25 @@ describe('DronesController', () => {
                 id: 1,
                 name: 'Drone 1',
                 model: 'DJI Phantom 4',
-                serial_number: 'DRONE-001',
+                serialNumber: 'DRONE-001',
                 status: DroneStatus.AVAILABLE,
-                max_payload: 1000,
-                battery_capacity: 100,
-                last_maintenance: new Date(),
-                created_at: new Date(),
-                updated_at: new Date(),
+                maxPayload: 1000,
+                batteryCapacity: 100,
+                lastMaintenance: new Date(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
             },
             {
                 id: 2,
                 name: 'Drone 2',
                 model: 'DJI Mavic Pro',
-                serial_number: 'DRONE-002',
+                serialNumber: 'DRONE-002',
                 status: DroneStatus.IN_MISSION,
-                max_payload: 500,
-                battery_capacity: 85,
-                last_maintenance: new Date(),
-                created_at: new Date(),
-                updated_at: new Date(),
+                maxPayload: 500,
+                batteryCapacity: 85,
+                lastMaintenance: new Date(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
             },
         ];
 
@@ -185,13 +185,13 @@ describe('DronesController', () => {
                 id: mockDrones[0].id,
                 name: mockDrones[0].name,
                 model: mockDrones[0].model,
-                serial_number: mockDrones[0].serial_number,
+                serialNumber: mockDrones[0].serialNumber,
                 status: mockDrones[0].status,
-                max_payload: mockDrones[0].max_payload,
-                battery_capacity: mockDrones[0].battery_capacity,
-                last_maintenance: mockDrones[0].last_maintenance.toISOString(),
-                created_at: mockDrones[0].created_at.toISOString(),
-                updated_at: mockDrones[0].updated_at.toISOString(),
+                maxPayload: mockDrones[0].maxPayload,
+                batteryCapacity: mockDrones[0].batteryCapacity,
+                lastMaintenance: mockDrones[0].lastMaintenance.toISOString(),
+                createdAt: mockDrones[0].createdAt.toISOString(),
+                updatedAt: mockDrones[0].updatedAt.toISOString(),
             });
 
             expect(mockDronesService.findAll).toHaveBeenCalled();
@@ -204,13 +204,13 @@ describe('DronesController', () => {
                 id: 1,
                 name: 'Available Drone',
                 model: 'DJI Phantom 4',
-                serial_number: 'DRONE-001',
+                serialNumber: 'DRONE-001',
                 status: DroneStatus.AVAILABLE,
-                max_payload: 1000,
-                battery_capacity: 100,
-                last_maintenance: new Date(),
-                created_at: new Date(),
-                updated_at: new Date(),
+                maxPayload: 1000,
+                batteryCapacity: 100,
+                lastMaintenance: new Date(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
             },
         ];
 
@@ -233,13 +233,13 @@ describe('DronesController', () => {
                 id: 1,
                 name: 'Maintenance Drone',
                 model: 'DJI Phantom 4',
-                serial_number: 'DRONE-001',
+                serialNumber: 'DRONE-001',
                 status: DroneStatus.MAINTENANCE,
-                max_payload: 1000,
-                battery_capacity: 50,
-                last_maintenance: new Date(),
-                created_at: new Date(),
-                updated_at: new Date(),
+                maxPayload: 1000,
+                batteryCapacity: 50,
+                lastMaintenance: new Date(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
             },
         ];
 
@@ -261,13 +261,13 @@ describe('DronesController', () => {
             id: 1,
             name: 'Test Drone',
             model: 'DJI Phantom 4',
-            serial_number: 'DRONE-001',
+            serialNumber: 'DRONE-001',
             status: DroneStatus.AVAILABLE,
-            max_payload: 1000,
-            battery_capacity: 100,
-            last_maintenance: new Date(),
-            created_at: new Date(),
-            updated_at: new Date(),
+            maxPayload: 1000,
+            batteryCapacity: 100,
+            lastMaintenance: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
         };
 
         it('should return drone by ID', async () => {
@@ -279,13 +279,13 @@ describe('DronesController', () => {
                 id: mockDrone.id,
                 name: mockDrone.name,
                 model: mockDrone.model,
-                serial_number: mockDrone.serial_number,
+                serialNumber: mockDrone.serialNumber,
                 status: mockDrone.status,
-                max_payload: mockDrone.max_payload,
-                battery_capacity: mockDrone.battery_capacity,
-                last_maintenance: mockDrone.last_maintenance.toISOString(),
-                created_at: mockDrone.created_at.toISOString(),
-                updated_at: mockDrone.updated_at.toISOString(),
+                maxPayload: mockDrone.maxPayload,
+                batteryCapacity: mockDrone.batteryCapacity,
+                lastMaintenance: mockDrone.lastMaintenance.toISOString(),
+                createdAt: mockDrone.createdAt.toISOString(),
+                updatedAt: mockDrone.updatedAt.toISOString(),
             });
 
             expect(mockDronesService.findById).toHaveBeenCalledWith('1');
@@ -312,20 +312,20 @@ describe('DronesController', () => {
     describe('PATCH /api/v1/drones/:id', () => {
         const updateDroneDto = {
             name: 'Updated Drone',
-            battery_capacity: 90,
+            batteryCapacity: 90,
         };
 
         const mockUpdatedDrone = {
             id: 1,
             name: 'Updated Drone',
             model: 'DJI Phantom 4',
-            serial_number: 'DRONE-001',
+            serialNumber: 'DRONE-001',
             status: DroneStatus.AVAILABLE,
-            max_payload: 1000,
-            battery_capacity: 90,
-            last_maintenance: new Date(),
-            created_at: new Date(),
-            updated_at: new Date(),
+            maxPayload: 1000,
+            batteryCapacity: 90,
+            lastMaintenance: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
         };
 
         it('should update drone successfully', async () => {
@@ -340,13 +340,13 @@ describe('DronesController', () => {
                 id: mockUpdatedDrone.id,
                 name: mockUpdatedDrone.name,
                 model: mockUpdatedDrone.model,
-                serial_number: mockUpdatedDrone.serial_number,
+                serialNumber: mockUpdatedDrone.serialNumber,
                 status: mockUpdatedDrone.status,
-                max_payload: mockUpdatedDrone.max_payload,
-                battery_capacity: mockUpdatedDrone.battery_capacity,
-                last_maintenance: mockUpdatedDrone.last_maintenance.toISOString(),
-                created_at: mockUpdatedDrone.created_at.toISOString(),
-                updated_at: mockUpdatedDrone.updated_at.toISOString(),
+                maxPayload: mockUpdatedDrone.maxPayload,
+                batteryCapacity: mockUpdatedDrone.batteryCapacity,
+                lastMaintenance: mockUpdatedDrone.lastMaintenance.toISOString(),
+                createdAt: mockUpdatedDrone.createdAt.toISOString(),
+                updatedAt: mockUpdatedDrone.updatedAt.toISOString(),
             });
 
             expect(mockDronesService.update).toHaveBeenCalledWith('1', updateDroneDto);
@@ -374,7 +374,7 @@ describe('DronesController', () => {
     describe('PATCH /api/v1/drones/:id/status', () => {
         const updateStatusDto = {
             status: DroneStatus.IN_MISSION,
-            battery_capacity: 85,
+            batteryCapacity: 85,
         };
 
         it('should update drone status successfully', async () => {
@@ -413,7 +413,7 @@ describe('DronesController', () => {
 
             await request(app.getHttpServer()).delete('/api/v1/drones/1').expect(200);
 
-            expect(mockDronesService.delete).toHaveBeenCalledWith('1');
+            expect(mockDronesService.delete).toHaveBeenCalledWith(1);
         });
 
         it('should return 404 when drone not found', async () => {
@@ -430,7 +430,7 @@ describe('DronesController', () => {
                 statusCode: 404,
             });
 
-            expect(mockDronesService.delete).toHaveBeenCalledWith('999');
+            expect(mockDronesService.delete).toHaveBeenCalledWith(999);
         });
     });
 });

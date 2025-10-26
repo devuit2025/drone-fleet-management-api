@@ -19,19 +19,21 @@ export class PilotsController {
   @Get()
   @ApiOperation({ summary: 'Get all pilots' })
   @ApiResponse({ status: 200, description: 'List of all pilots', type: [PilotResponseDto] })
-  async findAll(): Promise<Pilot[]> {
-    return await this.pilotRepository.find();
+  async findAll(): Promise<PilotResponseDto[]> {
+    const pilots = await this.pilotRepository.find();
+    return pilots.map(pilot => new PilotResponseDto(pilot));
   }
 
   @Post()
   @ApiOperation({ summary: 'Create a new pilot' })
   @ApiResponse({ status: 201, description: 'Pilot created successfully', type: PilotResponseDto })
-  async create(@Body() createPilotDto: CreatePilotDto): Promise<Pilot> {
+  async create(@Body() createPilotDto: CreatePilotDto): Promise<PilotResponseDto> {
     const pilot = this.pilotRepository.create({
-      user_id: createPilotDto.userId,
+      userId: createPilotDto.userId,
       name: createPilotDto.name,
       status: createPilotDto.status || PilotStatus.ACTIVE,
     });
-    return await this.pilotRepository.save(pilot);
+    const savedPilot = await this.pilotRepository.save(pilot);
+    return new PilotResponseDto(savedPilot);
   }
 }

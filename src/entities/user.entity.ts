@@ -28,10 +28,6 @@ export class User {
     @Column({ unique: true })
     email: string;
 
-    @Exclude()
-    @Column()
-    password: string;
-
     @ApiProperty({ description: 'User role', enum: UserRole })
     @Column({
         type: 'enum',
@@ -40,11 +36,15 @@ export class User {
     })
     role: UserRole;
 
+    @Exclude()
+    @Column()
+    password: string;
+
     @ApiProperty({ description: 'Creation date' })
-    @CreateDateColumn()
-    created_at: Date;
+    @CreateDateColumn({ name: 'created_at' })
+    createdAt: Date;
 
     @ApiProperty({ description: 'Last update date' })
-    @UpdateDateColumn()
-    updated_at: Date;
+    @UpdateDateColumn({ name: 'updated_at' })
+    updatedAt: Date;
 }

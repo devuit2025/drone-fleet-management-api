@@ -28,13 +28,13 @@ export class LicensesController {
   @ApiResponse({ status: 201, description: 'License created successfully', type: LicenseResponseDto })
   async create(@Body() createLicenseDto: CreateLicenseDto): Promise<License> {
     const license = this.licenseRepository.create({
-      pilot_id: createLicenseDto.pilotId,
-      license_number: createLicenseDto.licenseNumber,
-      license_type: createLicenseDto.licenseType,
-      qualification_level: createLicenseDto.qualificationLevel,
-      issuing_authority: createLicenseDto.issuingAuthority,
-      issued_date: new Date(createLicenseDto.issuedDate),
-      expiry_date: new Date(createLicenseDto.expiryDate),
+      pilotId: createLicenseDto.pilotId,
+      licenseNumber: createLicenseDto.licenseNumber,
+      licenseType: createLicenseDto.licenseType,
+      qualificationLevel: createLicenseDto.qualificationLevel,
+      issuingAuthority: createLicenseDto.issuingAuthority,
+      issuedDate: new Date(createLicenseDto.issuedDate),
+      expiryDate: new Date(createLicenseDto.expiryDate),
       active: createLicenseDto.active !== undefined ? createLicenseDto.active : true,
     });
     return await this.licenseRepository.save(license);

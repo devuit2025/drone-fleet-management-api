@@ -44,25 +44,25 @@ export class DroneSeeder {
             {
                 name: 'Drone Alpha',
                 model: 'DJI Phantom 4 Pro',
-                serial_number: 'DJI001',
-                max_payload: 500,
-                battery_capacity: 100,
+                serialNumber: 'DJI001',
+                maxPayload: 500,
+                batteryCapacity: 100,
                 status: DroneStatus.AVAILABLE,
             },
             {
                 name: 'Drone Beta',
                 model: 'DJI Mavic 3 Pro',
-                serial_number: 'DJI002',
-                max_payload: 300,
-                battery_capacity: 95,
+                serialNumber: 'DJI002',
+                maxPayload: 300,
+                batteryCapacity: 95,
                 status: DroneStatus.AVAILABLE,
             },
             {
                 name: 'Drone Gamma',
                 model: 'DJI Air 3',
-                serial_number: 'DJI003',
-                max_payload: 200,
-                battery_capacity: 85,
+                serialNumber: 'DJI003',
+                maxPayload: 200,
+                batteryCapacity: 85,
                 status: DroneStatus.MAINTENANCE,
             },
         ];
@@ -77,11 +77,11 @@ export class DroneSeeder {
             drones.push({
                 name: `Drone ${faker.person.firstName()}`,
                 model,
-                serial_number: `DRN${String(i).padStart(3, '0')}`,
-                max_payload: faker.number.int({ min: 100, max: 1000 }),
-                battery_capacity: faker.number.int({ min: 50, max: 100 }),
+                serialNumber: `DRN${String(i).padStart(3, '0')}`,
+                maxPayload: faker.number.int({ min: 100, max: 1000 }),
+                batteryCapacity: faker.number.int({ min: 50, max: 100 }),
                 status,
-                last_maintenance: faker.helpers.maybe(() => faker.date.past({ years: 1 }), {
+                lastMaintenance: faker.helpers.maybe(() => faker.date.past({ years: 1 }), {
                     probability: 0.7,
                 }),
             });

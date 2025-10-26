@@ -42,13 +42,13 @@ export class LicenseSeeder {
             const expiryDate = faker.date.future({ years: 2, refDate: issueDate });
 
             licenses.push({
-                pilot_id: pilot.id,
-                license_number: `LIC-${faker.string.alphanumeric(8).toUpperCase()}`,
-                license_type: faker.helpers.arrayElement(Object.values(LicenseType)),
-                qualification_level: faker.helpers.arrayElement(Object.values(QualificationLevel)),
-                issued_date: issueDate,
-                expiry_date: expiryDate,
-                issuing_authority: faker.helpers.arrayElement([
+                pilotId: pilot.id,
+                licenseNumber: `LIC-${faker.string.alphanumeric(8).toUpperCase()}`,
+                licenseType: faker.helpers.arrayElement(Object.values(LicenseType)),
+                qualificationLevel: faker.helpers.arrayElement(Object.values(QualificationLevel)),
+                issuedDate: issueDate,
+                expiryDate: expiryDate,
+                issuingAuthority: faker.helpers.arrayElement([
                     'Federal Aviation Administration',
                     'Civil Aviation Authority',
                     'European Aviation Safety Agency',

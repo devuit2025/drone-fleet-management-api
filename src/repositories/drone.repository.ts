@@ -15,7 +15,7 @@ export class DroneRepository extends BaseRepository<Drone> {
 
     async findBySerialNumber(serialNumber: string): Promise<Drone | null> {
         return await this.droneRepository.findOne({
-            where: { serial_number: serialNumber },
+            where: { serialNumber: serialNumber },
         });
     }
 
@@ -39,9 +39,9 @@ export class DroneRepository extends BaseRepository<Drone> {
         });
     }
 
-    async updateBatteryCapacity(id: number, battery_capacity: number): Promise<void> {
+    async updateBatteryCapacity(id: number, batteryCapacity: number): Promise<void> {
         await this.droneRepository.update(id, {
-            battery_capacity,
+            batteryCapacity,
         });
     }
 

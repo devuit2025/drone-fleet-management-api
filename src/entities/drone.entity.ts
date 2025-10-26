@@ -6,6 +6,7 @@ import {
     UpdateDateColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Searchable } from '../repositories/base.repository';
 
 export enum DroneStatus {
     AVAILABLE = 'available',
@@ -19,17 +20,19 @@ export class Drone {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Searchable({ operator: 'like' })
     @ApiProperty({ description: 'Drone name' })
     @Column()
     name: string;
 
+    @Searchable({ operator: 'like' })
     @ApiProperty({ description: 'Drone model' })
     @Column()
     model: string;
 
     @ApiProperty({ description: 'Drone serial number' })
-    @Column({ unique: true })
-    serial_number: string;
+    @Column({ name: 'serial_number', unique: true })
+    serialNumber: string;
 
     @ApiProperty({ description: 'Drone status', enum: DroneStatus })
     @Column({
@@ -40,22 +43,22 @@ export class Drone {
     status: DroneStatus;
 
     @ApiProperty({ description: 'Maximum payload weight' })
-    @Column({ type: 'numeric' })
-    max_payload: number;
+    @Column({ name: 'max_payload', type: 'numeric' })
+    maxPayload: number;
 
     @ApiProperty({ description: 'Battery capacity' })
-    @Column({ type: 'numeric' })
-    battery_capacity: number;
+    @Column({ name: 'battery_capacity', type: 'numeric' })
+    batteryCapacity: number;
 
     @ApiProperty({ description: 'Last maintenance date' })
-    @Column({ type: 'date', nullable: true })
-    last_maintenance: Date;
+    @Column({ name: 'last_maintenance', type: 'date', nullable: true })
+    lastMaintenance: Date;
 
     @ApiProperty({ description: 'Creation date' })
-    @CreateDateColumn()
-    created_at: Date;
+    @CreateDateColumn({ name: 'created_at' })
+    createdAt: Date;
 
     @ApiProperty({ description: 'Last update date' })
-    @UpdateDateColumn()
-    updated_at: Date;
+    @UpdateDateColumn({ name: 'updated_at' })
+    updatedAt: Date;
 }

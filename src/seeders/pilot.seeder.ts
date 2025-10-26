@@ -12,7 +12,7 @@ export class PilotSeeder {
         private readonly pilotRepository: Repository<Pilot>,
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
-    ) {}
+    ) { }
 
     async seed(): Promise<void> {
         console.log('🌱 Seeding Pilots...');
@@ -42,7 +42,7 @@ export class PilotSeeder {
         // Create pilots for operator users
         for (const user of operatorUsers) {
             pilots.push({
-                user_id: user.id,
+                userId: user.id,
                 name: user.name,
                 status: faker.helpers.arrayElement(Object.values(PilotStatus)),
             });
@@ -52,7 +52,7 @@ export class PilotSeeder {
         const additionalPilots = faker.number.int({ min: 3, max: 8 });
         for (let i = 0; i < additionalPilots; i++) {
             pilots.push({
-                user_id: faker.helpers.arrayElement(operatorUsers).id,
+                userId: faker.helpers.arrayElement(operatorUsers).id,
                 name: faker.person.fullName(),
                 status: faker.helpers.arrayElement(Object.values(PilotStatus)),
             });
