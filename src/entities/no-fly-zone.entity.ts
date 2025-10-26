@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Searchable } from '../repositories/base.repository';
 
 export enum ZoneType {
     POLYGON = 'polygon',
@@ -13,6 +14,7 @@ export class NoFlyZone {
     id: number;
 
     @ApiProperty({ description: 'Zone name' })
+    @Searchable({ operator: 'like' })
     @Column()
     name: string;
 

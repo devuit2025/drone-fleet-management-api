@@ -9,6 +9,7 @@ import {
     JoinTable,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Searchable } from '../repositories/base.repository';
 import { Waypoint } from './waypoint.entity';
 import { Drone } from './drone.entity';
 import { Telemetry } from './telemetry.entity';
@@ -41,6 +42,7 @@ export class Mission {
     licenseId: number | null;
 
     @ApiProperty({ description: 'Mission name' })
+    @Searchable({ operator: 'like' })
     @Column({ name: 'mission_name' })
     missionName: string;
 

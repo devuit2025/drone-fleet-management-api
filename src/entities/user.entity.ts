@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
+import { Searchable } from '../repositories/base.repository';
 import { Pilot } from './pilot.entity';
 
 export enum UserRole {
@@ -23,10 +24,12 @@ export class User {
     id: number;
 
     @ApiProperty({ description: 'User name' })
+    @Searchable({ operator: 'like' })
     @Column()
     name: string;
 
     @ApiProperty({ description: 'Email address' })
+    @Searchable({ operator: 'like' })
     @Column({ unique: true })
     email: string;
 

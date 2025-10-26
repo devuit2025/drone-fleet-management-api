@@ -161,6 +161,32 @@ describe('UsersController', () => {
 
             expect(mockUsersService.findAll).toHaveBeenCalled();
         });
+
+        it('should return filtered users by searchable name field', async () => {
+            const filteredUsers = [mockUsers[0]]; // Mock filtered result
+            mockUsersService.findAll.mockResolvedValue(filteredUsers);
+
+            const response = await request(app.getHttpServer())
+                .get('/api/v1/users')
+                .expect(200);
+
+            expect(response.body).toHaveLength(1);
+            expect(response.body[0].name).toContain('User');
+            expect(mockUsersService.findAll).toHaveBeenCalled();
+        });
+
+        it('should return filtered users by searchable email field', async () => {
+            const filteredUsers = [mockUsers[1]]; // Mock filtered result
+            mockUsersService.findAll.mockResolvedValue(filteredUsers);
+
+            const response = await request(app.getHttpServer())
+                .get('/api/v1/users')
+                .expect(200);
+
+            expect(response.body).toHaveLength(1);
+            expect(response.body[0].email).toContain('user2');
+            expect(mockUsersService.findAll).toHaveBeenCalled();
+        });
     });
 
     describe('GET /api/v1/users/:id', () => {

@@ -7,6 +7,7 @@ import {
   ManyToMany,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Searchable } from '../repositories/base.repository';
 import { Role } from './role.entity';
 
 @Entity('permissions')
@@ -16,6 +17,7 @@ export class Permission {
   id: number;
 
   @ApiProperty({ description: 'Permission name' })
+  @Searchable({ operator: 'like' })
   @Column({ unique: true })
   name: string;
 

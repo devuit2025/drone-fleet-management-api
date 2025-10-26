@@ -9,6 +9,7 @@ import {
     JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Searchable } from '../repositories/base.repository';
 import { User } from './user.entity';
 import { License } from './license.entity';
 import { Simulation } from './simulation.entity';
@@ -33,6 +34,7 @@ export class Pilot {
     user: User;
 
     @ApiProperty({ description: 'Pilot name' })
+    @Searchable({ operator: 'like' })
     @Column()
     name: string;
 

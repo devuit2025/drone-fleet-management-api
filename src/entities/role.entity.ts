@@ -8,6 +8,7 @@ import {
   JoinTable,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Searchable } from '../repositories/base.repository';
 import { Permission } from './permission.entity';
 
 @Entity('roles')
@@ -17,6 +18,7 @@ export class Role {
   id: number;
 
   @ApiProperty({ description: 'Role name' })
+  @Searchable({ operator: 'like' })
   @Column({ unique: true })
   name: string;
 

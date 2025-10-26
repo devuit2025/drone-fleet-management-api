@@ -168,6 +168,62 @@ describe('DronesController', () => {
             expect(response.body.length).toBe(1);
             expect(mockDronesService.findAll).toHaveBeenCalled();
         });
+
+        it('should return filtered drones by searchable serialNumber field', async () => {
+            const mockDrones = [
+                new DroneResponseDto({
+                    id: 1,
+                    modelId: 1,
+                    name: 'Explorer Drone',
+                    serialNumber: 'DRN-001',
+                    status: DroneStatus.AVAILABLE,
+                    firmwareVersion: '1.0.0',
+                    batteryHealth: 98,
+                    totalFlightHours: 150,
+                    lastMaintenance: new Date(),
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                } as any),
+            ];
+
+            mockDronesService.findAll.mockResolvedValue(mockDrones);
+
+            const response = await request(app.getHttpServer())
+                .get('/api/v1/drones')
+                .expect(200);
+
+            expect(response.body.length).toBe(1);
+            expect(response.body[0].serialNumber).toBe('DRN-001');
+            expect(mockDronesService.findAll).toHaveBeenCalled();
+        });
+
+        it('should return filtered drones by searchable name field', async () => {
+            const mockDrones = [
+                new DroneResponseDto({
+                    id: 1,
+                    modelId: 1,
+                    name: 'Surveyor Drone',
+                    serialNumber: 'DRN-002',
+                    status: DroneStatus.AVAILABLE,
+                    firmwareVersion: '1.1.0',
+                    batteryHealth: 95,
+                    totalFlightHours: 200,
+                    lastMaintenance: new Date(),
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                } as any),
+            ];
+
+            mockDronesService.findAll.mockResolvedValue(mockDrones);
+
+            const response = await request(app.getHttpServer())
+                .get('/api/v1/drones')
+                .expect(200);
+
+            expect(response.body.length).toBe(1);
+            expect(response.body[0].name).toContain('Surveyor');
+            expect(mockDronesService.findAll).toHaveBeenCalled();
+        });
     });
 
     describe('GET /api/v1/drones/:id', () => {

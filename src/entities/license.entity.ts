@@ -8,6 +8,7 @@ import {
     JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Searchable } from '../repositories/base.repository';
 import { Pilot } from './pilot.entity';
 
 export enum LicenseType {
@@ -36,6 +37,7 @@ export class License {
     pilot: Pilot;
 
     @ApiProperty({ description: 'License number' })
+    @Searchable({ operator: 'like' })
     @Column({ name: 'license_number', unique: true })
     licenseNumber: string;
 

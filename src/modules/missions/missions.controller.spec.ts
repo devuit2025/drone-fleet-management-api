@@ -173,6 +173,32 @@ describe('MissionsController', () => {
             expect(response.body.length).toBe(2);
             expect(mockMissionsService.findAll).toHaveBeenCalled();
         });
+
+        it('should return filtered missions by searchable missionName field', async () => {
+            const mockMissions = [
+                new MissionResponseDto({
+                    id: 1,
+                    pilotId: 1,
+                    licenseId: null,
+                    missionName: 'Area Survey Alpha',
+                    status: MissionStatus.COMPLETED,
+                    startTime: new Date('2024-03-01T10:00:00Z'),
+                    endTime: new Date('2024-03-01T11:30:00Z'),
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                } as Mission),
+            ];
+
+            mockMissionsService.findAll.mockResolvedValue(mockMissions);
+
+            const response = await request(app.getHttpServer())
+                .get('/api/v1/missions')
+                .expect(200);
+
+            expect(response.body.length).toBe(1);
+            expect(response.body[0].missionName).toContain('Alpha');
+            expect(mockMissionsService.findAll).toHaveBeenCalled();
+        });
     });
 
     describe('GET /api/v1/missions/:id', () => {
