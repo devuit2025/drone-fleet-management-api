@@ -1,14 +1,15 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString, IsOptional, IsDateString } from 'class-validator';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { IsNumber, IsString, IsDateString } from 'class-validator';
+import { FlightLog } from '../../../entities/flight-log.entity';
 
 export class CreateFlightLogDto {
   @ApiProperty({ description: 'Mission ID' })
   @IsNumber()
-  mission_id: number;
+  missionId: number;
 
   @ApiProperty({ description: 'Event type' })
   @IsString()
-  event_type: string;
+  eventType: string;
 
   @ApiProperty({ description: 'Description' })
   @IsString()
@@ -19,41 +20,29 @@ export class CreateFlightLogDto {
   timestamp: string;
 }
 
-export class UpdateFlightLogDto {
-  @ApiProperty({ description: 'Mission ID', required: false })
-  @IsOptional()
-  @IsNumber()
-  mission_id?: number;
-
-  @ApiProperty({ description: 'Event type', required: false })
-  @IsOptional()
-  @IsString()
-  event_type?: string;
-
-  @ApiProperty({ description: 'Description', required: false })
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @ApiProperty({ description: 'Timestamp', required: false })
-  @IsOptional()
-  @IsDateString()
-  timestamp?: string;
-}
+export class UpdateFlightLogDto extends PartialType(CreateFlightLogDto) { }
 
 export class FlightLogResponseDto {
   @ApiProperty({ description: 'Flight log ID' })
   id: number;
 
   @ApiProperty({ description: 'Mission ID' })
-  mission_id: number;
+  missionId: number;
 
   @ApiProperty({ description: 'Event type' })
-  event_type: string;
+  eventType: string;
 
   @ApiProperty({ description: 'Description' })
   description: string;
 
   @ApiProperty({ description: 'Timestamp' })
   timestamp: Date;
+
+  constructor(flightLog: FlightLog) {
+    this.id = flightLog.id;
+    this.missionId = flightLog.missionId;
+    this.eventType = flightLog.eventType;
+    this.description = flightLog.description;
+    this.timestamp = flightLog.timestamp;
+  }
 }
