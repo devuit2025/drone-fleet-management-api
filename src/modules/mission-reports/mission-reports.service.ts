@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { MissionReport } from '../../entities/mission-report.entity';
 import { Mission } from '../../entities/mission.entity';
 import { CreateMissionReportDto, UpdateMissionReportDto } from './dto';
+import { MissionReportRepository } from '../../repositories/mission-report.repository';
 
 @Injectable()
 export class MissionReportsService {
   constructor(
     @InjectRepository(MissionReport)
     private readonly missionReportRepository: Repository<MissionReport>,
+    private readonly missionReportRepo: MissionReportRepository,
     @InjectRepository(Mission)
     private readonly missionRepository: Repository<Mission>,
   ) { }
@@ -28,9 +30,9 @@ export class MissionReportsService {
   }
 
   async findAll(): Promise<MissionReport[]> {
-    return await this.missionReportRepository.find({
+    return await this.missionReportRepo.findAll({
       relations: ['mission'],
-      order: { createdAt: 'DESC' },
+      sort: '-createdAt',
     });
   }
 

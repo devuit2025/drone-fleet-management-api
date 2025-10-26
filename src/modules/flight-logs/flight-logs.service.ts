@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { FlightLog } from '../../entities/flight-log.entity';
 import { Mission } from '../../entities/mission.entity';
 import { CreateFlightLogDto, UpdateFlightLogDto } from './dto';
+import { FlightLogRepository } from '../../repositories/flight-log.repository';
 
 @Injectable()
 export class FlightLogsService {
   constructor(
     @InjectRepository(FlightLog)
     private readonly flightLogRepository: Repository<FlightLog>,
+    private readonly flightLogRepo: FlightLogRepository,
     @InjectRepository(Mission)
     private readonly missionRepository: Repository<Mission>,
   ) { }
@@ -34,9 +36,9 @@ export class FlightLogsService {
   }
 
   async findAll(): Promise<FlightLog[]> {
-    return await this.flightLogRepository.find({
+    return await this.flightLogRepo.findAll({
       relations: ['mission'],
-      order: { timestamp: 'DESC' },
+      sort: '-timestamp',
     });
   }
 

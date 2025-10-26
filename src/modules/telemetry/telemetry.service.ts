@@ -5,12 +5,14 @@ import { Telemetry } from '../../entities/telemetry.entity';
 import { Mission } from '../../entities/mission.entity';
 import { Drone } from '../../entities/drone.entity';
 import { CreateTelemetryDto, UpdateTelemetryDto } from './dto';
+import { TelemetryRepository } from '../../repositories/telemetry.repository';
 
 @Injectable()
 export class TelemetryService {
   constructor(
     @InjectRepository(Telemetry)
     private readonly telemetryRepository: Repository<Telemetry>,
+    private readonly telemetryRepo: TelemetryRepository,
     @InjectRepository(Mission)
     private readonly missionRepository: Repository<Mission>,
     @InjectRepository(Drone)
@@ -49,9 +51,9 @@ export class TelemetryService {
   }
 
   async findAll(): Promise<Telemetry[]> {
-    return await this.telemetryRepository.find({
+    return await this.telemetryRepo.findAll({
       relations: ['mission', 'drone'],
-      order: { timestamp: 'DESC' },
+      sort: '-timestamp',
     });
   }
 
