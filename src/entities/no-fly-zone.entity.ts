@@ -18,10 +18,11 @@ export class NoFlyZone {
 
     @ApiProperty({ description: 'Zone type', enum: ZoneType })
     @Column({
+        name: 'zone_type',
         type: 'enum',
         enum: ZoneType,
     })
-    zone_type: ZoneType;
+    zoneType: ZoneType;
 
     @ApiProperty({ description: 'Geometry (PostGIS Polygon SRID=4326)' })
     @Column({ type: 'geometry', spatialFeatureType: 'Polygon', srid: 4326 })
