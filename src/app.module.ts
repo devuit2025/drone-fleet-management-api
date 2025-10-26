@@ -76,7 +76,7 @@ import { SeederModule } from './seeders/seeder.module';
                 DroneSensor,
                 MissionDrone,
             ],
-            synchronize: process.env.NODE_ENV !== 'production',
+            synchronize: false, // Disabled to prevent migration issues
             logging: process.env.NODE_ENV === 'development',
         }),
         UsersModule,

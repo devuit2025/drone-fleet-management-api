@@ -29,9 +29,9 @@ export class Drone {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ApiProperty({ description: 'Model ID', type: Number })
-    @Column({ name: 'model_id' })
-    modelId: number;
+    @ApiProperty({ description: 'Model ID', type: Number, nullable: true })
+    @Column({ name: 'model_id', nullable: true })
+    modelId: number | null;
 
     @ApiProperty({ description: 'Drone serial number' })
     @Searchable({ operator: 'like' })

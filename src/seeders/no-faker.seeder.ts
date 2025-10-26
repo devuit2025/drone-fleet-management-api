@@ -157,7 +157,7 @@ export class NoFakerSeeder {
         }
 
         const licenses: Partial<License>[] = pilots.map((pilot, index) => ({
-            pilot_id: pilot.id,
+            pilotId: pilot.id,
             license_number: `LIC-${String(index + 1).padStart(3, '0')}`,
             license_type: LicenseType.COMMERCIAL,
             qualification_level: QualificationLevel.ADVANCED,
@@ -328,18 +328,18 @@ export class NoFakerSeeder {
                 const timestamp = new Date(Date.now() - i * 60000); // 1 minute intervals
 
                 telemetryData.push({
-                    drone_id: drone.id,
-                    mission_id: missions[i % missions.length]?.id || null,
+                    droneId: drone.id,
+                    missionId: missions[i % missions.length]?.id || null,
                     timestamp,
                     location: JSON.stringify({
                         type: 'Point',
                         coordinates: [lng, lat],
                     }),
-                    altitude_m: 100 + i * 10,
-                    speed_mps: 10 + i * 2,
-                    battery_pct: 100 - i * 5,
+                    altitudeM: 100 + i * 10,
+                    speedMps: 10 + i * 2,
+                    batteryPct: 100 - i * 5,
                     status: 'flying',
-                    payload_weight: 200 + i * 50,
+                    payloadWeight: 200 + i * 50,
                 });
             }
         });
@@ -360,7 +360,7 @@ export class NoFakerSeeder {
         const noFlyZones: Partial<NoFlyZone>[] = [
             {
                 name: 'International Airport Zone',
-                zone_type: ZoneType.POLYGON,
+                zoneType: ZoneType.POLYGON,
                 geometry: JSON.stringify({
                     type: 'Polygon',
                     coordinates: [
@@ -377,7 +377,7 @@ export class NoFakerSeeder {
             },
             {
                 name: 'Military Base Alpha',
-                zone_type: ZoneType.POLYGON,
+                zoneType: ZoneType.POLYGON,
                 geometry: JSON.stringify({
                     type: 'Polygon',
                     coordinates: [
@@ -423,9 +423,9 @@ export class NoFakerSeeder {
         missions.forEach(mission => {
             for (let i = 0; i < 5; i++) {
                 flightLogs.push({
-                    mission_id: mission.id,
+                    missionId: mission.id,
                     timestamp: new Date(Date.now() - i * 300000), // 5 minute intervals
-                    event_type: i === 0 ? 'info' : i === 4 ? 'info' : 'debug',
+                    eventType: i === 0 ? 'info' : i === 4 ? 'info' : 'debug',
                     description:
                         i === 0
                             ? 'Mission started successfully'
@@ -459,12 +459,12 @@ export class NoFakerSeeder {
         }
 
         const missionReports: Partial<MissionReport>[] = missions.map(mission => ({
-            mission_id: mission.id,
-            flight_time_sec: 3600, // 1 hour
-            distance_m: 10000,
-            avg_speed_mps: 15.5,
-            battery_consumed_pct: 45.2,
-            incident_count: 0,
+            missionId: mission.id,
+            flightTimeSec: 3600, // 1 hour
+            distanceM: 10000,
+            avgSpeedMps: 15.5,
+            batteryConsumedPct: 45.2,
+            incidentCount: 0,
         }));
 
         await this.missionReportRepository.save(missionReports);
@@ -489,10 +489,10 @@ export class NoFakerSeeder {
         }
 
         const simulations: Partial<Simulation>[] = missions.map((mission, index) => ({
-            pilot_id: pilots[index % pilots.length].id,
-            mission_id: mission.id,
-            sim_start_time: new Date(Date.now() - 86400000), // 1 day ago
-            sim_end_time: new Date(Date.now() - 3600000), // 1 hour ago
+            pilotId: pilots[index % pilots.length].id,
+            missionId: mission.id,
+            simStartTime: new Date(Date.now() - 86400000), // 1 day ago
+            simEndTime: new Date(Date.now() - 3600000), // 1 hour ago
             parameters: {
                 simulation_type: 'Weather Impact Analysis',
                 weather_conditions: 'Clear',

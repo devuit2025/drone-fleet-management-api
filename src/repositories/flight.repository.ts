@@ -22,14 +22,14 @@ export class FlightRepository extends BaseRepository<Mission> {
 
     async findByPilot(pilotId: number): Promise<Mission[]> {
         return await this.flightRepository.find({
-            where: { pilot_id: pilotId },
+            where: { pilotId: pilotId },
             relations: ['pilot', 'drone'],
         });
     }
 
     async findByDrone(droneId: number): Promise<Mission[]> {
         return await this.flightRepository.find({
-            where: { license_id: droneId },
+            where: { licenseId: droneId },
             relations: ['pilot', 'drone'],
         });
     }
@@ -61,7 +61,7 @@ export class FlightRepository extends BaseRepository<Mission> {
     async startFlight(id: number): Promise<void> {
         await this.flightRepository.update(id, {
             status: MissionStatus.IN_PROGRESS,
-            start_time: new Date(),
+            startTime: new Date(),
         });
     }
 
@@ -72,10 +72,10 @@ export class FlightRepository extends BaseRepository<Mission> {
         endAltitude: number,
     ): Promise<void> {
         const flight = await this.findById(id);
-        if (flight && flight.start_time) {
+        if (flight && flight.startTime) {
             await this.flightRepository.update(id, {
                 status: MissionStatus.COMPLETED,
-                end_time: new Date(),
+                endTime: new Date(),
             });
         }
     }

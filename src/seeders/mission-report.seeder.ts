@@ -15,7 +15,7 @@ export class MissionReportSeeder {
         private readonly missionRepository: Repository<Mission>,
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
-    ) {}
+    ) { }
 
     async seed(): Promise<void> {
         console.log('🌱 Seeding Mission Reports...');
@@ -52,16 +52,16 @@ export class MissionReportSeeder {
 
             for (let i = 0; i < reportCount; i++) {
                 missionReports.push({
-                    mission_id: mission.id,
-                    flight_time_sec: faker.number.int({ min: 300, max: 7200 }), // 5 minutes to 2 hours
-                    distance_m: faker.number.float({ min: 1000, max: 50000, fractionDigits: 2 }),
-                    avg_speed_mps: faker.number.float({ min: 5, max: 25, fractionDigits: 1 }),
-                    battery_consumed_pct: faker.number.float({
+                    missionId: mission.id,
+                    flightTimeSec: faker.number.int({ min: 300, max: 7200 }), // 5 minutes to 2 hours
+                    distanceM: faker.number.float({ min: 1000, max: 50000, fractionDigits: 2 }),
+                    avgSpeedMps: faker.number.float({ min: 5, max: 25, fractionDigits: 1 }),
+                    batteryConsumedPct: faker.number.float({
                         min: 10,
                         max: 80,
                         fractionDigits: 1,
                     }),
-                    incident_count: faker.number.int({ min: 0, max: 5 }),
+                    incidentCount: faker.number.int({ min: 0, max: 5 }),
                 });
             }
         }

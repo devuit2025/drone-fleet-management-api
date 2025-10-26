@@ -15,7 +15,7 @@ export class TelemetrySeeder {
         private readonly droneRepository: Repository<Drone>,
         @InjectRepository(Mission)
         private readonly missionRepository: Repository<Mission>,
-    ) {}
+    ) { }
 
     async seed(): Promise<void> {
         console.log('🌱 Seeding Telemetry...');
@@ -72,28 +72,28 @@ export class TelemetrySeeder {
                     let missionId: number | null = null;
                     if (missions.length > 0) {
                         const mission = faker.helpers.arrayElement(missions);
-                        if (mission.start_time && mission.end_time) {
-                            if (timestamp >= mission.start_time && timestamp <= mission.end_time) {
+                        if (mission.startTime && mission.endTime) {
+                            if (timestamp >= mission.startTime && timestamp <= mission.endTime) {
                                 missionId = mission.id;
                             }
                         }
                     }
 
                     telemetryData.push({
-                        drone_id: drone.id,
-                        mission_id: missionId,
+                        droneId: drone.id,
+                        missionId: missionId,
                         timestamp,
                         location: `POINT(${lng} ${lat})`,
-                        altitude_m: faker.number.int({ min: 10, max: 500 }),
-                        speed_mps: faker.number.float({ min: 0, max: 30, fractionDigits: 1 }),
-                        battery_pct: faker.number.int({ min: 10, max: 100 }),
+                        altitudeM: faker.number.int({ min: 10, max: 500 }),
+                        speedMps: faker.number.float({ min: 0, max: 30, fractionDigits: 1 }),
+                        batteryPct: faker.number.int({ min: 10, max: 100 }),
                         status: faker.helpers.arrayElement([
                             'flying',
                             'hovering',
                             'landing',
                             'taking_off',
                         ]),
-                        payload_weight: faker.number.float({ min: 0, max: 500, fractionDigits: 1 }),
+                        payloadWeight: faker.number.float({ min: 0, max: 500, fractionDigits: 1 }),
                     });
                 }
             }

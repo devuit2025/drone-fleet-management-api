@@ -9,7 +9,7 @@ export class NoFlyZoneSeeder {
     constructor(
         @InjectRepository(NoFlyZone)
         private readonly noFlyZoneRepository: Repository<NoFlyZone>,
-    ) {}
+    ) { }
 
     async seed(): Promise<void> {
         console.log('🌱 Seeding No-Fly Zones...');
@@ -30,21 +30,21 @@ export class NoFlyZoneSeeder {
         const predefinedZones = [
             {
                 name: 'International Airport Zone',
-                zone_type: ZoneType.POLYGON,
+                zoneType: ZoneType.POLYGON,
                 geometry:
                     'POLYGON((106.6297 10.7769, 106.6400 10.7769, 106.6400 10.7869, 106.6297 10.7869, 106.6297 10.7769))',
                 description: 'Airport restricted airspace',
             },
             {
                 name: 'Military Base Alpha',
-                zone_type: ZoneType.POLYGON,
+                zoneType: ZoneType.POLYGON,
                 geometry:
                     'POLYGON((106.7000 10.8000, 106.7100 10.8000, 106.7100 10.8100, 106.7000 10.8100, 106.7000 10.8000))',
                 description: 'Military restricted area',
             },
             {
                 name: 'Government Building Complex',
-                zone_type: ZoneType.POLYGON,
+                zoneType: ZoneType.POLYGON,
                 geometry:
                     'POLYGON((106.7200 10.7800, 106.7300 10.7800, 106.7300 10.7900, 106.7200 10.7900, 106.7200 10.7800))',
                 description: 'Government security zone',
@@ -75,7 +75,7 @@ export class NoFlyZoneSeeder {
 
             noFlyZones.push({
                 name: `${faker.location.city()} Restricted Zone ${i + 1}`,
-                zone_type: ZoneType.POLYGON,
+                zoneType: ZoneType.POLYGON,
                 geometry: polygon,
                 description: faker.helpers.arrayElement(reasons),
             });

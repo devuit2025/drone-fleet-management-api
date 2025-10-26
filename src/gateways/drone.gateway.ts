@@ -112,16 +112,16 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
         try {
             const { flightId, pathPoint } = data;
 
-            // Add path point to flight
-            const addedPathPoint = await this.flightsService.addPathPoint(
-                parseInt(flightId),
-                pathPoint,
-            );
+            // TODO: Implement addPathPoint in MissionsService
+            // const addedPathPoint = await this.flightsService.addPathPoint(
+            //     parseInt(flightId),
+            //     pathPoint,
+            // );
 
             // Broadcast path point to all connected clients
             this.server.emit('flight:path_point_added', {
                 flightId,
-                pathPoint: addedPathPoint,
+                pathPoint,
                 timestamp: new Date(),
             });
 
@@ -140,8 +140,8 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
         try {
             const { flightId } = data;
 
-            // Start flight
-            await this.flightsService.startFlight(parseInt(flightId), {});
+            // TODO: Implement startFlight in MissionsService
+            // await this.flightsService.startFlight(parseInt(flightId), {});
 
             // Broadcast flight start to all connected clients
             this.server.emit('flight:started', {
@@ -164,8 +164,8 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
         try {
             const { flightId, endData } = data;
 
-            // End flight
-            await this.flightsService.endFlight(parseInt(flightId), endData);
+            // TODO: Implement endFlight in MissionsService
+            // await this.flightsService.endFlight(parseInt(flightId), endData);
 
             // Broadcast flight end to all connected clients
             this.server.emit('flight:ended', {

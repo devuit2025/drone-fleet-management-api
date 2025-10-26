@@ -15,8 +15,8 @@ export class FlightPathRepository extends BaseRepository<Waypoint> {
 
     async findByFlightId(flightId: number): Promise<Waypoint[]> {
         return await this.flightPathRepository.find({
-            where: { mission_id: flightId },
-            order: { seq_number: 'ASC' },
+            where: { missionId: flightId },
+            order: { seqNumber: 'ASC' },
         });
     }
 
@@ -29,30 +29,30 @@ export class FlightPathRepository extends BaseRepository<Waypoint> {
         batteryLevel: number,
     ): Promise<Waypoint> {
         const lastPoint = await this.flightPathRepository.findOne({
-            where: { mission_id: flightId },
-            order: { seq_number: 'DESC' },
+            where: { missionId: flightId },
+            order: { seqNumber: 'DESC' },
         });
 
-        const seq_number = lastPoint ? lastPoint.seq_number + 1 : 1;
+        const seqNumber = lastPoint ? lastPoint.seqNumber + 1 : 1;
 
         return await this.create({
-            mission_id: flightId,
-            seq_number,
-            geo_point: `POINT(${longitude} ${latitude})`,
-            altitude_m: altitude,
-            speed_mps: speed,
+            missionId: flightId,
+            seqNumber,
+            geoPoint: `POINT(${longitude} ${latitude})`,
+            altitudeM: altitude,
+            speedMps: speed,
             action: 'waypoint',
         });
     }
 
     async getLatestPathPoint(flightId: number): Promise<Waypoint | null> {
         return await this.flightPathRepository.findOne({
-            where: { mission_id: flightId },
-            order: { seq_number: 'DESC' },
+            where: { missionId: flightId },
+            order: { seqNumber: 'DESC' },
         });
     }
 
     async deleteByFlightId(flightId: number): Promise<void> {
-        await this.flightPathRepository.delete({ mission_id: flightId });
+        await this.flightPathRepository.delete({ missionId: flightId });
     }
 }

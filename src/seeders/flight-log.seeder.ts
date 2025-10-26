@@ -12,7 +12,7 @@ export class FlightLogSeeder {
         private readonly flightLogRepository: Repository<FlightLog>,
         @InjectRepository(Mission)
         private readonly missionRepository: Repository<Mission>,
-    ) {}
+    ) { }
 
     async seed(): Promise<void> {
         console.log('🌱 Seeding Flight Logs...');
@@ -83,21 +83,21 @@ export class FlightLogSeeder {
 
                 // Generate timestamp within mission duration
                 let timestamp: Date;
-                if (mission.start_time && mission.end_time) {
+                if (mission.startTime && mission.endTime) {
                     timestamp = faker.date.between({
-                        from: mission.start_time,
-                        to: mission.end_time,
+                        from: mission.startTime,
+                        to: mission.endTime,
                     });
-                } else if (mission.start_time) {
+                } else if (mission.startTime) {
                     timestamp = faker.date.recent({ days: 30 });
                 } else {
                     timestamp = faker.date.recent({ days: 30 });
                 }
 
                 flightLogs.push({
-                    mission_id: mission.id,
+                    missionId: mission.id,
                     timestamp,
-                    event_type: eventType,
+                    eventType: eventType,
                     description: faker.helpers.arrayElement(logMessages),
                 });
             }

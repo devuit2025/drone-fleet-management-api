@@ -15,7 +15,7 @@ export class SimulationSeeder {
         private readonly missionRepository: Repository<Mission>,
         @InjectRepository(Pilot)
         private readonly pilotRepository: Repository<Pilot>,
-    ) {}
+    ) { }
 
     async seed(): Promise<void> {
         console.log('🌱 Seeding Simulations...');
@@ -78,10 +78,10 @@ export class SimulationSeeder {
                 };
 
                 simulations.push({
-                    pilot_id: pilot.id,
-                    mission_id: mission.id,
-                    sim_start_time: startTime,
-                    sim_end_time: endTime,
+                    pilotId: pilot.id,
+                    missionId: mission.id,
+                    simStartTime: startTime,
+                    simEndTime: endTime,
                     parameters,
                 });
             }
