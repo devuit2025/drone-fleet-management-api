@@ -6,6 +6,8 @@ import { FlightLog } from '../entities/flight-log.entity';
 
 @Injectable()
 export class FlightLogRepository extends BaseRepository<FlightLog> {
+  protected relations = ['mission'];
+
   constructor(
     @InjectRepository(FlightLog)
     private readonly flightLogRepository: Repository<FlightLog>,

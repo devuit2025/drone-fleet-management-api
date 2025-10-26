@@ -6,6 +6,8 @@ import { License } from '../entities/license.entity';
 
 @Injectable()
 export class LicenseRepository extends BaseRepository<License> {
+  protected relations = ['pilot'];
+
   constructor(
     @InjectRepository(License)
     private readonly licenseRepository: Repository<License>,

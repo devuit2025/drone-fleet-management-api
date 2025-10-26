@@ -6,6 +6,8 @@ import { Waypoint } from '../entities/waypoint.entity';
 
 @Injectable()
 export class WaypointRepository extends BaseRepository<Waypoint> {
+  protected relations = ['mission'];
+
   constructor(
     @InjectRepository(Waypoint)
     private readonly waypointRepository: Repository<Waypoint>,

@@ -6,6 +6,8 @@ import { DroneCategory } from '../entities/drone-category.entity';
 
 @Injectable()
 export class DroneCategoryRepository extends BaseRepository<DroneCategory> {
+  protected relations = ['models'];
+
   constructor(
     @InjectRepository(DroneCategory)
     private readonly droneCategoryRepository: Repository<DroneCategory>,

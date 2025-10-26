@@ -6,6 +6,8 @@ import { NoFlyZone } from '../entities/no-fly-zone.entity';
 
 @Injectable()
 export class NoFlyZoneRepository extends BaseRepository<NoFlyZone> {
+  protected relations: string[] = [];
+
   constructor(
     @InjectRepository(NoFlyZone)
     private readonly noFlyZoneRepository: Repository<NoFlyZone>,

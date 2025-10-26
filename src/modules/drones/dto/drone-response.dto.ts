@@ -1,5 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Drone, DroneStatus } from '../../../entities/drone.entity';
+import { DroneModel } from '../../../entities/drone-model.entity';
+import { DroneSensor } from '../../../entities/drone-sensor.entity';
+import { Telemetry } from '../../../entities/telemetry.entity';
 
 export class DroneResponseDto {
     @ApiProperty({ description: 'Drone ID' })
@@ -35,6 +38,15 @@ export class DroneResponseDto {
     @ApiProperty({ description: 'Last update date' })
     updatedAt: Date;
 
+    @ApiProperty({ description: 'Drone model', type: Object, required: false })
+    model?: DroneModel;
+
+    @ApiProperty({ description: 'Drone sensors', type: [Object], required: false })
+    sensors?: DroneSensor[];
+
+    @ApiProperty({ description: 'Telemetry data', type: [Object], required: false })
+    telemetry?: Telemetry[];
+
     constructor(drone: Drone) {
         this.id = drone.id;
         this.modelId = drone.modelId;
@@ -47,5 +59,16 @@ export class DroneResponseDto {
         this.lastMaintenance = drone.lastMaintenance;
         this.createdAt = drone.createdAt;
         this.updatedAt = drone.updatedAt;
+
+        // Include relations if they exist
+        if (drone.model) {
+            this.model = drone.model;
+        }
+        if (drone.sensors) {
+            this.sensors = drone.sensors;
+        }
+        if (drone.telemetry) {
+            this.telemetry = drone.telemetry;
+        }
     }
 }

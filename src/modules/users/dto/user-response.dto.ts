@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { User, UserRole } from '../../../entities/user.entity';
+import { Pilot } from '../../../entities/pilot.entity';
 
 export class UserResponseDto {
     @ApiProperty({ description: 'User ID' })
@@ -20,6 +21,9 @@ export class UserResponseDto {
     @ApiProperty({ description: 'Last update date' })
     updatedAt: Date;
 
+    @ApiProperty({ description: 'Pilots associated with this user', type: [Object], required: false })
+    pilots?: Pilot[];
+
     constructor(user: User) {
         this.id = user.id;
         this.name = user.name;
@@ -27,5 +31,10 @@ export class UserResponseDto {
         this.role = user.role;
         this.createdAt = user.createdAt;
         this.updatedAt = user.updatedAt;
+
+        // Include relations if they exist
+        if (user.pilots) {
+            this.pilots = user.pilots;
+        }
     }
 }

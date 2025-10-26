@@ -197,6 +197,7 @@ describe('UsersController', () => {
             role: UserRole.OPERATOR,
             createdAt: new Date(),
             updatedAt: new Date(),
+            pilots: [], // Relations are loaded by repository findById()
         };
 
         it('should return user by ID', async () => {
@@ -211,9 +212,39 @@ describe('UsersController', () => {
                 role: mockUser.role,
                 createdAt: mockUser.createdAt.toISOString(),
                 updatedAt: mockUser.updatedAt.toISOString(),
+                pilots: [], // Empty array when no pilots exist
             });
 
             expect(mockUsersService.findById).toHaveBeenCalledWith('1');
+        });
+
+        it('should return user by ID with pilots relation loaded', async () => {
+            const mockUserWithPilots = {
+                ...mockUser,
+                pilots: [
+                    { id: 1, name: 'Pilot 1', userId: 1, status: 'active' },
+                    { id: 2, name: 'Pilot 2', userId: 1, status: 'active' },
+                ],
+            };
+
+            mockUsersService.findById.mockResolvedValue(mockUserWithPilots);
+
+            const response = await request(app.getHttpServer()).get('/api/v1/users/1').expect(200);
+
+            // Verify that the service was called with the correct ID
+            expect(mockUsersService.findById).toHaveBeenCalledWith('1');
+            // Verify that relations are included in response with all attributes
+            expect(response.body.pilots).toBeDefined();
+            expect(Array.isArray(response.body.pilots)).toBe(true);
+            expect(response.body.pilots.length).toBe(2);
+            expect(response.body.pilots[0]).toHaveProperty('id');
+            expect(response.body.pilots[0]).toHaveProperty('name');
+            expect(response.body.pilots[0]).toHaveProperty('userId');
+            expect(response.body.pilots[0]).toHaveProperty('status');
+            expect(response.body.pilots[0].name).toBe('Pilot 1');
+            expect(response.body.pilots[0].status).toBe('active');
+            expect(response.body.pilots[1].name).toBe('Pilot 2');
+            expect(response.body.pilots[1].status).toBe('active');
         });
 
         it('should return 404 when user not found', async () => {

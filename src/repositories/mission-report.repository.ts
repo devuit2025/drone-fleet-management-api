@@ -6,6 +6,8 @@ import { MissionReport } from '../entities/mission-report.entity';
 
 @Injectable()
 export class MissionReportRepository extends BaseRepository<MissionReport> {
+  protected relations = ['mission'];
+
   constructor(
     @InjectRepository(MissionReport)
     private readonly missionReportRepository: Repository<MissionReport>,

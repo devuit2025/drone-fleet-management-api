@@ -6,6 +6,8 @@ import { Permission } from '../entities/permission.entity';
 
 @Injectable()
 export class PermissionRepository extends BaseRepository<Permission> {
+  protected relations = ['roles'];
+
   constructor(
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>,

@@ -6,6 +6,8 @@ import { Simulation } from '../entities/simulation.entity';
 
 @Injectable()
 export class SimulationRepository extends BaseRepository<Simulation> {
+  protected relations = ['pilot', 'mission'];
+
   constructor(
     @InjectRepository(Simulation)
     private readonly simulationRepository: Repository<Simulation>,

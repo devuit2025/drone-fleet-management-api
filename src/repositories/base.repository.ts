@@ -40,6 +40,9 @@ export function Searchable(config: FieldSearchConfig = { operator: '=' }) {
 }
 
 export abstract class BaseRepository<T extends { id: number }> {
+    // Override this in child classes to define default relations to load
+    protected relations: string[] = [];
+
     constructor(protected readonly repository: Repository<T>) { }
 
     /**
@@ -67,6 +70,7 @@ export abstract class BaseRepository<T extends { id: number }> {
     async findById(id: number): Promise<T | null> {
         return await this.repository.findOne({
             where: { id } as FindOptionsWhere<T>,
+            relations: this.relations.length > 0 ? this.relations : undefined,
         });
     }
 
@@ -158,7 +162,7 @@ export abstract class BaseRepository<T extends { id: number }> {
             queryBuilder.take(effectiveLimit);
         }
 
-        if (relations) {
+        if (relations && relations.length > 0) {
             relations.forEach(relation => {
                 queryBuilder.leftJoinAndSelect(
                     this.repository.metadata.targetName + '.' + relation,

@@ -253,6 +253,79 @@ describe('DronesController', () => {
             expect(mockDronesService.findById).toHaveBeenCalledWith(1);
         });
 
+        it('should return drone by ID with model, sensors, and telemetry relations loaded', async () => {
+            const mockDroneWithRelations = new DroneResponseDto({
+                id: 1,
+                modelId: 1,
+                name: 'Test Drone',
+                serialNumber: 'DRONE-001',
+                status: DroneStatus.AVAILABLE,
+                firmwareVersion: '1.0.0',
+                batteryHealth: 85,
+                totalFlightHours: 0,
+                lastMaintenance: new Date(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                model: { id: 1, name: 'DJI Mavic 3', brandId: 1, categoryId: 1 },
+                sensors: [
+                    { id: 1, type: 'camera', model: 'DJI Camera', droneId: 1, status: 'active' },
+                    { id: 2, type: 'gps', model: 'GPS Module', droneId: 1, status: 'active' },
+                ],
+                telemetry: [
+                    { id: 1, droneId: 1, missionId: 1, timestamp: new Date(), altitudeM: 100, speedMps: 10, batteryPct: 80, status: 'flying' },
+                    { id: 2, droneId: 1, missionId: 1, timestamp: new Date(), altitudeM: 150, speedMps: 15, batteryPct: 75, status: 'flying' },
+                ],
+            } as any);
+
+            mockDronesService.findById.mockResolvedValue(mockDroneWithRelations);
+
+            const response = await request(app.getHttpServer())
+                .get('/api/v1/drones/1')
+                .expect(200);
+
+            expect(response.body.id).toBe(1);
+            // Verify that relations are included in response with all attributes
+            expect(response.body.model).toBeDefined();
+            expect(response.body.model).toHaveProperty('id');
+            expect(response.body.model).toHaveProperty('name');
+            expect(response.body.model).toHaveProperty('brandId');
+            expect(response.body.model).toHaveProperty('categoryId');
+            expect(response.body.model.name).toBe('DJI Mavic 3');
+
+            expect(response.body.sensors).toBeDefined();
+            expect(Array.isArray(response.body.sensors)).toBe(true);
+            expect(response.body.sensors.length).toBe(2);
+            expect(response.body.sensors[0]).toHaveProperty('id');
+            expect(response.body.sensors[0]).toHaveProperty('type');
+            expect(response.body.sensors[0]).toHaveProperty('model');
+            expect(response.body.sensors[0]).toHaveProperty('droneId');
+            expect(response.body.sensors[0]).toHaveProperty('status');
+            expect(response.body.sensors[0].type).toBe('camera');
+            expect(response.body.sensors[0].model).toBe('DJI Camera');
+            expect(response.body.sensors[1].type).toBe('gps');
+            expect(response.body.sensors[1].model).toBe('GPS Module');
+
+            expect(response.body.telemetry).toBeDefined();
+            expect(Array.isArray(response.body.telemetry)).toBe(true);
+            expect(response.body.telemetry.length).toBe(2);
+            expect(response.body.telemetry[0]).toHaveProperty('id');
+            expect(response.body.telemetry[0]).toHaveProperty('droneId');
+            expect(response.body.telemetry[0]).toHaveProperty('missionId');
+            expect(response.body.telemetry[0]).toHaveProperty('timestamp');
+            expect(response.body.telemetry[0]).toHaveProperty('altitudeM');
+            expect(response.body.telemetry[0]).toHaveProperty('speedMps');
+            expect(response.body.telemetry[0]).toHaveProperty('batteryPct');
+            expect(response.body.telemetry[0]).toHaveProperty('status');
+            expect(response.body.telemetry[0].altitudeM).toBe(100);
+            expect(response.body.telemetry[0].speedMps).toBe(10);
+            expect(response.body.telemetry[0].batteryPct).toBe(80);
+            expect(response.body.telemetry[1].altitudeM).toBe(150);
+            expect(response.body.telemetry[1].speedMps).toBe(15);
+            expect(response.body.telemetry[1].batteryPct).toBe(75);
+
+            expect(mockDronesService.findById).toHaveBeenCalledWith(1);
+        });
+
         it('should return 404 when drone not found', async () => {
             mockDronesService.findById.mockRejectedValue(
                 new HttpException('Drone not found', HttpStatus.NOT_FOUND),

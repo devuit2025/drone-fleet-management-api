@@ -6,6 +6,8 @@ import { Telemetry } from '../entities/telemetry.entity';
 
 @Injectable()
 export class TelemetryRepository extends BaseRepository<Telemetry> {
+  protected relations = ['drone', 'mission'];
+
   constructor(
     @InjectRepository(Telemetry)
     private readonly telemetryRepository: Repository<Telemetry>,

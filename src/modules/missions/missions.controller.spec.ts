@@ -226,6 +226,162 @@ describe('MissionsController', () => {
             expect(mockMissionsService.findById).toHaveBeenCalledWith(1);
         });
 
+        it('should return mission by ID with pilot and drone relations loaded', async () => {
+            const mockMissionWithRelations = new MissionResponseDto({
+                id: 1,
+                pilotId: 1,
+                licenseId: null,
+                missionName: 'Test Mission',
+                status: MissionStatus.PLANNED,
+                startTime: null,
+                endTime: null,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                pilot: {
+                    id: 1,
+                    name: 'Test Pilot',
+                    userId: 1,
+                    status: 'active',
+                },
+                drone: {
+                    id: 1,
+                    name: 'Test Drone',
+                    serialNumber: 'DRONE-001',
+                    status: 'available',
+                },
+                waypoints: [
+                    { id: 1, missionId: 1, seqNumber: 1, geoPoint: 'POINT(106.6 10.7)', altitudeM: 50, speedMps: 10, action: 'fly_to', createdAt: new Date() },
+                    { id: 2, missionId: 1, seqNumber: 2, geoPoint: 'POINT(106.61 10.71)', altitudeM: 100, speedMps: 15, action: 'hover', createdAt: new Date() },
+                ],
+                drones: [
+                    { id: 1, name: 'Test Drone 1', serialNumber: 'DRONE-001', status: 'available' },
+                    { id: 2, name: 'Test Drone 2', serialNumber: 'DRONE-002', status: 'available' },
+                ],
+                telemetry: [
+                    { id: 1, droneId: 1, missionId: 1, timestamp: new Date(), altitudeM: 100, speedMps: 10, batteryPct: 80, status: 'flying' },
+                    { id: 2, droneId: 1, missionId: 1, timestamp: new Date(), altitudeM: 150, speedMps: 15, batteryPct: 75, status: 'flying' },
+                ],
+                flightLogs: [
+                    { id: 1, missionId: 1, eventType: 'info', description: 'Mission started', timestamp: new Date() },
+                    { id: 2, missionId: 1, eventType: 'info', description: 'Waypoint reached', timestamp: new Date() },
+                ],
+                reports: [
+                    { id: 1, missionId: 1, flightTimeSec: 3600, distanceM: 10000, avgSpeedMps: 15.5, batteryConsumedPct: 45.2, incidentCount: 0, createdAt: new Date(), updatedAt: new Date() },
+                    { id: 2, missionId: 1, flightTimeSec: 7200, distanceM: 20000, avgSpeedMps: 18.2, batteryConsumedPct: 60.5, incidentCount: 1, createdAt: new Date(), updatedAt: new Date() },
+                ],
+                simulations: [
+                    { id: 1, pilotId: 1, missionId: 1, simStartTime: new Date(), simEndTime: new Date(), parameters: { type: 'weather' } },
+                    { id: 2, pilotId: 1, missionId: 1, simStartTime: new Date(), simEndTime: new Date(), parameters: { type: 'route' } },
+                ],
+            } as any);
+
+            mockMissionsService.findById.mockResolvedValue(mockMissionWithRelations);
+
+            const response = await request(app.getHttpServer())
+                .get('/api/v1/missions/1')
+                .expect(200);
+
+            expect(response.body.id).toBe(1);
+            // Verify that relations are included in response
+            expect(response.body.pilot).toBeDefined();
+            expect(response.body.drone).toBeDefined();
+            expect(response.body.pilot.name).toBe('Test Pilot');
+            expect(response.body.drone.name).toBe('Test Drone');
+
+            // Verify OneToMany/ManyToMany relations with minimum 2 records and exact expected values
+            expect(response.body.waypoints).toBeDefined();
+            expect(Array.isArray(response.body.waypoints)).toBe(true);
+            expect(response.body.waypoints.length).toBe(2);
+            expect(response.body.waypoints[0].id).toBe(1);
+            expect(response.body.waypoints[0].missionId).toBe(1);
+            expect(response.body.waypoints[0].seqNumber).toBe(1);
+            expect(response.body.waypoints[0].geoPoint).toBe('POINT(106.6 10.7)');
+            expect(response.body.waypoints[0].altitudeM).toBe(50);
+            expect(response.body.waypoints[0].speedMps).toBe(10);
+            expect(response.body.waypoints[0].action).toBe('fly_to');
+            expect(response.body.waypoints[1].id).toBe(2);
+            expect(response.body.waypoints[1].missionId).toBe(1);
+            expect(response.body.waypoints[1].seqNumber).toBe(2);
+            expect(response.body.waypoints[1].geoPoint).toBe('POINT(106.61 10.71)');
+            expect(response.body.waypoints[1].altitudeM).toBe(100);
+            expect(response.body.waypoints[1].speedMps).toBe(15);
+            expect(response.body.waypoints[1].action).toBe('hover');
+
+            expect(response.body.drones).toBeDefined();
+            expect(Array.isArray(response.body.drones)).toBe(true);
+            expect(response.body.drones.length).toBe(2);
+            expect(response.body.drones[0].id).toBe(1);
+            expect(response.body.drones[0].name).toBe('Test Drone 1');
+            expect(response.body.drones[0].serialNumber).toBe('DRONE-001');
+            expect(response.body.drones[0].status).toBe('available');
+            expect(response.body.drones[1].id).toBe(2);
+            expect(response.body.drones[1].name).toBe('Test Drone 2');
+            expect(response.body.drones[1].serialNumber).toBe('DRONE-002');
+            expect(response.body.drones[1].status).toBe('available');
+
+            expect(response.body.telemetry).toBeDefined();
+            expect(Array.isArray(response.body.telemetry)).toBe(true);
+            expect(response.body.telemetry.length).toBe(2);
+            expect(response.body.telemetry[0].id).toBe(1);
+            expect(response.body.telemetry[0].droneId).toBe(1);
+            expect(response.body.telemetry[0].missionId).toBe(1);
+            expect(response.body.telemetry[0].altitudeM).toBe(100);
+            expect(response.body.telemetry[0].speedMps).toBe(10);
+            expect(response.body.telemetry[0].batteryPct).toBe(80);
+            expect(response.body.telemetry[0].status).toBe('flying');
+            expect(response.body.telemetry[1].id).toBe(2);
+            expect(response.body.telemetry[1].droneId).toBe(1);
+            expect(response.body.telemetry[1].missionId).toBe(1);
+            expect(response.body.telemetry[1].altitudeM).toBe(150);
+            expect(response.body.telemetry[1].speedMps).toBe(15);
+            expect(response.body.telemetry[1].batteryPct).toBe(75);
+            expect(response.body.telemetry[1].status).toBe('flying');
+
+            expect(response.body.flightLogs).toBeDefined();
+            expect(Array.isArray(response.body.flightLogs)).toBe(true);
+            expect(response.body.flightLogs.length).toBe(2);
+            expect(response.body.flightLogs[0].id).toBe(1);
+            expect(response.body.flightLogs[0].missionId).toBe(1);
+            expect(response.body.flightLogs[0].eventType).toBe('info');
+            expect(response.body.flightLogs[0].description).toBe('Mission started');
+            expect(response.body.flightLogs[1].id).toBe(2);
+            expect(response.body.flightLogs[1].missionId).toBe(1);
+            expect(response.body.flightLogs[1].eventType).toBe('info');
+            expect(response.body.flightLogs[1].description).toBe('Waypoint reached');
+
+            expect(response.body.reports).toBeDefined();
+            expect(Array.isArray(response.body.reports)).toBe(true);
+            expect(response.body.reports.length).toBe(2);
+            expect(response.body.reports[0].id).toBe(1);
+            expect(response.body.reports[0].missionId).toBe(1);
+            expect(response.body.reports[0].flightTimeSec).toBe(3600);
+            expect(response.body.reports[0].distanceM).toBe(10000);
+            expect(response.body.reports[0].avgSpeedMps).toBe(15.5);
+            expect(response.body.reports[0].batteryConsumedPct).toBe(45.2);
+            expect(response.body.reports[0].incidentCount).toBe(0);
+            expect(response.body.reports[1].id).toBe(2);
+            expect(response.body.reports[1].missionId).toBe(1);
+            expect(response.body.reports[1].flightTimeSec).toBe(7200);
+            expect(response.body.reports[1].distanceM).toBe(20000);
+            expect(response.body.reports[1].avgSpeedMps).toBe(18.2);
+            expect(response.body.reports[1].batteryConsumedPct).toBe(60.5);
+            expect(response.body.reports[1].incidentCount).toBe(1);
+
+            expect(response.body.simulations).toBeDefined();
+            expect(Array.isArray(response.body.simulations)).toBe(true);
+            expect(response.body.simulations.length).toBe(2);
+            expect(response.body.simulations[0].id).toBe(1);
+            expect(response.body.simulations[0].pilotId).toBe(1);
+            expect(response.body.simulations[0].missionId).toBe(1);
+            expect(response.body.simulations[0].parameters.type).toBe('weather');
+            expect(response.body.simulations[1].id).toBe(2);
+            expect(response.body.simulations[1].pilotId).toBe(1);
+            expect(response.body.simulations[1].missionId).toBe(1);
+            expect(response.body.simulations[1].parameters.type).toBe('route');
+
+            expect(mockMissionsService.findById).toHaveBeenCalledWith(1);
+        });
+
         it('should return 404 when mission not found', async () => {
             mockMissionsService.findById.mockRejectedValue(
                 new HttpException('Mission not found', HttpStatus.NOT_FOUND),
