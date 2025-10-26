@@ -16,6 +16,7 @@ import { DroneCategoriesModule } from './modules/drone-categories/drone-categori
 import { DroneModelsModule } from './modules/drone-models/drone-models.module';
 import { DroneSensorsModule } from './modules/drone-sensors/drone-sensors.module';
 import { WaypointsModule } from './modules/waypoints/waypoints.module';
+import { MissionDronesModule } from './modules/mission-drones/mission-drones.module';
 import { DroneGateway } from './gateways/drone.gateway';
 import { User } from './entities/user.entity';
 import { Pilot } from './entities/pilot.entity';
@@ -35,6 +36,7 @@ import { DroneBrand } from './entities/drone-brand.entity';
 import { DroneCategory } from './entities/drone-category.entity';
 import { DroneModel } from './entities/drone-model.entity';
 import { DroneSensor } from './entities/drone-sensor.entity';
+import { MissionDrone } from './entities/mission-drone.entity';
 import { SeederModule } from './seeders/seeder.module';
 
 @Module({
@@ -68,6 +70,7 @@ import { SeederModule } from './seeders/seeder.module';
                 DroneCategory,
                 DroneModel,
                 DroneSensor,
+                MissionDrone,
             ],
             synchronize: process.env.NODE_ENV !== 'production',
             logging: process.env.NODE_ENV === 'development',
@@ -85,6 +88,7 @@ import { SeederModule } from './seeders/seeder.module';
         DroneModelsModule,
         DroneSensorsModule,
         WaypointsModule,
+        MissionDronesModule,
         SeederModule,
     ],
     controllers: [AppController],
