@@ -4,14 +4,18 @@ import {
     Column,
     CreateDateColumn,
     UpdateDateColumn,
+    ManyToOne,
+    JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Searchable } from '../repositories/base.repository';
+import { DroneModel } from './drone-model.entity';
 
 export enum DroneStatus {
     AVAILABLE = 'available',
     IN_MISSION = 'in_mission',
     MAINTENANCE = 'maintenance',
+    DECOMMISSIONED = 'decommissioned',
 }
 
 @Entity('drones')
@@ -20,19 +24,19 @@ export class Drone {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @ApiProperty({ description: 'Model ID', type: Number })
+    @Column({ name: 'model_id' })
+    modelId: number;
+
+    @ApiProperty({ description: 'Drone serial number' })
+    @Searchable({ operator: 'like' })
+    @Column({ name: 'serial_number', unique: true })
+    serialNumber: string;
+
     @Searchable({ operator: 'like' })
     @ApiProperty({ description: 'Drone name' })
     @Column()
     name: string;
-
-    @Searchable({ operator: 'like' })
-    @ApiProperty({ description: 'Drone model' })
-    @Column()
-    model: string;
-
-    @ApiProperty({ description: 'Drone serial number' })
-    @Column({ name: 'serial_number', unique: true })
-    serialNumber: string;
 
     @ApiProperty({ description: 'Drone status', enum: DroneStatus })
     @Column({
@@ -42,17 +46,25 @@ export class Drone {
     })
     status: DroneStatus;
 
-    @ApiProperty({ description: 'Maximum payload weight' })
-    @Column({ name: 'max_payload', type: 'numeric' })
-    maxPayload: number;
+    @ApiProperty({ description: 'Firmware version', nullable: true })
+    @Column({ name: 'firmware_version', nullable: true })
+    firmwareVersion: string | null;
 
-    @ApiProperty({ description: 'Battery capacity' })
-    @Column({ name: 'battery_capacity', type: 'numeric' })
-    batteryCapacity: number;
+    @ApiProperty({ description: 'Battery health percentage', nullable: true })
+    @Column({ name: 'battery_health', type: 'numeric', nullable: true })
+    batteryHealth: number | null;
 
-    @ApiProperty({ description: 'Last maintenance date' })
+    @ApiProperty({ description: 'Total flight hours' })
+    @Column({ name: 'total_flight_hours', type: 'numeric', default: 0 })
+    totalFlightHours: number;
+
+    @ApiProperty({ description: 'Last maintenance date', nullable: true })
     @Column({ name: 'last_maintenance', type: 'date', nullable: true })
-    lastMaintenance: Date;
+    lastMaintenance: Date | null;
+
+    @ManyToOne(() => DroneModel, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'model_id' })
+    model: DroneModel;
 
     @ApiProperty({ description: 'Creation date' })
     @CreateDateColumn({ name: 'created_at' })

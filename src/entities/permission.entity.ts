@@ -24,7 +24,7 @@ export class Permission {
   description: string;
 
   @ApiProperty({ description: 'Roles that have this permission' })
-  @ManyToMany(() => Role, role => role.permissions)
+  @ManyToMany(() => Role, role => role.permissions, { createForeignKeyConstraints: false })
   roles: Role[];
 
   @ApiProperty({ description: 'Creation date' })

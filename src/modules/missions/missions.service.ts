@@ -1,138 +1,63 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { FlightRepository } from '../../repositories/flight.repository';
-import { FlightPathRepository } from '../../repositories/flight-path.repository';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Mission, MissionStatus } from '../../entities/mission.entity';
-import { Waypoint } from '../../entities/waypoint.entity';
-import {
-    CreateMissionDto,
-    UpdateMissionDto,
-    StartMissionDto,
-    EndMissionDto,
-    AddPathPointDto,
-} from './dto';
+import { CreateMissionDto, UpdateMissionDto } from './dto';
 
 @Injectable()
 export class MissionsService {
     constructor(
-        private readonly flightRepository: FlightRepository,
-        private readonly flightPathRepository: FlightPathRepository,
+        @InjectRepository(Mission)
+        private readonly missionRepository: Repository<Mission>,
     ) { }
 
-    async create(createFlightDto: CreateMissionDto): Promise<Mission> {
-        return await this.flightRepository.create({
-            ...createFlightDto,
-            start_time: new Date(createFlightDto.plannedStartTime),
+    async create(createMissionDto: CreateMissionDto): Promise<Mission> {
+        const mission = this.missionRepository.create({
+            pilotId: createMissionDto.pilotId,
+            licenseId: createMissionDto.licenseId,
+            missionName: createMissionDto.missionName,
+            status: createMissionDto.status || MissionStatus.PLANNED,
+            startTime: createMissionDto.startTime ? new Date(createMissionDto.startTime) : null,
+            endTime: createMissionDto.endTime ? new Date(createMissionDto.endTime) : null,
         });
+        return await this.missionRepository.save(mission);
     }
 
     async findAll(): Promise<Mission[]> {
-        return await this.flightRepository.findAll();
+        return await this.missionRepository.find();
     }
 
     async findById(id: number): Promise<Mission> {
-        const flight = await this.flightRepository.findById(id);
-        if (!flight) {
-            throw new NotFoundException('Flight not found');
+        const mission = await this.missionRepository.findOne({
+            where: { id },
+        });
+        if (!mission) {
+            throw new NotFoundException('Mission not found');
         }
-        return flight;
+        return mission;
     }
 
-    async update(id: number, updateFlightDto: UpdateMissionDto): Promise<Mission> {
-        const flight = await this.findById(id);
+    async update(id: number, updateMissionDto: UpdateMissionDto): Promise<Mission> {
+        const mission = await this.findById(id);
 
-        if (flight.status !== MissionStatus.PLANNED) {
-            throw new BadRequestException('Can only update planned flights');
+        if (updateMissionDto.status) {
+            mission.status = updateMissionDto.status;
+        }
+        if (updateMissionDto.missionName) {
+            mission.missionName = updateMissionDto.missionName;
+        }
+        if (updateMissionDto.startTime !== undefined) {
+            mission.startTime = updateMissionDto.startTime ? new Date(updateMissionDto.startTime) : null;
+        }
+        if (updateMissionDto.endTime !== undefined) {
+            mission.endTime = updateMissionDto.endTime ? new Date(updateMissionDto.endTime) : null;
         }
 
-        const updateData: any = { ...updateFlightDto };
-        if (updateFlightDto.plannedStartTime) {
-            updateData.plannedStartTime = new Date(updateFlightDto.plannedStartTime);
-        }
-
-        return await this.flightRepository.update(id, updateData);
+        return await this.missionRepository.save(mission);
     }
 
     async delete(id: number): Promise<void> {
-        const flight = await this.findById(id);
-
-        if (flight.status === MissionStatus.IN_PROGRESS) {
-            throw new BadRequestException('Cannot delete flight in progress');
-        }
-
-        await this.flightRepository.delete(id);
-    }
-
-    async findByStatus(status: MissionStatus): Promise<Mission[]> {
-        return await this.flightRepository.findByStatus(status);
-    }
-
-    async findByPilot(pilotId: number): Promise<Mission[]> {
-        return await this.flightRepository.findByPilot(pilotId);
-    }
-
-    async findByDrone(droneId: number): Promise<Mission[]> {
-        return await this.flightRepository.findByDrone(droneId);
-    }
-
-    async findActiveFlights(): Promise<Mission[]> {
-        return await this.flightRepository.findActiveFlights();
-    }
-
-    async findFlightsByDateRange(startDate: Date, endDate: Date): Promise<Mission[]> {
-        return await this.flightRepository.findFlightsByDateRange(startDate, endDate);
-    }
-
-    async startFlight(id: number, startFlightDto: StartMissionDto): Promise<void> {
-        const flight = await this.findById(id);
-
-        if (flight.status !== MissionStatus.PLANNED) {
-            throw new BadRequestException('Can only start planned flights');
-        }
-
-        await this.flightRepository.startFlight(id);
-    }
-
-    async endFlight(id: number, endFlightDto: EndMissionDto): Promise<void> {
-        const flight = await this.findById(id);
-
-        if (flight.status !== MissionStatus.IN_PROGRESS) {
-            throw new BadRequestException('Can only end flights in progress');
-        }
-
-        await this.flightRepository.endFlight(
-            id,
-            endFlightDto.endLatitude,
-            endFlightDto.endLongitude,
-            endFlightDto.endAltitude,
-        );
-
-        // Notes field removed from Mission entity
-    }
-
-    async addPathPoint(id: number, addPathPointDto: AddPathPointDto): Promise<Waypoint> {
-        const flight = await this.findById(id);
-
-        if (flight.status !== MissionStatus.IN_PROGRESS) {
-            throw new BadRequestException('Can only add path points to flights in progress');
-        }
-
-        return await this.flightPathRepository.addPathPoint(
-            id,
-            addPathPointDto.latitude,
-            addPathPointDto.longitude,
-            addPathPointDto.altitude,
-            addPathPointDto.speed,
-            addPathPointDto.batteryLevel,
-        );
-    }
-
-    async getFlightPath(id: number): Promise<Waypoint[]> {
-        await this.findById(id);
-        return await this.flightPathRepository.findByFlightId(id);
-    }
-
-    async getLatestPathPoint(id: number): Promise<Waypoint | null> {
-        await this.findById(id);
-        return await this.flightPathRepository.getLatestPathPoint(id);
+        const mission = await this.findById(id);
+        await this.missionRepository.remove(mission);
     }
 }

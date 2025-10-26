@@ -39,9 +39,9 @@ export class DroneRepository extends BaseRepository<Drone> {
         });
     }
 
-    async updateBatteryCapacity(id: number, batteryCapacity: number): Promise<void> {
+    async updateBatteryHealth(id: number, batteryHealth: number): Promise<void> {
         await this.droneRepository.update(id, {
-            batteryCapacity,
+            batteryHealth,
         });
     }
 

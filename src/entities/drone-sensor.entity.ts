@@ -53,7 +53,7 @@ export class DroneSensor {
   })
   status: SensorStatus;
 
-  @ManyToOne(() => Drone)
+  @ManyToOne(() => Drone, { createForeignKeyConstraints: false })
   @JoinColumn({ name: 'drone_id' })
   drone: Drone;
 

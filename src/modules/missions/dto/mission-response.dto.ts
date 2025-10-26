@@ -31,13 +31,13 @@ export class MissionResponseDto {
 
     constructor(mission: Mission) {
         this.id = mission.id;
-        this.pilotId = mission.pilot_id;
-        this.licenseId = mission.license_id;
-        this.missionName = mission.mission_name;
+        this.pilotId = mission.pilotId;
+        this.licenseId = mission.licenseId;
+        this.missionName = mission.missionName;
         this.status = mission.status;
-        this.startTime = mission.start_time;
-        this.endTime = mission.end_time;
-        this.createdAt = mission.created_at;
-        this.updatedAt = mission.updated_at;
+        this.startTime = mission.startTime;
+        this.endTime = mission.endTime;
+        this.createdAt = mission.createdAt;
+        this.updatedAt = mission.updatedAt;
     }
 }

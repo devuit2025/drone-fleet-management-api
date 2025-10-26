@@ -25,7 +25,7 @@ export class Role {
   description: string;
 
   @ApiProperty({ description: 'Permissions associated with this role' })
-  @ManyToMany(() => Permission)
+  @ManyToMany(() => Permission, { createForeignKeyConstraints: false })
   @JoinTable({
     name: 'role_permissions',
     joinColumn: { name: 'role_id', referencedColumnName: 'id' },

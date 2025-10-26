@@ -5,25 +5,28 @@ export class DroneResponseDto {
     @ApiProperty({ description: 'Drone ID' })
     id: number;
 
-    @ApiProperty({ description: 'Drone name' })
-    name: string;
-
-    @ApiProperty({ description: 'Drone model' })
-    model: string;
+    @ApiProperty({ description: 'Model ID' })
+    modelId: number;
 
     @ApiProperty({ description: 'Drone serial number' })
     serialNumber: string;
 
+    @ApiProperty({ description: 'Drone name' })
+    name: string;
+
     @ApiProperty({ description: 'Drone status', enum: DroneStatus })
     status: DroneStatus;
 
-    @ApiProperty({ description: 'Maximum payload weight' })
-    maxPayload: number;
+    @ApiProperty({ description: 'Firmware version', nullable: true })
+    firmwareVersion: string;
 
-    @ApiProperty({ description: 'Battery capacity' })
-    batteryCapacity: number;
+    @ApiProperty({ description: 'Battery health percentage', nullable: true })
+    batteryHealth: number;
 
-    @ApiProperty({ description: 'Last maintenance date' })
+    @ApiProperty({ description: 'Total flight hours' })
+    totalFlightHours: number;
+
+    @ApiProperty({ description: 'Last maintenance date', nullable: true })
     lastMaintenance: Date;
 
     @ApiProperty({ description: 'Creation date' })
@@ -34,12 +37,13 @@ export class DroneResponseDto {
 
     constructor(drone: Drone) {
         this.id = drone.id;
-        this.name = drone.name;
-        this.model = drone.model;
+        this.modelId = drone.modelId;
         this.serialNumber = drone.serialNumber;
+        this.name = drone.name;
         this.status = drone.status;
-        this.maxPayload = drone.maxPayload;
-        this.batteryCapacity = drone.batteryCapacity;
+        this.firmwareVersion = drone.firmwareVersion;
+        this.batteryHealth = drone.batteryHealth;
+        this.totalFlightHours = drone.totalFlightHours;
         this.lastMaintenance = drone.lastMaintenance;
         this.createdAt = drone.createdAt;
         this.updatedAt = drone.updatedAt;

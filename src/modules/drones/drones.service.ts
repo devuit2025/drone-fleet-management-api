@@ -16,12 +16,13 @@ export class DronesService {
         }
 
         const droneData = {
+            modelId: createDroneDto.modelId,
             name: createDroneDto.name,
-            model: createDroneDto.model,
             serialNumber: createDroneDto.serialNumber,
             status: createDroneDto.status || DroneStatus.AVAILABLE,
-            maxPayload: createDroneDto.maxPayload,
-            batteryCapacity: createDroneDto.batteryCapacity,
+            firmwareVersion: createDroneDto.firmwareVersion,
+            batteryHealth: createDroneDto.batteryHealth,
+            totalFlightHours: createDroneDto.totalFlightHours || 0,
             lastMaintenance: createDroneDto.lastMaintenance,
         };
 
@@ -88,13 +89,13 @@ export class DronesService {
         await this.findById(id);
         await this.droneRepository.updateStatus(id, updateStatusDto.status);
 
-        if (updateStatusDto.battery_capacity !== undefined) {
-            await this.droneRepository.updateBatteryCapacity(id, updateStatusDto.battery_capacity);
+        if (updateStatusDto.battery_health !== undefined) {
+            await this.droneRepository.updateBatteryHealth(id, updateStatusDto.battery_health);
         }
     }
 
-    async updateBatteryCapacity(id: number, battery_capacity: number): Promise<void> {
+    async updateBatteryHealth(id: number, battery_health: number): Promise<void> {
         await this.findById(id);
-        await this.droneRepository.updateBatteryCapacity(id, battery_capacity);
+        await this.droneRepository.updateBatteryHealth(id, battery_health);
     }
 }

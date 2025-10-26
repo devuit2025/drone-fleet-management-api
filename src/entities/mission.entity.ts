@@ -21,18 +21,19 @@ export class Mission {
     id: number;
 
     @ApiProperty({ description: 'Pilot ID' })
-    @Column()
-    pilot_id: number;
+    @Column({ name: 'pilot_id' })
+    pilotId: number;
 
     @ApiProperty({ description: 'License ID' })
     @Column({
+        name: 'license_id',
         nullable: true,
     })
-    license_id: number | null;
+    licenseId: number | null;
 
     @ApiProperty({ description: 'Mission name' })
-    @Column()
-    mission_name: string;
+    @Column({ name: 'mission_name' })
+    missionName: string;
 
     @ApiProperty({ description: 'Mission status', enum: MissionStatus })
     @Column({
@@ -42,19 +43,19 @@ export class Mission {
     })
     status: MissionStatus;
 
-    @ApiProperty({ description: 'Start time' })
-    @Column({ nullable: true })
-    start_time: Date;
+    @ApiProperty({ description: 'Start time', nullable: true })
+    @Column({ name: 'start_time', type: 'timestamp', nullable: true })
+    startTime: Date | null;
 
-    @ApiProperty({ description: 'End time' })
-    @Column({ nullable: true })
-    end_time: Date;
+    @ApiProperty({ description: 'End time', nullable: true })
+    @Column({ name: 'end_time', type: 'timestamp', nullable: true })
+    endTime: Date | null;
 
     @ApiProperty({ description: 'Creation date' })
-    @CreateDateColumn()
-    created_at: Date;
+    @CreateDateColumn({ name: 'created_at' })
+    createdAt: Date;
 
     @ApiProperty({ description: 'Last update date' })
-    @UpdateDateColumn()
-    updated_at: Date;
+    @UpdateDateColumn({ name: 'updated_at' })
+    updatedAt: Date;
 }

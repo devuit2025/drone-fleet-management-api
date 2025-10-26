@@ -60,11 +60,11 @@ export class DroneModel {
     weight?: number;
   } | null;
 
-  @ManyToOne(() => DroneBrand)
+  @ManyToOne(() => DroneBrand, { createForeignKeyConstraints: false })
   @JoinColumn({ name: 'brand_id' })
   brand: DroneBrand;
 
-  @ManyToOne(() => DroneCategory)
+  @ManyToOne(() => DroneCategory, { createForeignKeyConstraints: false })
   @JoinColumn({ name: 'category_id' })
   category: DroneCategory;
 

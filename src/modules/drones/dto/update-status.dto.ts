@@ -7,9 +7,10 @@ export class UpdateStatusDto {
     @IsEnum(DroneStatus)
     status: DroneStatus;
 
-    @ApiProperty({ description: 'Battery capacity', required: false })
+    @ApiProperty({ description: 'Battery health', required: false })
     @IsOptional()
     @IsNumber()
     @Min(0)
-    battery_capacity?: number;
+    @Max(100)
+    battery_health?: number;
 }
