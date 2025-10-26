@@ -5,11 +5,16 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     ManyToOne,
+    OneToMany,
     JoinColumn,
+    ManyToMany,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Searchable } from '../repositories/base.repository';
 import { DroneModel } from './drone-model.entity';
+import { Mission } from './mission.entity';
+import { DroneSensor } from './drone-sensor.entity';
+import { Telemetry } from './telemetry.entity';
 
 export enum DroneStatus {
     AVAILABLE = 'available',
@@ -73,4 +78,13 @@ export class Drone {
     @ApiProperty({ description: 'Last update date' })
     @UpdateDateColumn({ name: 'updated_at' })
     updatedAt: Date;
+
+    @ManyToMany(() => Mission, mission => mission.drones, { createForeignKeyConstraints: false })
+    missions: Mission[];
+
+    @OneToMany(() => DroneSensor, sensor => sensor.drone, { createForeignKeyConstraints: false })
+    sensors: DroneSensor[];
+
+    @OneToMany(() => Telemetry, telemetry => telemetry.drone, { createForeignKeyConstraints: false })
+    telemetry: Telemetry[];
 }

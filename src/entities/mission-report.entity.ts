@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Mission } from './mission.entity';
 
 @Entity('mission_reports')
 export class MissionReport {
@@ -8,30 +9,34 @@ export class MissionReport {
     id: number;
 
     @ApiProperty({ description: 'Mission ID' })
-    @Column()
-    mission_id: number;
+    @Column({ name: 'mission_id' })
+    missionId: number;
+
+    @ManyToOne(() => Mission, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'mission_id' })
+    mission: Mission;
 
     @ApiProperty({ description: 'Flight time in seconds' })
-    @Column()
-    flight_time_sec: number;
+    @Column({ name: 'flight_time_sec' })
+    flightTimeSec: number;
 
     @ApiProperty({ description: 'Distance in meters' })
-    @Column({ type: 'numeric' })
-    distance_m: number;
+    @Column({ name: 'distance_m', type: 'numeric' })
+    distanceM: number;
 
     @ApiProperty({ description: 'Average speed in meters per second' })
-    @Column({ type: 'numeric' })
-    avg_speed_mps: number;
+    @Column({ name: 'avg_speed_mps', type: 'numeric' })
+    avgSpeedMps: number;
 
     @ApiProperty({ description: 'Battery consumed percentage' })
-    @Column({ type: 'numeric' })
-    battery_consumed_pct: number;
+    @Column({ name: 'battery_consumed_pct', type: 'numeric' })
+    batteryConsumedPct: number;
 
     @ApiProperty({ description: 'Incident count' })
-    @Column()
-    incident_count: number;
+    @Column({ name: 'incident_count' })
+    incidentCount: number;
 
     @ApiProperty({ description: 'Creation date' })
-    @CreateDateColumn()
-    created_at: Date;
+    @CreateDateColumn({ name: 'created_at' })
+    createdAt: Date;
 }

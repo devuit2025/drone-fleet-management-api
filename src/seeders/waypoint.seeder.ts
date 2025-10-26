@@ -12,7 +12,7 @@ export class WaypointSeeder {
         private readonly waypointRepository: Repository<Waypoint>,
         @InjectRepository(Mission)
         private readonly missionRepository: Repository<Mission>,
-    ) {}
+    ) { }
 
     async seed(): Promise<void> {
         console.log('🌱 Seeding Waypoints...');
@@ -63,11 +63,11 @@ export class WaypointSeeder {
                 const lng = baseLng + faker.number.float({ min: -0.01, max: 0.01 });
 
                 waypoints.push({
-                    mission_id: mission.id,
-                    seq_number: i + 1,
-                    geo_point: `POINT(${lng} ${lat})`, // PostGIS Point format
-                    altitude_m: faker.number.int({ min: 50, max: 500 }),
-                    speed_mps: faker.number.float({ min: 5, max: 25, fractionDigits: 1 }),
+                    missionId: mission.id,
+                    seqNumber: i + 1,
+                    geoPoint: `POINT(${lng} ${lat})`, // PostGIS Point format
+                    altitudeM: faker.number.int({ min: 50, max: 500 }),
+                    speedMps: faker.number.float({ min: 5, max: 25, fractionDigits: 1 }),
                     action: faker.helpers.arrayElement(actions),
                 });
             }

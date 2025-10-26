@@ -285,14 +285,14 @@ export class NoFakerSeeder {
         missions.forEach((mission, missionIndex) => {
             for (let i = 0; i < 3; i++) {
                 waypoints.push({
-                    mission_id: mission.id,
-                    seq_number: i + 1,
-                    geo_point: JSON.stringify({
+                    missionId: mission.id,
+                    seqNumber: i + 1,
+                    geoPoint: JSON.stringify({
                         type: 'Point',
                         coordinates: [106.6 + i * 0.01, 10.7 + i * 0.01],
                     }),
-                    altitude_m: 100 + i * 50,
-                    speed_mps: 10 + i * 5,
+                    altitudeM: 100 + i * 50,
+                    speedMps: 10 + i * 5,
                     action: i === 0 ? 'takeoff' : i === 2 ? 'landing' : 'waypoint',
                 });
             }

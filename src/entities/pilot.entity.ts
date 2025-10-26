@@ -4,8 +4,14 @@ import {
     Column,
     CreateDateColumn,
     UpdateDateColumn,
+    ManyToOne,
+    OneToMany,
+    JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { User } from './user.entity';
+import { License } from './license.entity';
+import { Simulation } from './simulation.entity';
 
 export enum PilotStatus {
     ACTIVE = 'active',
@@ -21,6 +27,10 @@ export class Pilot {
     @ApiProperty({ description: 'User ID' })
     @Column({ name: 'user_id' })
     userId: number;
+
+    @ManyToOne(() => User, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'user_id' })
+    user: User;
 
     @ApiProperty({ description: 'Pilot name' })
     @Column()
@@ -41,4 +51,10 @@ export class Pilot {
     @ApiProperty({ description: 'Last update date' })
     @UpdateDateColumn({ name: 'updated_at' })
     updatedAt: Date;
+
+    @OneToMany(() => License, license => license.pilot, { createForeignKeyConstraints: false })
+    licenses: License[];
+
+    @OneToMany(() => Simulation, simulation => simulation.pilot, { createForeignKeyConstraints: false })
+    simulations: Simulation[];
 }

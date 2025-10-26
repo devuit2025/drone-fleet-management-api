@@ -1,5 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Mission } from './mission.entity';
+import { Drone } from './drone.entity';
 
 @Entity('telemetry')
 export class Telemetry {
@@ -8,12 +10,20 @@ export class Telemetry {
     id: number;
 
     @ApiProperty({ description: 'Drone ID' })
-    @Column()
-    drone_id: number;
+    @Column({ name: 'drone_id' })
+    droneId: number;
+
+    @ManyToOne(() => Drone, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'drone_id' })
+    drone: Drone;
 
     @ApiProperty({ description: 'Mission ID' })
-    @Column()
-    mission_id: number;
+    @Column({ name: 'mission_id' })
+    missionId: number;
+
+    @ManyToOne(() => Mission, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'mission_id' })
+    mission: Mission;
 
     @ApiProperty({ description: 'Timestamp' })
     @Column()
@@ -24,22 +34,22 @@ export class Telemetry {
     location: string;
 
     @ApiProperty({ description: 'Altitude in meters' })
-    @Column({ type: 'numeric' })
-    altitude_m: number;
+    @Column({ name: 'altitude_m', type: 'numeric' })
+    altitudeM: number;
 
     @ApiProperty({ description: 'Speed in meters per second' })
-    @Column({ type: 'numeric' })
-    speed_mps: number;
+    @Column({ name: 'speed_mps', type: 'numeric' })
+    speedMps: number;
 
     @ApiProperty({ description: 'Battery percentage' })
-    @Column({ type: 'numeric' })
-    battery_pct: number;
+    @Column({ name: 'battery_pct', type: 'numeric' })
+    batteryPct: number;
 
     @ApiProperty({ description: 'Status' })
     @Column()
     status: string;
 
     @ApiProperty({ description: 'Payload weight' })
-    @Column({ type: 'numeric' })
-    payload_weight: number;
+    @Column({ name: 'payload_weight', type: 'numeric' })
+    payloadWeight: number;
 }

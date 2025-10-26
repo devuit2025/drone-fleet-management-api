@@ -5,9 +5,16 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     OneToMany,
+    ManyToMany,
+    JoinTable,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Waypoint } from './waypoint.entity';
+import { Drone } from './drone.entity';
+import { Telemetry } from './telemetry.entity';
+import { FlightLog } from './flight-log.entity';
+import { MissionReport } from './mission-report.entity';
+import { Simulation } from './simulation.entity';
 
 export enum MissionStatus {
     PLANNED = 'planned',
@@ -63,4 +70,24 @@ export class Mission {
 
     @OneToMany(() => Waypoint, waypoint => waypoint.mission, { createForeignKeyConstraints: false })
     waypoints: Waypoint[];
+
+    @ManyToMany(() => Drone, drone => drone.missions, { createForeignKeyConstraints: false })
+    @JoinTable({
+        name: 'mission_drones',
+        joinColumn: { name: 'mission_id', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'drone_id', referencedColumnName: 'id' },
+    })
+    drones: Drone[];
+
+    @OneToMany(() => Telemetry, telemetry => telemetry.mission, { createForeignKeyConstraints: false })
+    telemetry: Telemetry[];
+
+    @OneToMany(() => FlightLog, log => log.mission, { createForeignKeyConstraints: false })
+    flightLogs: FlightLog[];
+
+    @OneToMany(() => MissionReport, report => report.mission, { createForeignKeyConstraints: false })
+    reports: MissionReport[];
+
+    @OneToMany(() => Simulation, simulation => simulation.mission, { createForeignKeyConstraints: false })
+    simulations: Simulation[];
 }

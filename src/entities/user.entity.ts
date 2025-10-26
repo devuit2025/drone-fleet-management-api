@@ -4,9 +4,11 @@ import {
     Column,
     CreateDateColumn,
     UpdateDateColumn,
+    OneToMany,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
+import { Pilot } from './pilot.entity';
 
 export enum UserRole {
     ADMIN = 'admin',
@@ -47,4 +49,7 @@ export class User {
     @ApiProperty({ description: 'Last update date' })
     @UpdateDateColumn({ name: 'updated_at' })
     updatedAt: Date;
+
+    @OneToMany(() => Pilot, pilot => pilot.user, { createForeignKeyConstraints: false })
+    pilots: Pilot[];
 }

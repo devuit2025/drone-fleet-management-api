@@ -5,12 +5,14 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  OneToMany,
   JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Searchable } from '../repositories/base.repository';
 import { DroneBrand } from './drone-brand.entity';
 import { DroneCategory } from './drone-category.entity';
+import { Drone } from './drone.entity';
 
 @Entity('drone_models')
 export class DroneModel {
@@ -67,6 +69,9 @@ export class DroneModel {
   @ManyToOne(() => DroneCategory, { createForeignKeyConstraints: false })
   @JoinColumn({ name: 'category_id' })
   category: DroneCategory;
+
+  @OneToMany(() => Drone, drone => drone.model, { createForeignKeyConstraints: false })
+  drones: Drone[];
 
   @ApiProperty({ description: 'Creation date' })
   @CreateDateColumn({ name: 'created_at' })

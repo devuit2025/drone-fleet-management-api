@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Mission } from './mission.entity';
 
 @Entity('flight_logs')
 export class FlightLog {
@@ -8,12 +9,16 @@ export class FlightLog {
     id: number;
 
     @ApiProperty({ description: 'Mission ID' })
-    @Column()
-    mission_id: number;
+    @Column({ name: 'mission_id' })
+    missionId: number;
+
+    @ManyToOne(() => Mission, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'mission_id' })
+    mission: Mission;
 
     @ApiProperty({ description: 'Event type' })
-    @Column()
-    event_type: string;
+    @Column({ name: 'event_type' })
+    eventType: string;
 
     @ApiProperty({ description: 'Description' })
     @Column({ type: 'text' })

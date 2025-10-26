@@ -4,9 +4,11 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Searchable } from '../repositories/base.repository';
+import { DroneModel } from './drone-model.entity';
 
 @Entity('drone_brands')
 export class DroneBrand {
@@ -35,5 +37,8 @@ export class DroneBrand {
   @ApiProperty({ description: 'Last update date' })
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  @OneToMany(() => DroneModel, model => model.brand, { createForeignKeyConstraints: false })
+  models: DroneModel[];
 }
 

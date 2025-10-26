@@ -4,8 +4,11 @@ import {
     Column,
     CreateDateColumn,
     UpdateDateColumn,
+    ManyToOne,
+    JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Pilot } from './pilot.entity';
 
 export enum LicenseType {
     COMMERCIAL = 'commercial',
@@ -27,6 +30,10 @@ export class License {
     @ApiProperty({ description: 'Pilot ID' })
     @Column({ name: 'pilot_id' })
     pilotId: number;
+
+    @ManyToOne(() => Pilot, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'pilot_id' })
+    pilot: Pilot;
 
     @ApiProperty({ description: 'License number' })
     @Column({ name: 'license_number', unique: true })
