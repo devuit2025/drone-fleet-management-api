@@ -1,86 +1,68 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsDateString } from 'class-validator';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { IsNumber, IsInt } from 'class-validator';
+import { MissionReport } from '../../../entities/mission-report.entity';
 
 export class CreateMissionReportDto {
   @ApiProperty({ description: 'Mission ID' })
   @IsNumber()
-  mission_id: number;
+  missionId: number;
 
   @ApiProperty({ description: 'Flight time in seconds' })
-  @IsNumber()
-  flight_time_sec: number;
+  @IsInt()
+  flightTimeSec: number;
 
   @ApiProperty({ description: 'Distance in meters' })
   @IsNumber()
-  distance_m: number;
+  distanceM: number;
 
   @ApiProperty({ description: 'Average speed in meters per second' })
   @IsNumber()
-  avg_speed_mps: number;
+  avgSpeedMps: number;
 
   @ApiProperty({ description: 'Battery consumed percentage' })
   @IsNumber()
-  battery_consumed_pct: number;
+  batteryConsumedPct: number;
 
   @ApiProperty({ description: 'Incident count' })
-  @IsNumber()
-  incident_count: number;
+  @IsInt()
+  incidentCount: number;
 }
 
-export class UpdateMissionReportDto {
-  @ApiProperty({ description: 'Mission ID', required: false })
-  @IsOptional()
-  @IsNumber()
-  mission_id?: number;
-
-  @ApiProperty({ description: 'Flight time in seconds', required: false })
-  @IsOptional()
-  @IsNumber()
-  flight_time_sec?: number;
-
-  @ApiProperty({ description: 'Distance in meters', required: false })
-  @IsOptional()
-  @IsNumber()
-  distance_m?: number;
-
-  @ApiProperty({ description: 'Average speed in meters per second', required: false })
-  @IsOptional()
-  @IsNumber()
-  avg_speed_mps?: number;
-
-  @ApiProperty({ description: 'Battery consumed percentage', required: false })
-  @IsOptional()
-  @IsNumber()
-  battery_consumed_pct?: number;
-
-  @ApiProperty({ description: 'Incident count', required: false })
-  @IsOptional()
-  @IsNumber()
-  incident_count?: number;
-}
+export class UpdateMissionReportDto extends PartialType(CreateMissionReportDto) { }
 
 export class MissionReportResponseDto {
   @ApiProperty({ description: 'Mission report ID' })
   id: number;
 
   @ApiProperty({ description: 'Mission ID' })
-  mission_id: number;
+  missionId: number;
 
   @ApiProperty({ description: 'Flight time in seconds' })
-  flight_time_sec: number;
+  flightTimeSec: number;
 
   @ApiProperty({ description: 'Distance in meters' })
-  distance_m: number;
+  distanceM: number;
 
   @ApiProperty({ description: 'Average speed in meters per second' })
-  avg_speed_mps: number;
+  avgSpeedMps: number;
 
   @ApiProperty({ description: 'Battery consumed percentage' })
-  battery_consumed_pct: number;
+  batteryConsumedPct: number;
 
   @ApiProperty({ description: 'Incident count' })
-  incident_count: number;
+  incidentCount: number;
 
   @ApiProperty({ description: 'Creation date' })
-  created_at: Date;
+  createdAt: Date;
+
+  constructor(missionReport: MissionReport) {
+    this.id = missionReport.id;
+    this.missionId = missionReport.missionId;
+    this.flightTimeSec = missionReport.flightTimeSec;
+    this.distanceM = missionReport.distanceM;
+    this.avgSpeedMps = missionReport.avgSpeedMps;
+    this.batteryConsumedPct = missionReport.batteryConsumedPct;
+    this.incidentCount = missionReport.incidentCount;
+    this.createdAt = missionReport.createdAt;
+  }
 }
