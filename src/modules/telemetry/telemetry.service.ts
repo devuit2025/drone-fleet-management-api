@@ -20,34 +20,24 @@ export class TelemetryService {
   ) { }
 
   async create(createTelemetryDto: CreateTelemetryDto): Promise<Telemetry> {
-    // Validate mission and drone exist
-    const mission = await this.missionRepository.findOne({
-      where: { id: createTelemetryDto.missionId },
-    });
-    if (!mission) {
-      throw new NotFoundException('Mission not found');
-    }
+    // Use raw query for PostGIS geometry
+    const result = await this.telemetryRepository.query(`
+      INSERT INTO telemetry (drone_id, mission_id, timestamp, location, altitude_m, speed_mps, battery_pct, status, payload_weight)
+      VALUES ($1, $2, $3, ST_GeomFromText($4, 4326), $5, $6, $7, $8, $9)
+      RETURNING *
+    `, [
+      createTelemetryDto.droneId,
+      createTelemetryDto.missionId,
+      new Date(createTelemetryDto.timestamp).toISOString(),
+      createTelemetryDto.location,
+      createTelemetryDto.altitudeM,
+      createTelemetryDto.speedMps,
+      createTelemetryDto.batteryPct,
+      createTelemetryDto.status,
+      createTelemetryDto.payloadWeight,
+    ]);
 
-    const drone = await this.droneRepository.findOne({
-      where: { id: createTelemetryDto.droneId },
-    });
-    if (!drone) {
-      throw new NotFoundException('Drone not found');
-    }
-
-    const telemetry = this.telemetryRepository.create({
-      droneId: createTelemetryDto.droneId,
-      missionId: createTelemetryDto.missionId,
-      timestamp: new Date(createTelemetryDto.timestamp),
-      location: createTelemetryDto.location,
-      altitudeM: createTelemetryDto.altitudeM,
-      speedMps: createTelemetryDto.speedMps,
-      batteryPct: createTelemetryDto.batteryPct,
-      status: createTelemetryDto.status,
-      payloadWeight: createTelemetryDto.payloadWeight,
-    });
-
-    return await this.telemetryRepository.save(telemetry);
+    return result[0] as Telemetry;
   }
 
   async findAll(): Promise<Telemetry[]> {

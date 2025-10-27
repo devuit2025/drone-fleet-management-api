@@ -6,7 +6,7 @@
     "scripts": {
         "build": "nest build",
         "start": "nest start",
-        "start:dev": "nest start --watch",
+        "start:dev": "lsof -ti:3000 | xargs kill -9 2>/dev/null || true && nest start --watch",
         "start:debug": "nest start --debug --watch",
         "start:prod": "node dist/main",
         "lint": "eslint \"{src,apps,libs,test}/**/*.{ts,tsx,js}\" --max-warnings=0",
@@ -19,7 +19,11 @@
         "test:e2e": "jest --config ./test/jest-e2e.json",
         "seed": "ts-node src/seeders/seed.command.ts",
         "seed:simple": "ts-node src/seeders/simple-seed.command.ts",
-        "seed:no-faker": "ts-node src/seeders/no-faker-seed.command.ts"
+        "seed:no-faker": "ts-node src/seeders/no-faker-seed.command.ts",
+        "kill:dev": "lsof -ti:3000 | xargs kill -9 2>/dev/null || true",
+        "migration:run": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d data-source.ts",
+        "migration:revert": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d data-source.ts",
+        "migration:generate": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate"
     },
     "repository": {
         "type": "git",
