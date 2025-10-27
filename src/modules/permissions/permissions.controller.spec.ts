@@ -26,6 +26,9 @@ describe('PermissionsController', () => {
   };
 
   beforeEach(async () => {
+    jest.resetAllMocks();
+    jest.clearAllMocks();
+
     module = await Test.createTestingModule({
       imports: [
         PassportModule,
@@ -43,7 +46,9 @@ describe('PermissionsController', () => {
       ],
     })
       .overrideGuard(JwtAuthGuard)
-      .useValue(mockJwtAuthGuard)
+      .useValue({
+        canActivate: jest.fn(() => true),
+      })
       .compile();
 
     app = module.createNestApplication();

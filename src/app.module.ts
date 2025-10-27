@@ -16,7 +16,6 @@ import { DroneCategoriesModule } from './modules/drone-categories/drone-categori
 import { DroneModelsModule } from './modules/drone-models/drone-models.module';
 import { DroneSensorsModule } from './modules/drone-sensors/drone-sensors.module';
 import { WaypointsModule } from './modules/waypoints/waypoints.module';
-import { MissionDronesModule } from './modules/mission-drones/mission-drones.module';
 import { TelemetryModule } from './modules/telemetry/telemetry.module';
 import { NoFlyZonesModule } from './modules/no-fly-zones/no-fly-zones.module';
 import { FlightLogsModule } from './modules/flight-logs/flight-logs.module';
@@ -40,7 +39,6 @@ import { DroneBrand } from './entities/drone-brand.entity';
 import { DroneCategory } from './entities/drone-category.entity';
 import { DroneModel } from './entities/drone-model.entity';
 import { DroneSensor } from './entities/drone-sensor.entity';
-import { MissionDrone } from './entities/mission-drone.entity';
 import { SeederModule } from './seeders/seeder.module';
 
 @Module({
@@ -52,8 +50,8 @@ import { SeederModule } from './seeders/seeder.module';
             type: 'postgres',
             host: process.env.DB_HOST || 'localhost',
             port: parseInt(process.env.DB_PORT) || 5432,
-            username: process.env.DB_USERNAME || 'postgres',
-            password: process.env.DB_PASSWORD || 'postgres',
+            username: process.env.DB_USERNAME || 'trung',
+            password: process.env.DB_PASSWORD || '',
             database: process.env.DB_DATABASE || 'drone_fleet',
             entities: [
                 User,
@@ -74,9 +72,11 @@ import { SeederModule } from './seeders/seeder.module';
                 DroneCategory,
                 DroneModel,
                 DroneSensor,
-                MissionDrone,
             ],
-            synchronize: false, // Disabled to prevent migration issues
+            synchronize: process.env.NODE_ENV === 'development', // Auto-create schema
+            dropSchema: false, // Don't auto-drop (manual cleanup done)
+            retryAttempts: 3,
+            retryDelay: 3000,
             logging: process.env.NODE_ENV === 'development',
         }),
         UsersModule,
@@ -92,7 +92,6 @@ import { SeederModule } from './seeders/seeder.module';
         DroneModelsModule,
         DroneSensorsModule,
         WaypointsModule,
-        MissionDronesModule,
         TelemetryModule,
         NoFlyZonesModule,
         FlightLogsModule,

@@ -28,6 +28,9 @@ describe('DronesController', () => {
     };
 
     beforeEach(async () => {
+        jest.resetAllMocks();
+        jest.clearAllMocks();
+
         module = await Test.createTestingModule({
             controllers: [DronesController],
             providers: [
@@ -38,7 +41,9 @@ describe('DronesController', () => {
             ],
         })
             .overrideGuard(JwtAuthGuard)
-            .useValue(mockJwtAuthGuard)
+            .useValue({
+                canActivate: jest.fn(() => true),
+            })
             .compile();
 
         app = module.createNestApplication();

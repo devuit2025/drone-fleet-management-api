@@ -14,15 +14,21 @@ export class WaypointsService {
   ) { }
 
   async create(createWaypointDto: CreateWaypointDto): Promise<Waypoint> {
-    const waypoint = this.waypointRepository.create({
-      missionId: createWaypointDto.missionId,
-      seqNumber: createWaypointDto.seqNumber,
-      geoPoint: createWaypointDto.geoPoint,
-      altitudeM: createWaypointDto.altitudeM,
-      speedMps: createWaypointDto.speedMps,
-      action: createWaypointDto.action,
-    });
-    return await this.waypointRepository.save(waypoint);
+    // Use raw query for PostGIS geometry
+    const result = await this.waypointRepository.query(`
+      INSERT INTO waypoints (mission_id, seq_number, geo_point, altitude_m, speed_mps, action, created_at)
+      VALUES ($1, $2, ST_GeomFromText($3, 4326), $4, $5, $6, NOW())
+      RETURNING *
+    `, [
+      createWaypointDto.missionId,
+      createWaypointDto.seqNumber,
+      createWaypointDto.geoPoint,
+      createWaypointDto.altitudeM,
+      createWaypointDto.speedMps,
+      createWaypointDto.action,
+    ]);
+
+    return result[0] as Waypoint;
   }
 
   async findAll(): Promise<Waypoint[]> {

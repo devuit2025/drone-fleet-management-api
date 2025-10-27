@@ -10,7 +10,6 @@ export * from './no-fly-zone.repository';
 export * from './flight-log.repository';
 export * from './mission-report.repository';
 export * from './simulation.repository';
-export * from './mission-drone.repository';
 export * from './role.repository';
 export * from './permission.repository';
 export * from './drone-brand.repository';
