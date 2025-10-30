@@ -9,18 +9,21 @@ import {
   UseGuards,
   ParseIntPipe,
   Query,
+  Res,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { FlightLogsService } from './flight-logs.service';
 import { CreateFlightLogDto, UpdateFlightLogDto, FlightLogResponseDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { BaseController } from '../../common/base.controller';
+import { Response } from 'express';
 
 @ApiTags('Flight Logs')
 @Controller('api/v1/flight-logs')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-export class FlightLogsController {
-  constructor(private readonly flightLogsService: FlightLogsService) { }
+export class FlightLogsController extends BaseController {
+  constructor(private readonly flightLogsService: FlightLogsService) { super(); }
 
   @Post()
   @ApiOperation({ summary: 'Create a new flight log' })
@@ -42,16 +45,21 @@ export class FlightLogsController {
     description: 'Flight logs retrieved successfully',
     type: [FlightLogResponseDto],
   })
-  async findAll(@Query('missionId') missionId?: string): Promise<FlightLogResponseDto[]> {
-    let flightLogs;
-
-    if (missionId) {
-      flightLogs = await this.flightLogsService.findByMission(parseInt(missionId, 10));
-    } else {
-      flightLogs = await this.flightLogsService.findAll();
-    }
-
-    return flightLogs.map((log) => new FlightLogResponseDto(log));
+  async findAll(
+    @Query() query: any,
+    @Res({ passthrough: true }) res?: Response,
+  ): Promise<FlightLogResponseDto[]> {
+    const { page, per, ...filters } = query;
+    const currentPage = this.parsePage(page);
+    const perPage = this.parsePer(per);
+    const result = await this.flightLogsService.findAll({
+      ...filters,
+      page: currentPage,
+      per: perPage,
+    });
+    const { data, total } = this.normalizeListResult(result);
+    if (res) this.setPaginationHeaders(res, currentPage, perPage, total);
+    return (data as any[]).map((log) => new FlightLogResponseDto(log as any));
   }
 
   @Get(':id')
@@ -79,7 +87,7 @@ export class FlightLogsController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateFlightLogDto: UpdateFlightLogDto,
   ): Promise<FlightLogResponseDto> {
-    const flightLog = await this.flightLogsService.update(id, updateFlightLogDto);
+    const flightLog = await this.flightLogsService.update(id, updateFlightLogDto as any);
     return new FlightLogResponseDto(flightLog);
   }
 

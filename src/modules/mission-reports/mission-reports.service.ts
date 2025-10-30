@@ -5,16 +5,17 @@ import { MissionReport } from '../../entities/mission-report.entity';
 import { Mission } from '../../entities/mission.entity';
 import { CreateMissionReportDto, UpdateMissionReportDto } from './dto';
 import { MissionReportRepository } from '../../repositories/mission-report.repository';
+import { BaseService } from '../../common/base.service';
 
 @Injectable()
-export class MissionReportsService {
+export class MissionReportsService extends BaseService<MissionReport> {
   constructor(
     @InjectRepository(MissionReport)
     private readonly missionReportRepository: Repository<MissionReport>,
     private readonly missionReportRepo: MissionReportRepository,
     @InjectRepository(Mission)
     private readonly missionRepository: Repository<Mission>,
-  ) { }
+  ) { super(missionReportRepo, 'Mission report'); }
 
   async create(createMissionReportDto: CreateMissionReportDto): Promise<MissionReport> {
     // Validate mission exists
@@ -29,23 +30,9 @@ export class MissionReportsService {
     return await this.missionReportRepository.save(missionReport);
   }
 
-  async findAll(): Promise<MissionReport[]> {
-    return await this.missionReportRepo.findAll({
-      relations: ['mission'],
-      sort: '-createdAt',
-    });
-  }
+  // Inherit findAll(per,page)
 
-  async findById(id: number): Promise<MissionReport> {
-    const missionReport = await this.missionReportRepository.findOne({
-      where: { id },
-      relations: ['mission'],
-    });
-    if (!missionReport) {
-      throw new NotFoundException('Mission report not found');
-    }
-    return missionReport;
-  }
+  // Inherit findById
 
   async findByMission(missionId: number): Promise<MissionReport[]> {
     return await this.missionReportRepository.find({
@@ -80,9 +67,6 @@ export class MissionReportsService {
     return await this.missionReportRepository.save(missionReport);
   }
 
-  async delete(id: number): Promise<void> {
-    const missionReport = await this.findById(id);
-    await this.missionReportRepository.remove(missionReport);
-  }
+  // delete inherited
 }
 

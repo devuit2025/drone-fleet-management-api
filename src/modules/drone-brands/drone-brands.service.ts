@@ -4,14 +4,15 @@ import { Repository } from 'typeorm';
 import { DroneBrand } from '../../entities/drone-brand.entity';
 import { CreateDroneBrandDto, UpdateDroneBrandDto } from './dto';
 import { DroneBrandRepository } from '../../repositories/drone-brand.repository';
+import { BaseService } from '../../common/base.service';
 
 @Injectable()
-export class DroneBrandsService {
+export class DroneBrandsService extends BaseService<DroneBrand> {
   constructor(
     @InjectRepository(DroneBrand)
     private readonly droneBrandRepository: Repository<DroneBrand>,
     private readonly droneBrandRepo: DroneBrandRepository,
-  ) { }
+  ) { super(droneBrandRepo, 'Drone brand'); }
 
   async create(createDroneBrandDto: CreateDroneBrandDto): Promise<DroneBrand> {
     const existingBrand = await this.droneBrandRepo.findByName(createDroneBrandDto.name);
@@ -23,19 +24,9 @@ export class DroneBrandsService {
     return await this.droneBrandRepository.save(droneBrand);
   }
 
-  async findAll(): Promise<DroneBrand[]> {
-    return await this.droneBrandRepo.findAll();
-  }
+  // Inherit findAll(per,page)
 
-  async findById(id: number): Promise<DroneBrand> {
-    const droneBrand = await this.droneBrandRepository.findOne({
-      where: { id },
-    });
-    if (!droneBrand) {
-      throw new NotFoundException('Drone brand not found');
-    }
-    return droneBrand;
-  }
+  // Inherit findById
 
   async update(
     id: number,
@@ -59,9 +50,6 @@ export class DroneBrandsService {
     return await this.droneBrandRepository.save(droneBrand);
   }
 
-  async delete(id: number): Promise<void> {
-    const droneBrand = await this.findById(id);
-    await this.droneBrandRepository.remove(droneBrand);
-  }
+  // delete inherited
 }
 

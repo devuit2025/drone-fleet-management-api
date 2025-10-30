@@ -5,16 +5,17 @@ import { FlightLog } from '../../entities/flight-log.entity';
 import { Mission } from '../../entities/mission.entity';
 import { CreateFlightLogDto, UpdateFlightLogDto } from './dto';
 import { FlightLogRepository } from '../../repositories/flight-log.repository';
+import { BaseService } from '../../common/base.service';
 
 @Injectable()
-export class FlightLogsService {
+export class FlightLogsService extends BaseService<FlightLog> {
   constructor(
     @InjectRepository(FlightLog)
     private readonly flightLogRepository: Repository<FlightLog>,
     private readonly flightLogRepo: FlightLogRepository,
     @InjectRepository(Mission)
     private readonly missionRepository: Repository<Mission>,
-  ) { }
+  ) { super(flightLogRepo, 'Flight log'); }
 
   async create(createFlightLogDto: CreateFlightLogDto): Promise<FlightLog> {
     // Validate mission exists
@@ -35,23 +36,9 @@ export class FlightLogsService {
     return await this.flightLogRepository.save(flightLog);
   }
 
-  async findAll(): Promise<FlightLog[]> {
-    return await this.flightLogRepo.findAll({
-      relations: ['mission'],
-      sort: '-timestamp',
-    });
-  }
+  // Inherit findAll(per,page)
 
-  async findById(id: number): Promise<FlightLog> {
-    const flightLog = await this.flightLogRepository.findOne({
-      where: { id },
-      relations: ['mission'],
-    });
-    if (!flightLog) {
-      throw new NotFoundException('Flight log not found');
-    }
-    return flightLog;
-  }
+  // Inherit findById
 
   async findByMission(missionId: number): Promise<FlightLog[]> {
     return await this.flightLogRepository.find({
@@ -61,28 +48,26 @@ export class FlightLogsService {
     });
   }
 
-  async update(id: number, updateFlightLogDto: UpdateFlightLogDto): Promise<FlightLog> {
+  async update(id: number, updateFlightLogDto: Partial<FlightLog>): Promise<FlightLog> {
     const flightLog = await this.findById(id);
 
     if (updateFlightLogDto.missionId !== undefined) {
-      flightLog.missionId = updateFlightLogDto.missionId;
+      flightLog.missionId = updateFlightLogDto.missionId as any;
     }
     if (updateFlightLogDto.eventType !== undefined) {
-      flightLog.eventType = updateFlightLogDto.eventType;
+      flightLog.eventType = updateFlightLogDto.eventType as any;
     }
     if (updateFlightLogDto.description !== undefined) {
-      flightLog.description = updateFlightLogDto.description;
+      flightLog.description = updateFlightLogDto.description as any;
     }
-    if (updateFlightLogDto.timestamp !== undefined) {
-      flightLog.timestamp = new Date(updateFlightLogDto.timestamp);
+    if ((updateFlightLogDto as any).timestamp !== undefined) {
+      const ts = (updateFlightLogDto as any).timestamp;
+      flightLog.timestamp = ts ? new Date(ts as any) : flightLog.timestamp;
     }
 
     return await this.flightLogRepository.save(flightLog);
   }
 
-  async delete(id: number): Promise<void> {
-    const flightLog = await this.findById(id);
-    await this.flightLogRepository.remove(flightLog);
-  }
+  // delete inherited
 }
 

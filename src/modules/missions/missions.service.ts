@@ -4,14 +4,15 @@ import { Repository } from 'typeorm';
 import { Mission, MissionStatus } from '../../entities/mission.entity';
 import { CreateMissionDto, UpdateMissionDto } from './dto';
 import { MissionRepository } from '../../repositories/mission.repository';
+import { BaseService } from '../../common/base.service';
 
 @Injectable()
-export class MissionsService {
+export class MissionsService extends BaseService<Mission> {
     constructor(
         @InjectRepository(Mission)
         private readonly missionRepository: Repository<Mission>,
         private readonly missionRepo: MissionRepository,
-    ) { }
+    ) { super(missionRepo, 'Mission'); }
 
     async create(createMissionDto: CreateMissionDto): Promise<Mission> {
         const mission = this.missionRepository.create({
@@ -25,41 +26,30 @@ export class MissionsService {
         return await this.missionRepository.save(mission);
     }
 
-    async findAll(): Promise<Mission[]> {
-        return await this.missionRepo.findAll();
-    }
+    // Inherit findAll(per,page)
 
-    async findById(id: number): Promise<Mission> {
-        const mission = await this.missionRepository.findOne({
-            where: { id },
-        });
-        if (!mission) {
-            throw new NotFoundException('Mission not found');
-        }
-        return mission;
-    }
+    // Inherit findById
 
-    async update(id: number, updateMissionDto: UpdateMissionDto): Promise<Mission> {
+    async update(id: number, updateMissionDto: Partial<Mission>): Promise<Mission> {
         const mission = await this.findById(id);
 
-        if (updateMissionDto.status) {
-            mission.status = updateMissionDto.status;
+        if (updateMissionDto.status !== undefined) {
+            mission.status = updateMissionDto.status as any;
         }
-        if (updateMissionDto.missionName) {
-            mission.missionName = updateMissionDto.missionName;
+        if (updateMissionDto.missionName !== undefined) {
+            mission.missionName = updateMissionDto.missionName as string;
         }
-        if (updateMissionDto.startTime !== undefined) {
-            mission.startTime = updateMissionDto.startTime ? new Date(updateMissionDto.startTime) : null;
+        if ((updateMissionDto as any).startTime !== undefined) {
+            const start = (updateMissionDto as any).startTime;
+            mission.startTime = start ? new Date(start as any) : null;
         }
-        if (updateMissionDto.endTime !== undefined) {
-            mission.endTime = updateMissionDto.endTime ? new Date(updateMissionDto.endTime) : null;
+        if ((updateMissionDto as any).endTime !== undefined) {
+            const end = (updateMissionDto as any).endTime;
+            mission.endTime = end ? new Date(end as any) : null;
         }
 
         return await this.missionRepository.save(mission);
     }
 
-    async delete(id: number): Promise<void> {
-        const mission = await this.findById(id);
-        await this.missionRepository.remove(mission);
-    }
+    // delete inherited
 }

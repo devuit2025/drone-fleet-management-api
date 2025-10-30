@@ -4,14 +4,15 @@ import { Repository } from 'typeorm';
 import { DroneSensor, SensorStatus } from '../../entities/drone-sensor.entity';
 import { CreateDroneSensorDto, UpdateDroneSensorDto } from './dto';
 import { DroneSensorRepository } from '../../repositories/drone-sensor.repository';
+import { BaseService } from '../../common/base.service';
 
 @Injectable()
-export class DroneSensorsService {
+export class DroneSensorsService extends BaseService<DroneSensor> {
   constructor(
     @InjectRepository(DroneSensor)
     private readonly droneSensorRepository: Repository<DroneSensor>,
     private readonly droneSensorRepo: DroneSensorRepository,
-  ) { }
+  ) { super(droneSensorRepo, 'Drone sensor'); }
 
   async create(createDroneSensorDto: CreateDroneSensorDto): Promise<DroneSensor> {
     const droneSensor = this.droneSensorRepository.create({
@@ -21,22 +22,9 @@ export class DroneSensorsService {
     return await this.droneSensorRepository.save(droneSensor);
   }
 
-  async findAll(): Promise<DroneSensor[]> {
-    return await this.droneSensorRepo.findAll({
-      relations: ['drone'],
-    });
-  }
+  // Inherit findAll(per,page)
 
-  async findById(id: number): Promise<DroneSensor> {
-    const droneSensor = await this.droneSensorRepository.findOne({
-      where: { id },
-      relations: ['drone'],
-    });
-    if (!droneSensor) {
-      throw new NotFoundException('Drone sensor not found');
-    }
-    return droneSensor;
-  }
+  // Inherit findById
 
   async findByDroneId(droneId: number): Promise<DroneSensor[]> {
     return await this.droneSensorRepository.find({
@@ -54,9 +42,6 @@ export class DroneSensorsService {
     return await this.droneSensorRepository.save(droneSensor);
   }
 
-  async delete(id: number): Promise<void> {
-    const droneSensor = await this.findById(id);
-    await this.droneSensorRepository.remove(droneSensor);
-  }
+  // delete inherited
 }
 

@@ -8,18 +8,22 @@ import {
     Delete,
     UseGuards,
     ParseIntPipe,
+    Query,
+    Res,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { MissionsService } from './missions.service';
 import { CreateMissionDto, UpdateMissionDto, MissionResponseDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { BaseController } from '../../common/base.controller';
+import { Response } from 'express';
 
 @ApiTags('Missions')
 @Controller('api/v1/missions')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-export class MissionsController {
-    constructor(private readonly missionsService: MissionsService) { }
+export class MissionsController extends BaseController {
+    constructor(private readonly missionsService: MissionsService) { super(); }
 
     @Post()
     @ApiOperation({ summary: 'Create a new mission' })
@@ -40,9 +44,21 @@ export class MissionsController {
         description: 'Missions retrieved successfully',
         type: [MissionResponseDto],
     })
-    async findAll(): Promise<MissionResponseDto[]> {
-        const missions = await this.missionsService.findAll();
-        return missions.map((mission) => new MissionResponseDto(mission));
+    async findAll(
+        @Query() query: any,
+        @Res({ passthrough: true }) res?: Response,
+    ): Promise<MissionResponseDto[]> {
+        const { page, per, ...filters } = query;
+        const currentPage = this.parsePage(page);
+        const perPage = this.parsePer(per);
+        const result = await this.missionsService.findAll({
+            ...filters,
+            page: currentPage,
+            per: perPage,
+        });
+        const { data, total } = this.normalizeListResult(result);
+        if (res) this.setPaginationHeaders(res, currentPage, perPage, total);
+        return (data as any[]).map((mission) => new MissionResponseDto(mission as any));
     }
 
     @Get(':id')
@@ -70,7 +86,7 @@ export class MissionsController {
         @Param('id', ParseIntPipe) id: number,
         @Body() updateMissionDto: UpdateMissionDto,
     ): Promise<MissionResponseDto> {
-        const mission = await this.missionsService.update(id, updateMissionDto);
+        const mission = await this.missionsService.update(id, updateMissionDto as any);
         return new MissionResponseDto(mission);
     }
 

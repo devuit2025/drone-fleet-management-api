@@ -9,18 +9,21 @@ import {
   UseGuards,
   ParseIntPipe,
   Query,
+  Res,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { MissionReportsService } from './mission-reports.service';
 import { CreateMissionReportDto, UpdateMissionReportDto, MissionReportResponseDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { BaseController } from '../../common/base.controller';
+import { Response } from 'express';
 
 @ApiTags('Mission Reports')
 @Controller('api/v1/mission-reports')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-export class MissionReportsController {
-  constructor(private readonly missionReportsService: MissionReportsService) { }
+export class MissionReportsController extends BaseController {
+  constructor(private readonly missionReportsService: MissionReportsService) { super(); }
 
   @Post()
   @ApiOperation({ summary: 'Create a new mission report' })
@@ -42,16 +45,21 @@ export class MissionReportsController {
     description: 'Mission reports retrieved successfully',
     type: [MissionReportResponseDto],
   })
-  async findAll(@Query('missionId') missionId?: string): Promise<MissionReportResponseDto[]> {
-    let missionReports;
-
-    if (missionId) {
-      missionReports = await this.missionReportsService.findByMission(parseInt(missionId, 10));
-    } else {
-      missionReports = await this.missionReportsService.findAll();
-    }
-
-    return missionReports.map((report) => new MissionReportResponseDto(report));
+  async findAll(
+    @Query() query: any,
+    @Res({ passthrough: true }) res?: Response,
+  ): Promise<MissionReportResponseDto[]> {
+    const { page, per, ...filters } = query;
+    const currentPage = this.parsePage(page);
+    const perPage = this.parsePer(per);
+    const result = await this.missionReportsService.findAll({
+      ...filters,
+      page: currentPage,
+      per: perPage,
+    });
+    const { data, total } = this.normalizeListResult(result);
+    if (res) this.setPaginationHeaders(res, currentPage, perPage, total);
+    return (data as any[]).map((report) => new MissionReportResponseDto(report as any));
   }
 
   @Get(':id')

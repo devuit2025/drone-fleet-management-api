@@ -1,5 +1,7 @@
 import { Repository, FindOptionsWhere } from 'typeorm';
 import { DeepPartial } from 'typeorm';
+// import { Logger } from '@nestjs/common';
+import { logger } from 'src/utils/logger';
 
 export interface SearchWhereOperator {
     $like?: string;
@@ -41,7 +43,8 @@ export function Searchable(config: FieldSearchConfig = { operator: '=' }) {
 
 export abstract class BaseRepository<T extends { id: number }> {
     // Override this in child classes to define default relations to load
-    protected relations: string[] = [];
+    protected relationForList: string[] = [];
+    protected relationForDetail: string[] = [];
 
     constructor(protected readonly repository: Repository<T>) { }
 
@@ -70,7 +73,7 @@ export abstract class BaseRepository<T extends { id: number }> {
     async findById(id: number): Promise<T | null> {
         return await this.repository.findOne({
             where: { id } as FindOptionsWhere<T>,
-            relations: this.relations.length > 0 ? this.relations : undefined,
+            relations: this.relationForDetail.length > 0 ? this.relationForDetail : undefined,
         });
     }
 
@@ -83,7 +86,7 @@ export abstract class BaseRepository<T extends { id: number }> {
     }
 
     async search(options: SearchOptions): Promise<T[]> {
-        const { where, orderBy, sort, limit, skip, relations, per } = options;
+        const { where, orderBy, sort, limit, skip, per } = options;
 
         // Handle 'per' parameter (alias for limit with 'all' support)
         // Default to 30 records if no pagination parameters specified
@@ -114,19 +117,19 @@ export abstract class BaseRepository<T extends { id: number }> {
                 const operator = this.getFieldSearchOperator(key, value);
                 const isLike = operator === 'like';
                 const paramKey = `${key}${index}`; // Use index to avoid conflicts
-
+                const qualifiedKey = key.includes('.') ? key : `${queryBuilder.alias}.${key}`;
                 if (isLike) {
                     if (index === 0) {
-                        queryBuilder.where(`${key} LIKE :${paramKey}`, { [paramKey]: `%${value}%` });
+                        queryBuilder.where(`${qualifiedKey} LIKE :${paramKey}`, { [paramKey]: `%${value}%` });
                     } else {
-                        queryBuilder.andWhere(`${key} LIKE :${paramKey}`, { [paramKey]: `%${value}%` });
+                        queryBuilder.andWhere(`${qualifiedKey} LIKE :${paramKey}`, { [paramKey]: `%${value}%` });
                     }
                 } else {
                     // Equality comparison
                     if (index === 0) {
-                        queryBuilder.where(`${key} = :${paramKey}`, { [paramKey]: value });
+                        queryBuilder.where(`${qualifiedKey} = :${paramKey}`, { [paramKey]: value });
                     } else {
-                        queryBuilder.andWhere(`${key} = :${paramKey}`, { [paramKey]: value });
+                        queryBuilder.andWhere(`${qualifiedKey} = :${paramKey}`, { [paramKey]: value });
                     }
                 }
             });
@@ -137,19 +140,21 @@ export abstract class BaseRepository<T extends { id: number }> {
             const isDesc = sort.startsWith('-');
             const fieldName = isDesc ? sort.substring(1) : sort;
             const direction = isDesc ? 'DESC' : 'ASC';
-            queryBuilder.addOrderBy(fieldName, direction);
+            const qualifiedField = fieldName.includes('.') ? fieldName : `${queryBuilder.alias}.${fieldName}`;
+            queryBuilder.addOrderBy(qualifiedField, direction);
         }
 
         // Handle orderBy (backwards compatible)
         if (orderBy) {
             Object.keys(orderBy).forEach(key => {
-                queryBuilder.addOrderBy(key, orderBy[key]);
+                const qualifiedKey = key.includes('.') ? key : `${queryBuilder.alias}.${key}`;
+                queryBuilder.addOrderBy(qualifiedKey, orderBy[key]);
             });
         }
 
         // Default: Auto sort by ID ascending if no sort/orderBy specified
         if (!sort && !orderBy) {
-            queryBuilder.addOrderBy('id', 'ASC');
+            queryBuilder.addOrderBy(`${queryBuilder.alias}.id`, 'ASC');
         }
 
         // Only apply skip if not getting all records
@@ -162,8 +167,8 @@ export abstract class BaseRepository<T extends { id: number }> {
             queryBuilder.take(effectiveLimit);
         }
 
-        if (relations && relations.length > 0) {
-            relations.forEach(relation => {
+        if (this.relationForList && this.relationForList.length > 0) {
+            this.relationForList.forEach(relation => {
                 queryBuilder.leftJoinAndSelect(
                     this.repository.metadata.targetName + '.' + relation,
                     relation

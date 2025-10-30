@@ -6,7 +6,8 @@ import { Drone, DroneStatus } from '../entities/drone.entity';
 
 @Injectable()
 export class DroneRepository extends BaseRepository<Drone> {
-    protected relations = ['model', 'sensors', 'telemetry'];
+    protected relationForList = ['model', 'sensors', 'telemetry'];
+    protected relationForDetail = ['model', 'sensors', 'telemetry'];
 
     constructor(
         @InjectRepository(Drone)

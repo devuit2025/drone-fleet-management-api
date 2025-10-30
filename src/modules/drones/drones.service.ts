@@ -2,10 +2,13 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { DroneRepository } from '../../repositories/drone.repository';
 import { Drone, DroneStatus } from '../../entities/drone.entity';
 import { CreateDroneDto, UpdateDroneDto, UpdateLocationDto, UpdateStatusDto } from './dto';
+import { BaseService } from '../../common/base.service';
 
 @Injectable()
-export class DronesService {
-    constructor(private readonly droneRepository: DroneRepository) { }
+export class DronesService extends BaseService<Drone> {
+    constructor(private readonly droneRepository: DroneRepository) {
+        super(droneRepository, 'Drone');
+    }
 
     async create(createDroneDto: CreateDroneDto): Promise<Drone> {
         const existingDrone = await this.droneRepository.findBySerialNumber(
@@ -29,17 +32,9 @@ export class DronesService {
         return await this.droneRepository.create(droneData);
     }
 
-    async findAll(): Promise<Drone[]> {
-        return await this.droneRepository.findAll();
-    }
+    // Inherit findAll(per,page), findById, update, delete from BaseService
 
-    async findById(id: number): Promise<Drone> {
-        const drone = await this.droneRepository.findById(id);
-        if (!drone) {
-            throw new NotFoundException('Drone not found');
-        }
-        return drone;
-    }
+    // findById inherited (throws NotFoundException with resource name)
 
     async findBySerialNumber(serialNumber: string): Promise<Drone> {
         const drone = await this.droneRepository.findBySerialNumber(serialNumber);
@@ -51,27 +46,16 @@ export class DronesService {
 
     async update(id: number, updateDroneDto: UpdateDroneDto): Promise<Drone> {
         const drone = await this.findById(id);
-
         if (updateDroneDto.serialNumber && updateDroneDto.serialNumber !== drone.serialNumber) {
-            const existingDrone = await this.droneRepository.findBySerialNumber(
-                updateDroneDto.serialNumber,
-            );
+            const existingDrone = await this.droneRepository.findBySerialNumber(updateDroneDto.serialNumber);
             if (existingDrone) {
                 throw new ConflictException('Drone with this serial number already exists');
             }
         }
-
-        const updateData = {
-            ...updateDroneDto,
-        };
-
-        return await this.droneRepository.update(id, updateData);
+        return await super.update(id, updateDroneDto as Partial<Drone>);
     }
 
-    async delete(id: number): Promise<void> {
-        const drone = await this.findById(id);
-        await this.droneRepository.delete(id);
-    }
+    // delete inherited
 
     async findByStatus(status: DroneStatus): Promise<Drone[]> {
         return await this.droneRepository.findByStatus(status);

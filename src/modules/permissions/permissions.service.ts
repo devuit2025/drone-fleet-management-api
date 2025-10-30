@@ -4,14 +4,15 @@ import { Repository } from 'typeorm';
 import { Permission } from '../../entities/permission.entity';
 import { CreatePermissionDto, UpdatePermissionDto } from './dto';
 import { PermissionRepository } from '../../repositories/permission.repository';
+import { BaseService } from '../../common/base.service';
 
 @Injectable()
-export class PermissionsService {
+export class PermissionsService extends BaseService<Permission> {
   constructor(
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>,
     private readonly permissionRepo: PermissionRepository,
-  ) { }
+  ) { super(permissionRepo, 'Permission'); }
 
   async create(createPermissionDto: CreatePermissionDto): Promise<Permission> {
     const existingPermission = await this.permissionRepo.findByName(createPermissionDto.name);
@@ -23,19 +24,9 @@ export class PermissionsService {
     return await this.permissionRepository.save(permission);
   }
 
-  async findAll(): Promise<Permission[]> {
-    return await this.permissionRepo.findAll();
-  }
+  // Inherit findAll(per,page)
 
-  async findById(id: number): Promise<Permission> {
-    const permission = await this.permissionRepository.findOne({
-      where: { id },
-    });
-    if (!permission) {
-      throw new NotFoundException('Permission not found');
-    }
-    return permission;
-  }
+  // Inherit findById
 
   async update(id: number, updatePermissionDto: UpdatePermissionDto): Promise<Permission> {
     const permission = await this.findById(id);
@@ -53,9 +44,6 @@ export class PermissionsService {
     return await this.permissionRepository.save(permission);
   }
 
-  async delete(id: number): Promise<void> {
-    const permission = await this.findById(id);
-    await this.permissionRepository.remove(permission);
-  }
+  // delete inherited
 }
 

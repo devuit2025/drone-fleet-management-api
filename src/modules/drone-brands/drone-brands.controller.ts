@@ -8,18 +8,22 @@ import {
   Delete,
   UseGuards,
   ParseIntPipe,
+  Query,
+  Res,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { DroneBrandsService } from './drone-brands.service';
 import { CreateDroneBrandDto, UpdateDroneBrandDto, DroneBrandResponseDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { BaseController } from '../../common/base.controller';
+import { Response } from 'express';
 
 @ApiTags('Drone Brands')
 @Controller('api/v1/drone-brands')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-export class DroneBrandsController {
-  constructor(private readonly droneBrandsService: DroneBrandsService) { }
+export class DroneBrandsController extends BaseController {
+  constructor(private readonly droneBrandsService: DroneBrandsService) { super(); }
 
   @Post()
   @ApiOperation({ summary: 'Create a new drone brand' })
@@ -41,9 +45,21 @@ export class DroneBrandsController {
     description: 'List of all drone brands',
     type: [DroneBrandResponseDto],
   })
-  async findAll(): Promise<DroneBrandResponseDto[]> {
-    const droneBrands = await this.droneBrandsService.findAll();
-    return droneBrands.map((brand) => new DroneBrandResponseDto(brand));
+  async findAll(
+    @Query() query: any,
+    @Res({ passthrough: true }) res?: Response,
+  ): Promise<DroneBrandResponseDto[]> {
+    const { page, per, ...filters } = query;
+    const currentPage = this.parsePage(page);
+    const perPage = this.parsePer(per);
+    const result = await this.droneBrandsService.findAll({
+      ...filters,
+      page: currentPage,
+      per: perPage,
+    });
+    const { data, total } = this.normalizeListResult(result);
+    if (res) this.setPaginationHeaders(res, currentPage, perPage, total);
+    return (data as any[]).map((brand) => new DroneBrandResponseDto(brand as any));
   }
 
   @Get(':id')

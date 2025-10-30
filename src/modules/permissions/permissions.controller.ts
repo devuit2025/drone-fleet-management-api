@@ -8,18 +8,22 @@ import {
   Delete,
   UseGuards,
   ParseIntPipe,
+  Query,
+  Res,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { PermissionsService } from './permissions.service';
 import { CreatePermissionDto, UpdatePermissionDto, PermissionResponseDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { BaseController } from '../../common/base.controller';
+import { Response } from 'express';
 
 @ApiTags('Permissions')
 @Controller('api/v1/permissions')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-export class PermissionsController {
-  constructor(private readonly permissionsService: PermissionsService) { }
+export class PermissionsController extends BaseController {
+  constructor(private readonly permissionsService: PermissionsService) { super(); }
 
   @Post()
   @ApiOperation({ summary: 'Create a new permission' })
@@ -32,9 +36,21 @@ export class PermissionsController {
   @Get()
   @ApiOperation({ summary: 'Get all permissions' })
   @ApiResponse({ status: 200, description: 'Permissions retrieved successfully', type: [PermissionResponseDto] })
-  async findAll(): Promise<PermissionResponseDto[]> {
-    const permissions = await this.permissionsService.findAll();
-    return permissions.map(permission => new PermissionResponseDto(permission));
+  async findAll(
+    @Query() query: any,
+    @Res({ passthrough: true }) res?: Response,
+  ): Promise<PermissionResponseDto[]> {
+    const { page, per, ...filters } = query;
+    const currentPage = this.parsePage(page);
+    const perPage = this.parsePer(per);
+    const result = await this.permissionsService.findAll({
+      ...filters,
+      page: currentPage,
+      per: perPage,
+    });
+    const { data, total } = this.normalizeListResult(result);
+    if (res) this.setPaginationHeaders(res, currentPage, perPage, total);
+    return (data as any[]).map(permission => new PermissionResponseDto(permission as any));
   }
 
   @Get(':id')

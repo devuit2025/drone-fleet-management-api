@@ -4,14 +4,15 @@ import { Repository } from 'typeorm';
 import { DroneCategory } from '../../entities/drone-category.entity';
 import { CreateDroneCategoryDto, UpdateDroneCategoryDto } from './dto';
 import { DroneCategoryRepository } from '../../repositories/drone-category.repository';
+import { BaseService } from '../../common/base.service';
 
 @Injectable()
-export class DroneCategoriesService {
+export class DroneCategoriesService extends BaseService<DroneCategory> {
   constructor(
     @InjectRepository(DroneCategory)
     private readonly droneCategoryRepository: Repository<DroneCategory>,
     private readonly droneCategoryRepo: DroneCategoryRepository,
-  ) { }
+  ) { super(droneCategoryRepo, 'Drone category'); }
 
   async create(createDroneCategoryDto: CreateDroneCategoryDto): Promise<DroneCategory> {
     const existingCategory = await this.droneCategoryRepo.findByName(createDroneCategoryDto.name);
@@ -23,19 +24,9 @@ export class DroneCategoriesService {
     return await this.droneCategoryRepository.save(droneCategory);
   }
 
-  async findAll(): Promise<DroneCategory[]> {
-    return await this.droneCategoryRepo.findAll();
-  }
+  // Inherit findAll(per,page)
 
-  async findById(id: number): Promise<DroneCategory> {
-    const droneCategory = await this.droneCategoryRepository.findOne({
-      where: { id },
-    });
-    if (!droneCategory) {
-      throw new NotFoundException('Drone category not found');
-    }
-    return droneCategory;
-  }
+  // Inherit findById
 
   async update(
     id: number,
@@ -57,9 +48,6 @@ export class DroneCategoriesService {
     return await this.droneCategoryRepository.save(droneCategory);
   }
 
-  async delete(id: number): Promise<void> {
-    const droneCategory = await this.findById(id);
-    await this.droneCategoryRepository.remove(droneCategory);
-  }
+  // delete inherited
 }
 

@@ -6,9 +6,10 @@ import { Mission } from '../../entities/mission.entity';
 import { Drone } from '../../entities/drone.entity';
 import { CreateTelemetryDto, UpdateTelemetryDto } from './dto';
 import { TelemetryRepository } from '../../repositories/telemetry.repository';
+import { BaseService } from '../../common/base.service';
 
 @Injectable()
-export class TelemetryService {
+export class TelemetryService extends BaseService<Telemetry> {
   constructor(
     @InjectRepository(Telemetry)
     private readonly telemetryRepository: Repository<Telemetry>,
@@ -17,7 +18,7 @@ export class TelemetryService {
     private readonly missionRepository: Repository<Mission>,
     @InjectRepository(Drone)
     private readonly droneRepository: Repository<Drone>,
-  ) { }
+  ) { super(telemetryRepo, 'Telemetry'); }
 
   async create(createTelemetryDto: CreateTelemetryDto): Promise<Telemetry> {
     // Use raw query for PostGIS geometry
@@ -40,23 +41,9 @@ export class TelemetryService {
     return result[0] as Telemetry;
   }
 
-  async findAll(): Promise<Telemetry[]> {
-    return await this.telemetryRepo.findAll({
-      relations: ['mission', 'drone'],
-      sort: '-timestamp',
-    });
-  }
+  // Inherit findAll(per,page)
 
-  async findById(id: number): Promise<Telemetry> {
-    const telemetry = await this.telemetryRepository.findOne({
-      where: { id },
-      relations: ['mission', 'drone'],
-    });
-    if (!telemetry) {
-      throw new NotFoundException('Telemetry not found');
-    }
-    return telemetry;
-  }
+  // Inherit findById
 
   async findByDrone(droneId: number): Promise<Telemetry[]> {
     return await this.telemetryRepo.findByDroneId(droneId);
@@ -66,7 +53,7 @@ export class TelemetryService {
     return await this.telemetryRepo.findByMissionId(missionId);
   }
 
-  async update(id: number, updateTelemetryDto: UpdateTelemetryDto): Promise<Telemetry> {
+  async update(id: number, updateTelemetryDto: Partial<Telemetry>): Promise<Telemetry> {
     const telemetry = await this.findById(id);
 
     if (updateTelemetryDto.droneId !== undefined) {
@@ -75,34 +62,32 @@ export class TelemetryService {
     if (updateTelemetryDto.missionId !== undefined) {
       telemetry.missionId = updateTelemetryDto.missionId;
     }
-    if (updateTelemetryDto.timestamp !== undefined) {
-      telemetry.timestamp = new Date(updateTelemetryDto.timestamp);
+    if ((updateTelemetryDto as any).timestamp !== undefined) {
+      const ts = (updateTelemetryDto as any).timestamp;
+      telemetry.timestamp = ts ? new Date(ts as any) : telemetry.timestamp;
     }
     if (updateTelemetryDto.location !== undefined) {
-      telemetry.location = updateTelemetryDto.location;
+      telemetry.location = updateTelemetryDto.location as any;
     }
     if (updateTelemetryDto.altitudeM !== undefined) {
-      telemetry.altitudeM = updateTelemetryDto.altitudeM;
+      telemetry.altitudeM = updateTelemetryDto.altitudeM as any;
     }
     if (updateTelemetryDto.speedMps !== undefined) {
-      telemetry.speedMps = updateTelemetryDto.speedMps;
+      telemetry.speedMps = updateTelemetryDto.speedMps as any;
     }
     if (updateTelemetryDto.batteryPct !== undefined) {
-      telemetry.batteryPct = updateTelemetryDto.batteryPct;
+      telemetry.batteryPct = updateTelemetryDto.batteryPct as any;
     }
     if (updateTelemetryDto.status !== undefined) {
-      telemetry.status = updateTelemetryDto.status;
+      telemetry.status = updateTelemetryDto.status as any;
     }
     if (updateTelemetryDto.payloadWeight !== undefined) {
-      telemetry.payloadWeight = updateTelemetryDto.payloadWeight;
+      telemetry.payloadWeight = updateTelemetryDto.payloadWeight as any;
     }
 
     return await this.telemetryRepository.save(telemetry);
   }
 
-  async delete(id: number): Promise<void> {
-    const telemetry = await this.findById(id);
-    await this.telemetryRepository.remove(telemetry);
-  }
+  // delete inherited
 }
 

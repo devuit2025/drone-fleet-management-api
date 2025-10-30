@@ -4,14 +4,15 @@ import { Repository } from 'typeorm';
 import { Waypoint } from '../../entities/waypoint.entity';
 import { CreateWaypointDto, UpdateWaypointDto } from './dto';
 import { WaypointRepository } from '../../repositories/waypoint.repository';
+import { BaseService } from '../../common/base.service';
 
 @Injectable()
-export class WaypointsService {
+export class WaypointsService extends BaseService<Waypoint> {
   constructor(
     @InjectRepository(Waypoint)
     private readonly waypointRepository: Repository<Waypoint>,
     private readonly waypointRepo: WaypointRepository,
-  ) { }
+  ) { super(waypointRepo, 'Waypoint'); }
 
   async create(createWaypointDto: CreateWaypointDto): Promise<Waypoint> {
     // Use raw query for PostGIS geometry
@@ -31,21 +32,9 @@ export class WaypointsService {
     return result[0] as Waypoint;
   }
 
-  async findAll(): Promise<Waypoint[]> {
-    return await this.waypointRepo.findAll({
-      sort: 'missionId,seqNumber',
-    });
-  }
+  // Inherit findAll(per,page)
 
-  async findById(id: number): Promise<Waypoint> {
-    const waypoint = await this.waypointRepository.findOne({
-      where: { id },
-    });
-    if (!waypoint) {
-      throw new NotFoundException('Waypoint not found');
-    }
-    return waypoint;
-  }
+  // Inherit findById
 
   async findByMissionId(missionId: number): Promise<Waypoint[]> {
     return await this.waypointRepo.findByMissionId(missionId);
@@ -76,9 +65,6 @@ export class WaypointsService {
     return await this.waypointRepository.save(waypoint);
   }
 
-  async delete(id: number): Promise<void> {
-    const waypoint = await this.findById(id);
-    await this.waypointRepository.remove(waypoint);
-  }
+  // delete inherited
 }
 

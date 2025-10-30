@@ -1,16 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe, Query, Res } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { DronesService } from './drones.service';
 import { DroneStatus } from '../../entities/drone.entity';
 import { CreateDroneDto, UpdateDroneDto, DroneResponseDto, UpdateStatusDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Response } from 'express';
+import { BaseController } from '../../common/base.controller';
 
 @ApiTags('Drones')
 @Controller('api/v1/drones')
-@UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
-export class DronesController {
-    constructor(private readonly dronesService: DronesService) { }
+// @UseGuards(JwtAuthGuard)
+// @ApiBearerAuth()
+export class DronesController extends BaseController {
+    constructor(private readonly dronesService: DronesService) { super(); }
 
     @Post()
     @ApiOperation({ summary: 'Create a new drone' })
@@ -28,9 +30,18 @@ export class DronesController {
         description: 'Drones retrieved successfully',
         type: [DroneResponseDto],
     })
-    async findAll(): Promise<DroneResponseDto[]> {
-        const drones = await this.dronesService.findAll();
-        return drones.map(drone => new DroneResponseDto(drone));
+    async findAll(@Query() query: any, @Res({ passthrough: true }) res?: Response): Promise<DroneResponseDto[]> {
+        const { page, per, ...filters } = query;
+        const currentPage = this.parsePage(page);
+        const perPage = this.parsePer(per);
+        const result = await this.dronesService.findAll({
+            ...filters,
+            page: currentPage,
+            per: perPage,
+        });
+        const { data, total } = this.normalizeListResult(result);
+        if (res) this.setPaginationHeaders(res, currentPage, perPage, total);
+        return (data as any[]).map(drone => new DroneResponseDto(drone as any));
     }
 
     @Get('available')

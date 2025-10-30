@@ -9,18 +9,21 @@ import {
   UseGuards,
   ParseIntPipe,
   Query,
+  Res,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { TelemetryService } from './telemetry.service';
 import { CreateTelemetryDto, UpdateTelemetryDto, TelemetryResponseDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { BaseController } from '../../common/base.controller';
+import { Response } from 'express';
 
 @ApiTags('Telemetry')
 @Controller('api/v1/telemetry')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-export class TelemetryController {
-  constructor(private readonly telemetryService: TelemetryService) { }
+export class TelemetryController extends BaseController {
+  constructor(private readonly telemetryService: TelemetryService) { super(); }
 
   @Post()
   @ApiOperation({ summary: 'Create a new telemetry record' })
@@ -44,20 +47,20 @@ export class TelemetryController {
     type: [TelemetryResponseDto],
   })
   async findAll(
-    @Query('droneId') droneId?: string,
-    @Query('missionId') missionId?: string,
+    @Query() query: any,
+    @Res({ passthrough: true }) res?: Response,
   ): Promise<TelemetryResponseDto[]> {
-    let telemetry;
-
-    if (droneId) {
-      telemetry = await this.telemetryService.findByDrone(parseInt(droneId, 10));
-    } else if (missionId) {
-      telemetry = await this.telemetryService.findByMission(parseInt(missionId, 10));
-    } else {
-      telemetry = await this.telemetryService.findAll();
-    }
-
-    return telemetry.map((t) => new TelemetryResponseDto(t));
+    const { page, per, ...filters } = query;
+    const currentPage = this.parsePage(page);
+    const perPage = this.parsePer(per);
+    const result = await this.telemetryService.findAll({
+      ...filters,
+      page: currentPage,
+      per: perPage,
+    });
+    const { data, total } = this.normalizeListResult(result);
+    if (res) this.setPaginationHeaders(res, currentPage, perPage, total);
+    return (data as any[]).map((t) => new TelemetryResponseDto(t as any));
   }
 
   @Get(':id')

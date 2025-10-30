@@ -13,6 +13,7 @@ import { DronesService } from '../modules/drones/drones.service';
 import { MissionsService } from '../modules/missions/missions.service';
 import { UpdateLocationDto, UpdateStatusDto } from '../modules/drones/dto';
 import { AddPathPointDto } from '../modules/missions/dto';
+import { logger } from '../utils/logger';
 
 @WebSocketGateway({
     cors: {
@@ -48,10 +49,12 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     handleConnection(client: Socket) {
         this.logger.log(`Client connected: ${client.id}`);
+        logger.logWebSocket(`Client connected: ${client.id}`, { clientId: client.id });
     }
 
     handleDisconnect(client: Socket) {
         this.logger.log(`Client disconnected: ${client.id}`);
+        logger.logWebSocket(`Client disconnected: ${client.id}`, { clientId: client.id });
     }
 
     @SubscribeMessage('drone:location_update')
@@ -73,6 +76,7 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
             });
 
             this.logger.log(`Location updated for drone ${droneId}`);
+            logger.logRealtime(`Location updated for drone ${droneId}`, { droneId, location });
         } catch (error) {
             this.logger.error(`Error updating drone location: ${error.message}`);
             client.emit('error', { message: 'Failed to update drone location' });
@@ -98,8 +102,10 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
             });
 
             this.logger.log(`Status updated for drone ${droneId}`);
+            logger.logRealtime(`Status updated for drone ${droneId}`, { droneId, status });
         } catch (error) {
             this.logger.error(`Error updating drone status: ${error.message}`);
+            logger.error('websocket', `Error updating drone status: ${error.message}`, { error, droneId: data.droneId });
             client.emit('error', { message: 'Failed to update drone status' });
         }
     }
@@ -126,6 +132,7 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
             });
 
             this.logger.log(`Path point added for flight ${flightId}`);
+            logger.logRealtime(`Path point added for flight ${flightId}`, { flightId, pathPoint });
         } catch (error) {
             this.logger.error(`Error adding flight path point: ${error.message}`);
             client.emit('error', { message: 'Failed to add flight path point' });

@@ -3,10 +3,11 @@ import { UserRepository } from '../../repositories/user.repository';
 import { User, UserRole } from '../../entities/user.entity';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import * as bcrypt from 'bcryptjs';
+import { BaseService } from '../../common/base.service';
 
 @Injectable()
-export class UsersService {
-    constructor(private readonly userRepository: UserRepository) {}
+export class UsersService extends BaseService<User> {
+    constructor(private readonly userRepository: UserRepository) { super(userRepository, 'User'); }
 
     async create(createUserDto: CreateUserDto): Promise<User> {
         const existingUser = await this.userRepository.findByEmail(createUserDto.email);
@@ -23,9 +24,7 @@ export class UsersService {
         });
     }
 
-    async findAll(): Promise<User[]> {
-        return await this.userRepository.findAll();
-    }
+    // Inherit findAll(per,page) with pagination and total
 
     async findById(id: number): Promise<User> {
         const user = await this.userRepository.findById(id);
@@ -56,10 +55,7 @@ export class UsersService {
         return await this.userRepository.update(id, updateUserDto);
     }
 
-    async delete(id: number): Promise<void> {
-        const user = await this.findById(id);
-        await this.userRepository.delete(id);
-    }
+    // delete inherited
 
     async findByRole(role: UserRole): Promise<User[]> {
         return await this.userRepository.findByRole(role);

@@ -6,9 +6,10 @@ import { Permission } from '../../entities/permission.entity';
 import { CreateRoleDto, UpdateRoleDto } from './dto';
 import { RoleRepository } from '../../repositories/role.repository';
 import { PermissionRepository } from '../../repositories/permission.repository';
+import { BaseService } from '../../common/base.service';
 
 @Injectable()
-export class RolesService {
+export class RolesService extends BaseService<Role> {
   constructor(
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
@@ -16,7 +17,7 @@ export class RolesService {
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>,
     private readonly permissionRepo: PermissionRepository,
-  ) { }
+  ) { super(roleRepo, 'Role'); }
 
   async create(createRoleDto: CreateRoleDto): Promise<Role> {
     const existingRole = await this.roleRepo.findByName(createRoleDto.name);
@@ -39,23 +40,9 @@ export class RolesService {
     return await this.roleRepository.save(role);
   }
 
-  async findAll(): Promise<Role[]> {
-    return await this.roleRepo.findAll({
-      relations: ['permissions'],
-      sort: 'name',
-    });
-  }
+  // Inherit findAll(per,page)
 
-  async findById(id: number): Promise<Role> {
-    const role = await this.roleRepository.findOne({
-      where: { id },
-      relations: ['permissions'],
-    });
-    if (!role) {
-      throw new NotFoundException('Role not found');
-    }
-    return role;
-  }
+  // Inherit findById
 
   async update(id: number, updateRoleDto: UpdateRoleDto): Promise<Role> {
     const role = await this.findById(id);

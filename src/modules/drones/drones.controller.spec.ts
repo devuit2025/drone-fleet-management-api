@@ -83,6 +83,48 @@ describe('DronesController', () => {
             updatedAt: new Date(),
         };
 
+        it('should filter drones by name and status', async () => {
+            const query = { name: 'Phantom', status: 'available' };
+            const mockDrones = [
+                new DroneResponseDto({
+                    id: 42, name: 'Phantom 4', status: 'available', modelId: 1, serialNumber: 'xxx', createdAt: new Date(), updatedAt: new Date(),
+                } as any),
+            ];
+            mockDronesService.findAll.mockResolvedValue(mockDrones);
+
+            const response = await request(app.getHttpServer())
+                .get('/api/v1/drones')
+                .query(query)
+                .expect(200);
+
+            expect(response.body.length).toBe(1);
+            expect(response.body[0].name).toContain('Phantom');
+            expect(response.body[0].status).toBe('available');
+            expect(mockDronesService.findAll).toHaveBeenCalledWith(expect.objectContaining(query));
+        });
+
+        it('should sort drones by createdAt descending', async () => {
+            const query = { sort: '-createdAt' };
+            const mockDrones = [
+                new DroneResponseDto({
+                    id: 2, name: 'Newest', createdAt: new Date(Date.now()), updatedAt: new Date(),
+                } as any),
+                new DroneResponseDto({
+                    id: 1, name: 'Oldest', createdAt: new Date(Date.now() - 100000), updatedAt: new Date(),
+                } as any),
+            ];
+            mockDronesService.findAll.mockResolvedValue(mockDrones);
+
+            const response = await request(app.getHttpServer())
+                .get('/api/v1/drones')
+                .query(query)
+                .expect(200);
+
+            expect(response.body.length).toBe(2);
+            expect(mockDronesService.findAll).toHaveBeenCalledWith(expect.objectContaining(query));
+            expect(response.body[0].createdAt >= response.body[1].createdAt).toBe(true); // DESC order
+        });
+
         it('should create a new drone successfully', async () => {
             mockDronesService.create.mockResolvedValue(mockDrone);
 

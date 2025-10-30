@@ -65,7 +65,7 @@ describe('PilotsController', () => {
 
       mockRepository.find.mockResolvedValue(mockPilots);
 
-      const result = await controller.findAll();
+      const result = await controller.findAll({ page: 1, per: 10 });
 
       expect(result).toBeInstanceOf(Array);
       expect(result).toHaveLength(2);

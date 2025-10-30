@@ -8,18 +8,22 @@ import {
   Delete,
   UseGuards,
   ParseIntPipe,
+  Query,
+  Res,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { NoFlyZonesService } from './no-fly-zones.service';
 import { CreateNoFlyZoneDto, UpdateNoFlyZoneDto, NoFlyZoneResponseDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { BaseController } from '../../common/base.controller';
+import { Response } from 'express';
 
 @ApiTags('No-Fly Zones')
 @Controller('api/v1/no-fly-zones')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-export class NoFlyZonesController {
-  constructor(private readonly noFlyZonesService: NoFlyZonesService) { }
+export class NoFlyZonesController extends BaseController {
+  constructor(private readonly noFlyZonesService: NoFlyZonesService) { super(); }
 
   @Post()
   @ApiOperation({ summary: 'Create a new no-fly zone' })
@@ -40,9 +44,21 @@ export class NoFlyZonesController {
     description: 'No-fly zones retrieved successfully',
     type: [NoFlyZoneResponseDto],
   })
-  async findAll(): Promise<NoFlyZoneResponseDto[]> {
-    const noFlyZones = await this.noFlyZonesService.findAll();
-    return noFlyZones.map((zone) => new NoFlyZoneResponseDto(zone));
+  async findAll(
+    @Query() query: any,
+    @Res({ passthrough: true }) res?: Response,
+  ): Promise<NoFlyZoneResponseDto[]> {
+    const { page, per, ...filters } = query;
+    const currentPage = this.parsePage(page);
+    const perPage = this.parsePer(per);
+    const result = await this.noFlyZonesService.findAll({
+      ...filters,
+      page: currentPage,
+      per: perPage,
+    });
+    const { data, total } = this.normalizeListResult(result);
+    if (res) this.setPaginationHeaders(res, currentPage, perPage, total);
+    return (data as any[]).map((zone) => new NoFlyZoneResponseDto(zone as any));
   }
 
   @Get(':id')

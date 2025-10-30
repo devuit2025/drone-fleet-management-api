@@ -1,15 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, Res } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto, UserResponseDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { BaseController } from '../../common/base.controller';
+import { Response } from 'express';
 
 @ApiTags('Users')
 @Controller('api/v1/users')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-export class UsersController {
-    constructor(private readonly usersService: UsersService) {}
+export class UsersController extends BaseController {
+    constructor(private readonly usersService: UsersService) { super(); }
 
     @Post()
     @ApiOperation({ summary: 'Create a new user' })
@@ -27,9 +29,21 @@ export class UsersController {
         description: 'Users retrieved successfully',
         type: [UserResponseDto],
     })
-    async findAll(): Promise<UserResponseDto[]> {
-        const users = await this.usersService.findAll();
-        return users.map(user => new UserResponseDto(user));
+    async findAll(
+        @Query() query: any,
+        @Res({ passthrough: true }) res?: Response,
+    ): Promise<UserResponseDto[]> {
+        const { page, per, ...filters } = query;
+        const currentPage = this.parsePage(page);
+        const perPage = this.parsePer(per);
+        const result = await this.usersService.findAll({
+            ...filters,
+            page: currentPage,
+            per: perPage,
+        });
+        const { data, total } = this.normalizeListResult(result);
+        if (res) this.setPaginationHeaders(res, currentPage, perPage, total);
+        return (data as any[]).map(user => new UserResponseDto(user as any));
     }
 
     @Get(':id')

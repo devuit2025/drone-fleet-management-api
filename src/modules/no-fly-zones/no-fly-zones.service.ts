@@ -4,14 +4,15 @@ import { Repository } from 'typeorm';
 import { NoFlyZone } from '../../entities/no-fly-zone.entity';
 import { CreateNoFlyZoneDto, UpdateNoFlyZoneDto } from './dto';
 import { NoFlyZoneRepository } from '../../repositories/no-fly-zone.repository';
+import { BaseService } from '../../common/base.service';
 
 @Injectable()
-export class NoFlyZonesService {
+export class NoFlyZonesService extends BaseService<NoFlyZone> {
   constructor(
     @InjectRepository(NoFlyZone)
     private readonly noFlyZoneRepository: Repository<NoFlyZone>,
     private readonly noFlyZoneRepo: NoFlyZoneRepository,
-  ) { }
+  ) { super(noFlyZoneRepo, 'No-fly zone'); }
 
   async create(createNoFlyZoneDto: CreateNoFlyZoneDto): Promise<NoFlyZone> {
     const noFlyZone = this.noFlyZoneRepository.create({
@@ -23,19 +24,9 @@ export class NoFlyZonesService {
     return await this.noFlyZoneRepository.save(noFlyZone);
   }
 
-  async findAll(): Promise<NoFlyZone[]> {
-    return await this.noFlyZoneRepo.findAll();
-  }
+  // Inherit findAll(per,page)
 
-  async findById(id: number): Promise<NoFlyZone> {
-    const noFlyZone = await this.noFlyZoneRepository.findOne({
-      where: { id },
-    });
-    if (!noFlyZone) {
-      throw new NotFoundException('No-fly zone not found');
-    }
-    return noFlyZone;
-  }
+  // Inherit findById
 
   async update(id: number, updateNoFlyZoneDto: UpdateNoFlyZoneDto): Promise<NoFlyZone> {
     const noFlyZone = await this.findById(id);
@@ -56,9 +47,6 @@ export class NoFlyZonesService {
     return await this.noFlyZoneRepository.save(noFlyZone);
   }
 
-  async delete(id: number): Promise<void> {
-    const noFlyZone = await this.findById(id);
-    await this.noFlyZoneRepository.remove(noFlyZone);
-  }
+  // delete inherited
 }
 

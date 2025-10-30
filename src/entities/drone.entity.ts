@@ -19,6 +19,9 @@ import { Telemetry } from './telemetry.entity';
 export enum DroneStatus {
     AVAILABLE = 'available',
     IN_MISSION = 'in_mission',
+    FLYING = 'flying',
+    HOVERING = 'hovering',
+    LANDING = 'landing',
     MAINTENANCE = 'maintenance',
     DECOMMISSIONED = 'decommissioned',
 }

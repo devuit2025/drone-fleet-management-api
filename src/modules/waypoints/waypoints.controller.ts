@@ -9,18 +9,21 @@ import {
   UseGuards,
   ParseIntPipe,
   Query,
+  Res,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { WaypointsService } from './waypoints.service';
 import { CreateWaypointDto, UpdateWaypointDto, WaypointResponseDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { BaseController } from '../../common/base.controller';
+import { Response } from 'express';
 
 @ApiTags('Waypoints')
 @Controller('api/v1/waypoints')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-export class WaypointsController {
-  constructor(private readonly waypointsService: WaypointsService) { }
+export class WaypointsController extends BaseController {
+  constructor(private readonly waypointsService: WaypointsService) { super(); }
 
   @Post()
   @ApiOperation({ summary: 'Create a new waypoint' })
@@ -42,13 +45,21 @@ export class WaypointsController {
     description: 'Waypoints retrieved successfully',
     type: [WaypointResponseDto],
   })
-  async findAll(@Query('missionId') missionId?: string): Promise<WaypointResponseDto[]> {
-    if (missionId) {
-      const waypoints = await this.waypointsService.findByMissionId(parseInt(missionId, 10));
-      return waypoints.map((waypoint) => new WaypointResponseDto(waypoint));
-    }
-    const waypoints = await this.waypointsService.findAll();
-    return waypoints.map((waypoint) => new WaypointResponseDto(waypoint));
+  async findAll(
+    @Query() query: any,
+    @Res({ passthrough: true }) res?: Response,
+  ): Promise<WaypointResponseDto[]> {
+    const { page, per, ...filters } = query;
+    const currentPage = this.parsePage(page);
+    const perPage = this.parsePer(per);
+    const result = await this.waypointsService.findAll({
+      ...filters,
+      page: currentPage,
+      per: perPage,
+    });
+    const { data, total } = this.normalizeListResult(result);
+    if (res) this.setPaginationHeaders(res, currentPage, perPage, total);
+    return (data as any[]).map((waypoint) => new WaypointResponseDto(waypoint as any));
   }
 
   @Get(':id')

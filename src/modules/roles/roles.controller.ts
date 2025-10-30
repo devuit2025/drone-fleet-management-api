@@ -8,18 +8,22 @@ import {
   Delete,
   UseGuards,
   ParseIntPipe,
+  Query,
+  Res,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { RolesService } from './roles.service';
 import { CreateRoleDto, UpdateRoleDto, RoleResponseDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { BaseController } from '../../common/base.controller';
+import { Response } from 'express';
 
 @ApiTags('Roles')
 @Controller('api/v1/roles')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-export class RolesController {
-  constructor(private readonly rolesService: RolesService) { }
+export class RolesController extends BaseController {
+  constructor(private readonly rolesService: RolesService) { super(); }
 
   @Post()
   @ApiOperation({ summary: 'Create a new role' })
@@ -32,9 +36,21 @@ export class RolesController {
   @Get()
   @ApiOperation({ summary: 'Get all roles' })
   @ApiResponse({ status: 200, description: 'Roles retrieved successfully', type: [RoleResponseDto] })
-  async findAll(): Promise<RoleResponseDto[]> {
-    const roles = await this.rolesService.findAll();
-    return roles.map(role => new RoleResponseDto(role));
+  async findAll(
+    @Query() query: any,
+    @Res({ passthrough: true }) res?: Response,
+  ): Promise<RoleResponseDto[]> {
+    const { page, per, ...filters } = query;
+    const currentPage = this.parsePage(page);
+    const perPage = this.parsePer(per);
+    const result = await this.rolesService.findAll({
+      ...filters,
+      page: currentPage,
+      per: perPage,
+    });
+    const { data, total } = this.normalizeListResult(result);
+    if (res) this.setPaginationHeaders(res, currentPage, perPage, total);
+    return (data as any[]).map((role) => new RoleResponseDto(role as any));
   }
 
   @Get(':id')
