@@ -20,6 +20,7 @@ import { TelemetryModule } from './modules/telemetry/telemetry.module';
 import { NoFlyZonesModule } from './modules/no-fly-zones/no-fly-zones.module';
 import { FlightLogsModule } from './modules/flight-logs/flight-logs.module';
 import { MissionReportsModule } from './modules/mission-reports/mission-reports.module';
+import { SearchModule } from './modules/search/search.module';
 import { DroneGateway } from './gateways/drone.gateway';
 import { User } from './entities/user.entity';
 import { Pilot } from './entities/pilot.entity';
@@ -96,6 +97,7 @@ import { SeederModule } from './seeders/seeder.module';
         NoFlyZonesModule,
         FlightLogsModule,
         MissionReportsModule,
+        SearchModule,
         SeederModule,
     ],
     controllers: [AppController],

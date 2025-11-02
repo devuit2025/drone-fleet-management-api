@@ -27,7 +27,7 @@ export class SeederService {
         private readonly flightLogSeeder: FlightLogSeeder,
         private readonly missionReportSeeder: MissionReportSeeder,
         private readonly simulationSeeder: SimulationSeeder,
-    ) {}
+    ) { }
 
     async seed(): Promise<void> {
         this.logger.log('🌱 Starting database seeding...');
