@@ -90,7 +90,7 @@ describe('DronesController', () => {
                     id: 42, name: 'Phantom 4', status: 'available', modelId: 1, serialNumber: 'xxx', createdAt: new Date(), updatedAt: new Date(),
                 } as any),
             ];
-            mockDronesService.findAll.mockResolvedValue(mockDrones);
+            mockDronesService.findAll.mockResolvedValue({ data: mockDrones, total: 1 });
 
             const response = await request(app.getHttpServer())
                 .get('/api/v1/drones')
@@ -113,7 +113,7 @@ describe('DronesController', () => {
                     id: 1, name: 'Oldest', createdAt: new Date(Date.now() - 100000), updatedAt: new Date(),
                 } as any),
             ];
-            mockDronesService.findAll.mockResolvedValue(mockDrones);
+            mockDronesService.findAll.mockResolvedValue({ data: mockDrones, total: 2 });
 
             const response = await request(app.getHttpServer())
                 .get('/api/v1/drones')
@@ -205,7 +205,7 @@ describe('DronesController', () => {
                 } as any),
             ];
 
-            mockDronesService.findAll.mockResolvedValue(mockDrones);
+            mockDronesService.findAll.mockResolvedValue({ data: mockDrones, total: 1 });
 
             const response = await request(app.getHttpServer())
                 .get('/api/v1/drones')
@@ -233,7 +233,7 @@ describe('DronesController', () => {
                 } as any),
             ];
 
-            mockDronesService.findAll.mockResolvedValue(mockDrones);
+            mockDronesService.findAll.mockResolvedValue({ data: mockDrones, total: 1 });
 
             const response = await request(app.getHttpServer())
                 .get('/api/v1/drones')
@@ -261,7 +261,7 @@ describe('DronesController', () => {
                 } as any),
             ];
 
-            mockDronesService.findAll.mockResolvedValue(mockDrones);
+            mockDronesService.findAll.mockResolvedValue({ data: mockDrones, total: 1 });
 
             const response = await request(app.getHttpServer())
                 .get('/api/v1/drones')
@@ -270,6 +270,308 @@ describe('DronesController', () => {
             expect(response.body.length).toBe(1);
             expect(response.body[0].name).toContain('Surveyor');
             expect(mockDronesService.findAll).toHaveBeenCalled();
+        });
+
+        describe('Global Search', () => {
+            it('should search drones by global term across name and serialNumber fields', async () => {
+                const query = { global: 'DJI' };
+                const mockDrones = [
+                    new DroneResponseDto({
+                        id: 1,
+                        modelId: 1,
+                        name: 'DJI Mavic Pro',
+                        serialNumber: 'DJI-001',
+                        status: DroneStatus.AVAILABLE,
+                        firmwareVersion: '1.0.0',
+                        batteryHealth: 85,
+                        totalFlightHours: 0,
+                        lastMaintenance: new Date(),
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                    } as any),
+                    new DroneResponseDto({
+                        id: 2,
+                        modelId: 1,
+                        name: 'Phantom 4',
+                        serialNumber: 'DJI-002',
+                        status: DroneStatus.AVAILABLE,
+                        firmwareVersion: '1.0.0',
+                        batteryHealth: 90,
+                        totalFlightHours: 50,
+                        lastMaintenance: new Date(),
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                    } as any),
+                ];
+
+                mockDronesService.findAll.mockResolvedValue({ data: mockDrones, total: 2 });
+
+                const response = await request(app.getHttpServer())
+                    .get('/api/v1/drones')
+                    .query(query)
+                    .expect(200);
+
+                expect(response.body.length).toBe(2);
+                // Should find by name
+                expect(response.body[0].name).toContain('DJI');
+                // Should find by serialNumber
+                expect(response.body[1].serialNumber).toContain('DJI');
+                expect(mockDronesService.findAll).toHaveBeenCalledWith(
+                    expect.objectContaining({ global: 'DJI' }),
+                );
+            });
+
+            it('should search drones by partial global term', async () => {
+                const query = { global: 'Mav' };
+                const mockDrones = [
+                    new DroneResponseDto({
+                        id: 1,
+                        modelId: 1,
+                        name: 'DJI Mavic Pro',
+                        serialNumber: 'DRONE-001',
+                        status: DroneStatus.AVAILABLE,
+                        firmwareVersion: '1.0.0',
+                        batteryHealth: 85,
+                        totalFlightHours: 0,
+                        lastMaintenance: new Date(),
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                    } as any),
+                ];
+
+                mockDronesService.findAll.mockResolvedValue({ data: mockDrones, total: 1 });
+
+                const response = await request(app.getHttpServer())
+                    .get('/api/v1/drones')
+                    .query(query)
+                    .expect(200);
+
+                expect(response.body.length).toBe(1);
+                expect(response.body[0].name).toContain('Mavic');
+                expect(mockDronesService.findAll).toHaveBeenCalledWith(
+                    expect.objectContaining({ global: 'Mav' }),
+                );
+            });
+
+            it('should combine global search with other filters (status)', async () => {
+                const query = { global: 'DJI', status: 'available' };
+                const mockDrones = [
+                    new DroneResponseDto({
+                        id: 1,
+                        modelId: 1,
+                        name: 'DJI Mavic Pro',
+                        serialNumber: 'DJI-001',
+                        status: DroneStatus.AVAILABLE,
+                        firmwareVersion: '1.0.0',
+                        batteryHealth: 85,
+                        totalFlightHours: 0,
+                        lastMaintenance: new Date(),
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                    } as any),
+                ];
+
+                mockDronesService.findAll.mockResolvedValue({ data: mockDrones, total: 1 });
+
+                const response = await request(app.getHttpServer())
+                    .get('/api/v1/drones')
+                    .query(query)
+                    .expect(200);
+
+                expect(response.body.length).toBe(1);
+                expect(response.body[0].name).toContain('DJI');
+                expect(response.body[0].status).toBe('available');
+                expect(mockDronesService.findAll).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        global: 'DJI',
+                        status: 'available',
+                    }),
+                );
+            });
+
+            it('should support global search with pagination', async () => {
+                const query = { global: 'DJI', page: 2, per: 10 };
+                const mockDrones = [
+                    new DroneResponseDto({
+                        id: 11,
+                        modelId: 1,
+                        name: 'DJI Phantom',
+                        serialNumber: 'DJI-011',
+                        status: DroneStatus.AVAILABLE,
+                        firmwareVersion: '1.0.0',
+                        batteryHealth: 80,
+                        totalFlightHours: 100,
+                        lastMaintenance: new Date(),
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                    } as any),
+                ];
+
+                mockDronesService.findAll.mockResolvedValue({ data: mockDrones, total: 25 });
+
+                const response = await request(app.getHttpServer())
+                    .get('/api/v1/drones')
+                    .query(query)
+                    .expect(200);
+
+                expect(response.body.length).toBe(1);
+                expect(response.headers['x-total']).toBe('25');
+                expect(response.headers['x-current-page']).toBe('2');
+                expect(response.headers['x-per-page']).toBe('10');
+                expect(mockDronesService.findAll).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        global: 'DJI',
+                        page: 2,
+                        per: 10,
+                    }),
+                );
+            });
+
+            it('should return empty array when global search finds no results', async () => {
+                const query = { global: 'NonExistentDrone123' };
+                mockDronesService.findAll.mockResolvedValue({ data: [], total: 0 });
+
+                const response = await request(app.getHttpServer())
+                    .get('/api/v1/drones')
+                    .query(query)
+                    .expect(200);
+
+                expect(response.body).toEqual([]);
+                expect(response.headers['x-total']).toBe('0');
+                expect(mockDronesService.findAll).toHaveBeenCalledWith(
+                    expect.objectContaining({ global: 'NonExistentDrone123' }),
+                );
+            });
+
+            it('should handle global search with case-insensitive search (backend handles)', async () => {
+                const query = { global: 'dji' };
+                const mockDrones = [
+                    new DroneResponseDto({
+                        id: 1,
+                        modelId: 1,
+                        name: 'DJI Mavic Pro',
+                        serialNumber: 'DJI-001',
+                        status: DroneStatus.AVAILABLE,
+                        firmwareVersion: '1.0.0',
+                        batteryHealth: 85,
+                        totalFlightHours: 0,
+                        lastMaintenance: new Date(),
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                    } as any),
+                ];
+
+                mockDronesService.findAll.mockResolvedValue({ data: mockDrones, total: 1 });
+
+                const response = await request(app.getHttpServer())
+                    .get('/api/v1/drones')
+                    .query(query)
+                    .expect(200);
+
+                expect(response.body.length).toBe(1);
+                expect(mockDronesService.findAll).toHaveBeenCalledWith(
+                    expect.objectContaining({ global: 'dji' }),
+                );
+            });
+
+            it('should combine global search with name filter (global takes precedence for name field)', async () => {
+                const query = { global: 'Phantom', name: 'DJI' };
+                const mockDrones = [
+                    new DroneResponseDto({
+                        id: 1,
+                        modelId: 1,
+                        name: 'DJI Phantom 4',
+                        serialNumber: 'PHANTOM-001',
+                        status: DroneStatus.AVAILABLE,
+                        firmwareVersion: '1.0.0',
+                        batteryHealth: 85,
+                        totalFlightHours: 0,
+                        lastMaintenance: new Date(),
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                    } as any),
+                ];
+
+                mockDronesService.findAll.mockResolvedValue({ data: mockDrones, total: 1 });
+
+                const response = await request(app.getHttpServer())
+                    .get('/api/v1/drones')
+                    .query(query)
+                    .expect(200);
+
+                expect(response.body.length).toBe(1);
+                // Both global and name filters should be passed
+                expect(mockDronesService.findAll).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        global: 'Phantom',
+                        name: 'DJI',
+                    }),
+                );
+            });
+
+            it('should handle empty global search string gracefully', async () => {
+                const query = { global: '' };
+                const mockDrones = [
+                    new DroneResponseDto({
+                        id: 1,
+                        modelId: 1,
+                        name: 'Test Drone',
+                        serialNumber: 'DRONE-001',
+                        status: DroneStatus.AVAILABLE,
+                        firmwareVersion: '1.0.0',
+                        batteryHealth: 85,
+                        totalFlightHours: 0,
+                        lastMaintenance: new Date(),
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                    } as any),
+                ];
+
+                mockDronesService.findAll.mockResolvedValue({ data: mockDrones, total: 1 });
+
+                const response = await request(app.getHttpServer())
+                    .get('/api/v1/drones')
+                    .query(query)
+                    .expect(200);
+
+                expect(response.body.length).toBe(1);
+                // Empty global should be passed but backend should handle it
+                expect(mockDronesService.findAll).toHaveBeenCalledWith(
+                    expect.objectContaining({ global: '' }),
+                );
+            });
+
+            it('should handle global search with special characters', async () => {
+                const query = { global: 'DJI-001' };
+                const mockDrones = [
+                    new DroneResponseDto({
+                        id: 1,
+                        modelId: 1,
+                        name: 'DJI Mavic',
+                        serialNumber: 'DJI-001',
+                        status: DroneStatus.AVAILABLE,
+                        firmwareVersion: '1.0.0',
+                        batteryHealth: 85,
+                        totalFlightHours: 0,
+                        lastMaintenance: new Date(),
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                    } as any),
+                ];
+
+                mockDronesService.findAll.mockResolvedValue({ data: mockDrones, total: 1 });
+
+                const response = await request(app.getHttpServer())
+                    .get('/api/v1/drones')
+                    .query(query)
+                    .expect(200);
+
+                expect(response.body.length).toBe(1);
+                expect(response.body[0].serialNumber).toBe('DJI-001');
+                expect(mockDronesService.findAll).toHaveBeenCalledWith(
+                    expect.objectContaining({ global: 'DJI-001' }),
+                );
+            });
         });
     });
 

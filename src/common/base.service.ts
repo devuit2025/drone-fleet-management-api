@@ -25,15 +25,15 @@ export abstract class BaseService<T extends { id: number }> {
     const safePer = params?.per && params.per > 0 ? +params.per : 30;
     const safePage = params?.page && params.page > 0 ? +params.page : 1;
     const skip = (safePage - 1) * safePer;
-  
-    // Tách luôn các filter param
-    const { page, per, ...filters } = params;
-  
+
+    // Tách các params: page, per, global và các filters khác
+    const { page, per, global, ...filters } = params;
+
     const [data, total] = await Promise.all([
-      this.repository.search({ where: filters, per: safePer, skip }),
-      this.repository.countBy({ where: filters }),
+      this.repository.search({ where: filters, global, per: safePer, skip }),
+      this.repository.countBy({ where: filters, global }),
     ]);
-  
+
     return { data, total };
   }
 

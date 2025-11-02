@@ -3,6 +3,7 @@ import { DroneRepository } from '../../repositories/drone.repository';
 import { Drone, DroneStatus } from '../../entities/drone.entity';
 import { CreateDroneDto, UpdateDroneDto, UpdateLocationDto, UpdateStatusDto } from './dto';
 import { BaseService } from '../../common/base.service';
+const droneEntity = require("../../entities/drone.entity");
 
 @Injectable()
 export class DronesService extends BaseService<Drone> {
@@ -81,5 +82,9 @@ export class DronesService extends BaseService<Drone> {
     async updateBatteryHealth(id: number, battery_health: number): Promise<void> {
         await this.findById(id);
         await this.droneRepository.updateBatteryHealth(id, battery_health);
+    }
+
+    async getStatus(): Promise<string[]> {
+        return Object.values(droneEntity.DroneStatus);
     }
 }

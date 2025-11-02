@@ -4,8 +4,8 @@ import { User, UserRole } from '../../entities/user.entity';
 import { CreatePilotDto, PilotResponseDto, UpdatePilotDto } from './dto';
 import * as bcrypt from 'bcryptjs';
 import { BaseService } from '../../common/base.service';
-import { PilotRepository } from 'src/repositories/pilot.repository';
-import { Pilot, PilotStatus } from 'src/entities/pilot.entity';
+import { PilotRepository } from '../../repositories/pilot.repository';
+import { Pilot, PilotStatus } from '../../entities/pilot.entity';
 
 @Injectable()
 export class PilotsService extends BaseService<Pilot> {

@@ -47,6 +47,7 @@ export class Drone {
     name: string;
 
     @ApiProperty({ description: 'Drone status', enum: DroneStatus })
+    @Searchable()
     @Column({
         type: 'enum',
         enum: DroneStatus,

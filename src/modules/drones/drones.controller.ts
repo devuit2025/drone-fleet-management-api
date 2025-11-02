@@ -56,6 +56,18 @@ export class DronesController extends BaseController {
         return drones.map(drone => new DroneResponseDto(drone));
     }
 
+
+    @Get('statuses')
+    @ApiOperation({ summary: 'Get drone status' })
+    @ApiResponse({
+        status: 200,
+        description: 'Drone status retrieved successfully',
+    })
+    @ApiResponse({ status: 404, description: 'Drone not found' })
+    async getStatus(): Promise<string[]> {
+        return await this.dronesService.getStatus();
+    }
+
     @Get('status/:status')
     @ApiOperation({ summary: 'Get drones by status' })
     @ApiResponse({
