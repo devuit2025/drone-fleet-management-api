@@ -18,7 +18,8 @@ import { StringValue } from 'ms';
             useFactory: async (configService: ConfigService) => ({
                 secret: configService.get<string>('JWT_SECRET') || 'your-secret-key',
                 signOptions: {
-                    expiresIn: (configService.get<string>('JWT_EXPIRES_IN') || '24h') as StringValue
+                    // default to 365 days if not provided via env
+                    expiresIn: (configService.get<string>('JWT_EXPIRES_IN') || '365d') as StringValue
                 },
             }),
             inject: [ConfigService],
