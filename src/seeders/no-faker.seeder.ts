@@ -132,7 +132,7 @@ export class NoFakerSeeder {
         }
 
         const pilots: Partial<Pilot>[] = users.map(user => ({
-            user_id: user.id,
+            userId: user.id,
             name: user.name,
             status: PilotStatus.ACTIVE,
         }));
@@ -158,12 +158,12 @@ export class NoFakerSeeder {
 
         const licenses: Partial<License>[] = pilots.map((pilot, index) => ({
             pilotId: pilot.id,
-            license_number: `LIC-${String(index + 1).padStart(3, '0')}`,
-            license_type: LicenseType.COMMERCIAL,
-            qualification_level: QualificationLevel.ADVANCED,
-            issued_date: new Date('2023-01-01'),
-            expiry_date: new Date('2025-12-31'),
-            issuing_authority: 'Federal Aviation Administration',
+            licenseNumber: `LIC-${String(index + 1).padStart(3, '0')}`,
+            licenseType: LicenseType.COMMERCIAL,
+            qualificationLevel: QualificationLevel.ADVANCED,
+            issuedDate: new Date('2023-01-01'),
+            expiryDate: new Date('2025-12-31'),
+            issuingAuthority: 'Federal Aviation Administration',
             active: true,
         }));
 
