@@ -54,8 +54,9 @@ export class DroneResponseDto {
         this.name = drone.name;
         this.status = drone.status;
         this.firmwareVersion = drone.firmwareVersion;
-        this.batteryHealth = drone.batteryHealth;
-        this.totalFlightHours = drone.totalFlightHours;
+        // Convert numeric strings to numbers (PostgreSQL numeric type returns as string)
+        this.batteryHealth = drone.batteryHealth != null ? Number(drone.batteryHealth) : null;
+        this.totalFlightHours = drone.totalFlightHours != null ? Number(drone.totalFlightHours) : 0;
         this.lastMaintenance = drone.lastMaintenance;
         this.createdAt = drone.createdAt;
         this.updatedAt = drone.updatedAt;
