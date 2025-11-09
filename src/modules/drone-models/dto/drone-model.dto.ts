@@ -96,11 +96,11 @@ export class DroneModelResponseDto {
     this.brandId = droneModel.brandId;
     this.categoryId = droneModel.categoryId;
     this.name = droneModel.name;
-    this.maxSpeed = droneModel.maxSpeed;
-    this.maxAltitude = droneModel.maxAltitude;
-    this.maxFlightTime = droneModel.maxFlightTime;
-    this.maxPayload = droneModel.maxPayload;
-    this.batteryCapacity = droneModel.batteryCapacity;
+    this.maxSpeed = Number(droneModel.maxSpeed);
+    this.maxAltitude = Number(droneModel.maxAltitude);
+    this.maxFlightTime = Number(droneModel.maxFlightTime);
+    this.maxPayload = Number(droneModel.maxPayload);
+    this.batteryCapacity = Number(droneModel.batteryCapacity);
     this.dimensions = droneModel.dimensions;
     this.createdAt = droneModel.createdAt;
     this.updatedAt = droneModel.updatedAt;

@@ -69,7 +69,7 @@ export class DroneSensorResponseDto {
     this.type = droneSensor.type;
     this.model = droneSensor.model;
     this.resolution = droneSensor.resolution;
-    this.fieldOfView = droneSensor.fieldOfView;
+    this.fieldOfView = Number(droneSensor.fieldOfView);
     this.status = droneSensor.status;
     this.createdAt = droneSensor.createdAt;
     this.updatedAt = droneSensor.updatedAt;
