@@ -6,7 +6,8 @@ import { Mission, MissionStatus } from '../entities/mission.entity';
 
 @Injectable()
 export class MissionRepository extends BaseRepository<Mission> {
-  protected relations = ['pilot', 'drone'];
+  protected relationForList: string[] = [];
+  protected relationForDetail = ['waypoints', 'pilot', 'drones'];
 
   constructor(
     @InjectRepository(Mission)
@@ -18,14 +19,14 @@ export class MissionRepository extends BaseRepository<Mission> {
   async findByStatus(status: MissionStatus): Promise<Mission[]> {
     return await this.missionRepository.find({
       where: { status },
-      relations: ['pilot', 'drone'],
+      relations: [],
     });
   }
 
   async findByPilot(pilotId: number): Promise<Mission[]> {
     return await this.missionRepository.find({
       where: { pilotId },
-      relations: ['pilot', 'drone'],
+      relations: [],
     });
   }
 }

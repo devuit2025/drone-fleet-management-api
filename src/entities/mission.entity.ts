@@ -7,6 +7,8 @@ import {
     OneToMany,
     ManyToMany,
     JoinTable,
+    ManyToOne,
+    JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Searchable } from '../repositories/base.repository';
@@ -16,6 +18,7 @@ import { Telemetry } from './telemetry.entity';
 import { FlightLog } from './flight-log.entity';
 import { MissionReport } from './mission-report.entity';
 import { Simulation } from './simulation.entity';
+import { Pilot } from './pilot.entity';
 
 export enum MissionStatus {
     PLANNED = 'planned',
@@ -33,6 +36,10 @@ export class Mission {
     @ApiProperty({ description: 'Pilot ID' })
     @Column({ name: 'pilot_id' })
     pilotId: number;
+
+    @ManyToOne(() => Pilot, pilot => pilot.missions, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'pilot_id' })
+    pilot?: Pilot;
 
     @ApiProperty({ description: 'License ID' })
     @Column({

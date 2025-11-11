@@ -29,7 +29,7 @@ export class Waypoint {
 
     @ApiProperty({ description: 'Geographic point (PostGIS Point SRID=4326)' })
     @Column({ name: 'geo_point', type: 'geometry', spatialFeatureType: 'Point', srid: 4326 })
-    geoPoint: string;
+    geoPoint: any;
 
     @ApiProperty({ description: 'Altitude in meters' })
     @Column({ name: 'altitude_m', type: 'numeric' })

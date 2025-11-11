@@ -42,7 +42,9 @@ export class NoFlyZoneResponseDto {
     this.id = noFlyZone.id;
     this.name = noFlyZone.name;
     this.zoneType = noFlyZone.zoneType;
-    this.geometry = noFlyZone.geometry;
+    this.geometry = typeof (noFlyZone.geometry as any) === 'string'
+      ? (noFlyZone.geometry as any)
+      : JSON.stringify(noFlyZone.geometry);
     this.description = noFlyZone.description;
   }
 }

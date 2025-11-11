@@ -15,10 +15,18 @@ export class NoFlyZonesService extends BaseService<NoFlyZone> {
   ) { super(noFlyZoneRepo, 'No-fly zone'); }
 
   async create(createNoFlyZoneDto: CreateNoFlyZoneDto): Promise<NoFlyZone> {
+    let geometryValue: any = createNoFlyZoneDto.geometry;
+    if (typeof createNoFlyZoneDto.geometry === 'string') {
+      try {
+        geometryValue = JSON.parse(createNoFlyZoneDto.geometry);
+      } catch (err) {
+        throw new Error('Invalid geometry JSON');
+      }
+    }
     const noFlyZone = this.noFlyZoneRepository.create({
       name: createNoFlyZoneDto.name,
       zoneType: createNoFlyZoneDto.zoneType,
-      geometry: createNoFlyZoneDto.geometry,
+      geometry: geometryValue,
       description: createNoFlyZoneDto.description,
     });
     return await this.noFlyZoneRepository.save(noFlyZone);
@@ -38,7 +46,15 @@ export class NoFlyZonesService extends BaseService<NoFlyZone> {
       noFlyZone.zoneType = updateNoFlyZoneDto.zoneType;
     }
     if (updateNoFlyZoneDto.geometry !== undefined) {
-      noFlyZone.geometry = updateNoFlyZoneDto.geometry;
+      if (typeof updateNoFlyZoneDto.geometry === 'string') {
+        try {
+          noFlyZone.geometry = JSON.parse(updateNoFlyZoneDto.geometry);
+        } catch (err) {
+          throw new Error('Invalid geometry JSON');
+        }
+      } else {
+        noFlyZone.geometry = updateNoFlyZoneDto.geometry as any;
+      }
     }
     if (updateNoFlyZoneDto.description !== undefined) {
       noFlyZone.description = updateNoFlyZoneDto.description;

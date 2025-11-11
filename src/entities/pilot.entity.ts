@@ -13,6 +13,7 @@ import { Searchable } from '../repositories/base.repository';
 import { User } from './user.entity';
 import { License } from './license.entity';
 import { Simulation } from './simulation.entity';
+import { Mission } from './mission.entity';
 
 export enum PilotStatus {
     ACTIVE = 'active',
@@ -59,4 +60,7 @@ export class Pilot {
 
     @OneToMany(() => Simulation, simulation => simulation.pilot, { createForeignKeyConstraints: false })
     simulations: Simulation[];
+
+    @OneToMany(() => Mission, mission => mission.pilot, { createForeignKeyConstraints: false })
+    missions?: Mission[];
 }
