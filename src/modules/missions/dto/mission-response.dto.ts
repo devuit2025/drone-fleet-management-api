@@ -1,12 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Mission, MissionStatus } from '../../../entities/mission.entity';
 import { Pilot } from '../../../entities/pilot.entity';
-import { Drone } from '../../../entities/drone.entity';
+import { MissionDrone } from '../../../entities/mission-drone.entity';
 import { Waypoint } from '../../../entities/waypoint.entity';
+import { Drone } from '../../../entities/drone.entity';
 import { Telemetry } from '../../../entities/telemetry.entity';
 import { FlightLog } from '../../../entities/flight-log.entity';
 import { MissionReport } from '../../../entities/mission-report.entity';
 import { Simulation } from '../../../entities/simulation.entity';
+import { formatPointGeometry } from '../../../utils/geometry';
 
 export class MissionResponseDto {
     @ApiProperty({ description: 'Mission ID' })
@@ -39,14 +41,24 @@ export class MissionResponseDto {
     @ApiProperty({ description: 'Pilot information', type: Object, required: false })
     pilot?: Pilot;
 
-    @ApiProperty({ description: 'Drone information', type: Object, required: false })
-    drone?: Drone;
-
-    @ApiProperty({ description: 'Waypoints', type: [Object], required: false })
-    waypoints?: Waypoint[];
-
-    @ApiProperty({ description: 'Drones assigned to mission', type: [Object], required: false })
-    drones?: Drone[];
+    @ApiProperty({ description: 'Mission drones with their waypoints', type: [Object], required: false })
+    missionDrones?: Array<{
+        id: number;
+        missionId: number;
+        droneId: number;
+        assignedAt: Date;
+        drone?: any;
+        waypoints: Array<{
+            id: number;
+            missionDroneId: number;
+            seqNumber: number;
+            geoPoint: any;
+            altitudeM: number;
+            speedMps: number;
+            action: string;
+            createdAt: Date;
+        }>;
+    }>;
 
     @ApiProperty({ description: 'Telemetry data', type: [Object], required: false })
     telemetry?: Telemetry[];
@@ -75,14 +87,17 @@ export class MissionResponseDto {
         if ((mission as any).pilot) {
             this.pilot = (mission as any).pilot;
         }
-        if ((mission as any).drone) {
-            this.drone = (mission as any).drone;
-        }
-        if ((mission as any).waypoints) {
-            this.waypoints = (mission as any).waypoints;
-        }
-        if ((mission as any).drones) {
-            this.drones = (mission as any).drones;
+        if ((mission as any).missionDrones) {
+            this.missionDrones = ((mission as any).missionDrones as MissionDrone[]).map(missionDrone => ({
+                id: missionDrone.id,
+                missionId: missionDrone.missionId,
+                droneId: missionDrone.droneId,
+                assignedAt: missionDrone.assignedAt,
+                drone: missionDrone.drone ? this.serializeDrone(missionDrone.drone) : undefined,
+                waypoints: Array.isArray(missionDrone.waypoints)
+                    ? missionDrone.waypoints.map(waypoint => this.serializeWaypoint(waypoint))
+                    : [],
+            }));
         }
         if ((mission as any).telemetry) {
             this.telemetry = (mission as any).telemetry;
@@ -96,5 +111,31 @@ export class MissionResponseDto {
         if ((mission as any).simulations) {
             this.simulations = (mission as any).simulations;
         }
+    }
+    private serializeDrone(drone: Drone): any {
+        const { missionDrones, ...rest } = drone as any;
+        return rest;
+    }
+
+    private serializeWaypoint(waypoint: Waypoint): {
+        id: number;
+        missionDroneId: number;
+        seqNumber: number;
+        geoPoint: any;
+        altitudeM: number;
+        speedMps: number;
+        action: string;
+        createdAt: Date;
+    } {
+        return {
+            id: waypoint.id,
+            missionDroneId: waypoint.missionDroneId,
+            seqNumber: waypoint.seqNumber,
+            geoPoint: formatPointGeometry(waypoint.geoPoint),
+            altitudeM: waypoint.altitudeM,
+            speedMps: waypoint.speedMps,
+            action: waypoint.action,
+            createdAt: waypoint.createdAt,
+        };
     }
 }

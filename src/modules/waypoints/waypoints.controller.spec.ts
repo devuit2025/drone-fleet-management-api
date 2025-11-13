@@ -64,7 +64,7 @@ describe('WaypointsController', () => {
   describe('POST /api/v1/waypoints', () => {
     it('should create a new waypoint successfully', async () => {
       const createWaypointDto = {
-        missionId: 1,
+        missionDroneId: 10,
         seqNumber: 1,
         geoPoint: 'POINT(106.6 10.7)',
         altitudeM: 100,
@@ -72,11 +72,18 @@ describe('WaypointsController', () => {
         action: 'takeoff',
       };
 
-      const mockWaypoint = new WaypointResponseDto({
+      const waypointEntity = Object.assign(new Waypoint(), {
         id: 1,
-        ...createWaypointDto,
+        missionDroneId: createWaypointDto.missionDroneId,
+        seqNumber: createWaypointDto.seqNumber,
+        geoPoint: createWaypointDto.geoPoint,
+        altitudeM: createWaypointDto.altitudeM,
+        speedMps: createWaypointDto.speedMps,
+        action: createWaypointDto.action,
         createdAt: new Date(),
-      } as Waypoint);
+      });
+
+      const mockWaypoint = new WaypointResponseDto(waypointEntity);
 
       mockWaypointsService.create.mockResolvedValue(mockWaypoint);
 
@@ -86,13 +93,13 @@ describe('WaypointsController', () => {
         .expect(201);
 
       expect(response.body).toHaveProperty('id');
-      expect(response.body.missionId).toBe(1);
+      expect(response.body.missionDroneId).toBe(10);
       expect(mockWaypointsService.create).toHaveBeenCalledWith(createWaypointDto);
     });
 
     it('should return 400 when required fields are missing', async () => {
       const invalidDto = {
-        missionId: 1,
+        missionDroneId: 10,
       } as any;
 
       const response = await request(app.getHttpServer())
@@ -107,16 +114,18 @@ describe('WaypointsController', () => {
   describe('GET /api/v1/waypoints', () => {
     it('should return an array of waypoints', async () => {
       const mockWaypoints = [
-        new WaypointResponseDto({
-          id: 1,
-          missionId: 1,
-          seqNumber: 1,
-          geoPoint: 'POINT(106.6 10.7)',
-          altitudeM: 100,
-          speedMps: 10,
-          action: 'takeoff',
-          createdAt: new Date(),
-        } as Waypoint),
+        new WaypointResponseDto(
+          Object.assign(new Waypoint(), {
+            id: 1,
+            missionDroneId: 10,
+            seqNumber: 1,
+            geoPoint: 'POINT(106.6 10.7)',
+            altitudeM: 100,
+            speedMps: 10,
+            action: 'takeoff',
+            createdAt: new Date(),
+          }),
+        ),
       ];
 
       mockWaypointsService.findAll.mockResolvedValue(mockWaypoints);
@@ -132,16 +141,18 @@ describe('WaypointsController', () => {
 
     it('should filter by missionId when provided', async () => {
       const mockWaypoints = [
-        new WaypointResponseDto({
-          id: 1,
-          missionId: 1,
-          seqNumber: 1,
-          geoPoint: 'POINT(106.6 10.7)',
-          altitudeM: 100,
-          speedMps: 10,
-          action: 'takeoff',
-          createdAt: new Date(),
-        } as Waypoint),
+        new WaypointResponseDto(
+          Object.assign(new Waypoint(), {
+            id: 1,
+            missionDroneId: 10,
+            seqNumber: 1,
+            geoPoint: 'POINT(106.6 10.7)',
+            altitudeM: 100,
+            speedMps: 10,
+            action: 'takeoff',
+            createdAt: new Date(),
+          }),
+        ),
       ];
 
       mockWaypointsService.findByMissionId.mockResolvedValue(mockWaypoints);
@@ -157,16 +168,18 @@ describe('WaypointsController', () => {
 
   describe('GET /api/v1/waypoints/:id', () => {
     it('should return a waypoint by ID', async () => {
-      const mockWaypoint = new WaypointResponseDto({
-        id: 1,
-        missionId: 1,
-        seqNumber: 1,
-        geoPoint: 'POINT(106.6 10.7)',
-        altitudeM: 100,
-        speedMps: 10,
-        action: 'takeoff',
-        createdAt: new Date(),
-      } as Waypoint);
+      const mockWaypoint = new WaypointResponseDto(
+        Object.assign(new Waypoint(), {
+          id: 1,
+          missionDroneId: 10,
+          seqNumber: 1,
+          geoPoint: 'POINT(106.6 10.7)',
+          altitudeM: 100,
+          speedMps: 10,
+          action: 'takeoff',
+          createdAt: new Date(),
+        }),
+      );
 
       mockWaypointsService.findById.mockResolvedValue(mockWaypoint);
 
@@ -198,16 +211,18 @@ describe('WaypointsController', () => {
         speedMps: 15,
       };
 
-      const mockWaypoint = new WaypointResponseDto({
-        id: 1,
-        missionId: 1,
-        seqNumber: 1,
-        geoPoint: 'POINT(106.6 10.7)',
-        altitudeM: 150,
-        speedMps: 15,
-        action: 'takeoff',
-        createdAt: new Date(),
-      } as Waypoint);
+      const mockWaypoint = new WaypointResponseDto(
+        Object.assign(new Waypoint(), {
+          id: 1,
+          missionDroneId: 10,
+          seqNumber: 1,
+          geoPoint: 'POINT(106.6 10.7)',
+          altitudeM: 150,
+          speedMps: 15,
+          action: 'takeoff',
+          createdAt: new Date(),
+        }),
+      );
 
       mockWaypointsService.update.mockResolvedValue(mockWaypoint);
 

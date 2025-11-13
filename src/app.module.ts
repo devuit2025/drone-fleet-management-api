@@ -28,6 +28,7 @@ import { License } from './entities/license.entity';
 import { Drone } from './entities/drone.entity';
 import { DroneConfiguration } from './entities/drone-configuration.entity';
 import { Mission } from './entities/mission.entity';
+import { MissionDrone } from './entities/mission-drone.entity';
 import { Waypoint } from './entities/waypoint.entity';
 import { Telemetry } from './entities/telemetry.entity';
 import { NoFlyZone } from './entities/no-fly-zone.entity';
@@ -62,6 +63,7 @@ import { MavlinkModule } from './modules/mavlink/mavlink.module';
                 Drone,
                 DroneConfiguration,
                 Mission,
+                MissionDrone,
                 Waypoint,
                 Telemetry,
                 NoFlyZone,

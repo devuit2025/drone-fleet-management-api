@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { NoFlyZone } from '../../entities/no-fly-zone.entity';
 import { CreateNoFlyZoneDto, UpdateNoFlyZoneDto } from './dto';
 import { NoFlyZoneRepository } from '../../repositories/no-fly-zone.repository';
 import { BaseService } from '../../common/base.service';
+import { GeometryParseError, normalizeGeometryObject } from '../../utils/geometry';
 
 @Injectable()
 export class NoFlyZonesService extends BaseService<NoFlyZone> {
@@ -15,14 +16,7 @@ export class NoFlyZonesService extends BaseService<NoFlyZone> {
   ) { super(noFlyZoneRepo, 'No-fly zone'); }
 
   async create(createNoFlyZoneDto: CreateNoFlyZoneDto): Promise<NoFlyZone> {
-    let geometryValue: any = createNoFlyZoneDto.geometry;
-    if (typeof createNoFlyZoneDto.geometry === 'string') {
-      try {
-        geometryValue = JSON.parse(createNoFlyZoneDto.geometry);
-      } catch (err) {
-        throw new Error('Invalid geometry JSON');
-      }
-    }
+    const geometryValue = this.normalizeGeometryOrThrow(createNoFlyZoneDto.geometry);
     const noFlyZone = this.noFlyZoneRepository.create({
       name: createNoFlyZoneDto.name,
       zoneType: createNoFlyZoneDto.zoneType,
@@ -46,15 +40,7 @@ export class NoFlyZonesService extends BaseService<NoFlyZone> {
       noFlyZone.zoneType = updateNoFlyZoneDto.zoneType;
     }
     if (updateNoFlyZoneDto.geometry !== undefined) {
-      if (typeof updateNoFlyZoneDto.geometry === 'string') {
-        try {
-          noFlyZone.geometry = JSON.parse(updateNoFlyZoneDto.geometry);
-        } catch (err) {
-          throw new Error('Invalid geometry JSON');
-        }
-      } else {
-        noFlyZone.geometry = updateNoFlyZoneDto.geometry as any;
-      }
+      noFlyZone.geometry = this.normalizeGeometryOrThrow(updateNoFlyZoneDto.geometry);
     }
     if (updateNoFlyZoneDto.description !== undefined) {
       noFlyZone.description = updateNoFlyZoneDto.description;
@@ -64,5 +50,16 @@ export class NoFlyZonesService extends BaseService<NoFlyZone> {
   }
 
   // delete inherited
+
+  private normalizeGeometryOrThrow(input: any): any {
+    try {
+      return normalizeGeometryObject(input);
+    } catch (error) {
+      if (error instanceof GeometryParseError) {
+        throw new BadRequestException(error.message);
+      }
+      throw error;
+    }
+  }
 }
 

@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 // import { faker } from '@faker-js/faker';
 import { Waypoint } from '../entities/waypoint.entity';
 import { Mission, MissionStatus } from '../entities/mission.entity';
+import { MissionDrone } from '../entities/mission-drone.entity';
+import { Drone } from '../entities/drone.entity';
 
 @Injectable()
 export class WaypointSeeder {
@@ -12,6 +14,10 @@ export class WaypointSeeder {
         private readonly waypointRepository: Repository<Waypoint>,
         @InjectRepository(Mission)
         private readonly missionRepository: Repository<Mission>,
+        @InjectRepository(MissionDrone)
+        private readonly missionDroneRepository: Repository<MissionDrone>,
+        @InjectRepository(Drone)
+        private readonly droneRepository: Repository<Drone>,
     ) { }
 
     async seed(): Promise<void> {
@@ -37,6 +43,12 @@ export class WaypointSeeder {
             return;
         }
 
+        const drones = await this.droneRepository.find();
+        if (drones.length === 0) {
+            console.log('No drones available, skipping waypoint seeding...');
+            return;
+        }
+
         const waypoints: Partial<Waypoint>[] = [];
 
         const actions = [
@@ -51,7 +63,27 @@ export class WaypointSeeder {
         ];
 
         // Create waypoints for each mission
+        let droneIndex = 0;
         for (const mission of missions) {
+            let missionDrone = await this.missionDroneRepository.findOne({
+                where: { missionId: mission.id },
+            });
+
+            if (!missionDrone) {
+                const assignedDrone = drones[droneIndex % drones.length];
+                droneIndex += 1;
+                missionDrone = await this.missionDroneRepository.save(
+                    this.missionDroneRepository.create({
+                        missionId: mission.id,
+                        droneId: assignedDrone.id,
+                    }),
+                );
+            }
+
+            if (!missionDrone) {
+                continue;
+            }
+
             const waypointCount = faker.number.int({ min: 3, max: 10 });
 
             for (let i = 0; i < waypointCount; i++) {
@@ -63,9 +95,12 @@ export class WaypointSeeder {
                 const lng = baseLng + faker.number.float({ min: -0.01, max: 0.01 });
 
                 waypoints.push({
-                    missionId: mission.id,
+                    missionDroneId: missionDrone.id,
                     seqNumber: i + 1,
-                    geoPoint: `POINT(${lng} ${lat})`, // PostGIS Point format
+                    geoPoint: {
+                        type: 'Point',
+                        coordinates: [lng, lat],
+                    },
                     altitudeM: faker.number.int({ min: 50, max: 500 }),
                     speedMps: faker.number.float({ min: 5, max: 25, fractionDigits: 1 }),
                     action: faker.helpers.arrayElement(actions),

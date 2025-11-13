@@ -10,6 +10,7 @@ import {
   ParseIntPipe,
   Query,
   Res,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { WaypointsService } from './waypoints.service';
@@ -49,7 +50,17 @@ export class WaypointsController extends BaseController {
     @Query() query: any,
     @Res({ passthrough: true }) res?: Response,
   ): Promise<WaypointResponseDto[]> {
-    const { page, per, ...filters } = query;
+    const { page, per, missionId, ...filters } = query;
+
+    if (missionId !== undefined) {
+      const missionIdNumber = Number(missionId);
+      if (Number.isNaN(missionIdNumber)) {
+        throw new BadRequestException('missionId must be a number');
+      }
+      const waypoints = await this.waypointsService.findByMissionId(missionIdNumber);
+      return waypoints.map(waypoint => new WaypointResponseDto(waypoint));
+    }
+
     const currentPage = this.parsePage(page);
     const perPage = this.parsePer(per);
     const result = await this.waypointsService.findAll({

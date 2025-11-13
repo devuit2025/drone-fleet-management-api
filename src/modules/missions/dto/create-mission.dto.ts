@@ -33,6 +33,23 @@ class CreateMissionWaypointDto {
     action: string;
 }
 
+class CreateMissionDroneDto {
+    @ApiProperty({ description: 'Drone ID' })
+    @IsNumber()
+    droneId: number;
+
+    @ApiProperty({
+        description: 'Waypoints for this drone',
+        type: () => [CreateMissionWaypointDto],
+        required: false,
+    })
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => CreateMissionWaypointDto)
+    waypoints?: CreateMissionWaypointDto[];
+}
+
 export class CreateMissionDto {
     @ApiProperty({ description: 'Pilot ID' })
     @IsNumber()
@@ -63,15 +80,15 @@ export class CreateMissionDto {
     endTime?: string;
 
     @ApiProperty({
-        description: 'Waypoints to create together with the mission',
-        type: () => [CreateMissionWaypointDto],
+        description: 'Drones with their waypoints to assign to the mission',
+        type: () => [CreateMissionDroneDto],
         required: false,
     })
     @IsOptional()
     @IsArray()
     @ValidateNested({ each: true })
-    @Type(() => CreateMissionWaypointDto)
-    waypoints?: CreateMissionWaypointDto[];
+    @Type(() => CreateMissionDroneDto)
+    drones?: CreateMissionDroneDto[];
 }
 
-export { CreateMissionWaypointDto };
+export { CreateMissionWaypointDto, CreateMissionDroneDto };

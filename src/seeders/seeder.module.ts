@@ -21,6 +21,7 @@ import { Pilot } from '../entities/pilot.entity';
 import { License } from '../entities/license.entity';
 import { Drone } from '../entities/drone.entity';
 import { Mission } from '../entities/mission.entity';
+import { MissionDrone } from '../entities/mission-drone.entity';
 import { Waypoint } from '../entities/waypoint.entity';
 import { Telemetry } from '../entities/telemetry.entity';
 import { NoFlyZone } from '../entities/no-fly-zone.entity';
@@ -36,6 +37,7 @@ import { Simulation } from '../entities/simulation.entity';
             License,
             Drone,
             Mission,
+            MissionDrone,
             Waypoint,
             Telemetry,
             NoFlyZone,
@@ -62,4 +64,4 @@ import { Simulation } from '../entities/simulation.entity';
     ],
     exports: [SeederService],
 })
-export class SeederModule {}
+export class SeederModule { }

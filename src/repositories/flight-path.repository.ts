@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseRepository } from './base.repository';
 import { Waypoint } from '../entities/waypoint.entity';
+import { normalizePointGeometry } from '../utils/geometry';
 
 @Injectable()
 export class FlightPathRepository extends BaseRepository<Waypoint> {
@@ -15,7 +16,7 @@ export class FlightPathRepository extends BaseRepository<Waypoint> {
 
     async findByFlightId(flightId: number): Promise<Waypoint[]> {
         return await this.flightPathRepository.find({
-            where: { missionId: flightId },
+            where: { missionDroneId: flightId },
             order: { seqNumber: 'ASC' },
         });
     }
@@ -29,30 +30,32 @@ export class FlightPathRepository extends BaseRepository<Waypoint> {
         batteryLevel: number,
     ): Promise<Waypoint> {
         const lastPoint = await this.flightPathRepository.findOne({
-            where: { missionId: flightId },
+            where: { missionDroneId: flightId },
             order: { seqNumber: 'DESC' },
         });
 
         const seqNumber = lastPoint ? lastPoint.seqNumber + 1 : 1;
 
-        return await this.create({
-            missionId: flightId,
+        const waypoint = this.flightPathRepository.create({
+            missionDroneId: flightId,
             seqNumber,
-            geoPoint: `POINT(${longitude} ${latitude})`,
+            geoPoint: normalizePointGeometry({ type: 'Point', coordinates: [longitude, latitude] }),
             altitudeM: altitude,
             speedMps: speed,
             action: 'waypoint',
         });
+
+        return await this.flightPathRepository.save(waypoint);
     }
 
     async getLatestPathPoint(flightId: number): Promise<Waypoint | null> {
         return await this.flightPathRepository.findOne({
-            where: { missionId: flightId },
+            where: { missionDroneId: flightId },
             order: { seqNumber: 'DESC' },
         });
     }
 
     async deleteByFlightId(flightId: number): Promise<void> {
-        await this.flightPathRepository.delete({ missionId: flightId });
+        await this.flightPathRepository.delete({ missionDroneId: flightId });
     }
 }

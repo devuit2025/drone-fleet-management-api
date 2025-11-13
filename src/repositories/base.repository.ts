@@ -247,11 +247,27 @@ export abstract class BaseRepository<T extends { id: number }> {
         }
 
         if (this.relationForList && this.relationForList.length > 0) {
+            const rootAlias = queryBuilder.alias;
+            const aliasMap = new Map<string, string>();
+            aliasMap.set('', rootAlias);
+
             this.relationForList.forEach(relation => {
-                queryBuilder.leftJoinAndSelect(
-                    this.repository.metadata.targetName + '.' + relation,
-                    relation
-                );
+                const segments = relation.split('.');
+                let parentPath = '';
+                let parentAlias = rootAlias;
+
+                segments.forEach((segment, index) => {
+                    const currentPath = parentPath ? `${parentPath}.${segment}` : segment;
+                    if (!aliasMap.has(currentPath)) {
+                        const joinSource = `${parentAlias}.${segment}`;
+                        const aliasName = `${segment}_${aliasMap.size}`;
+                        queryBuilder.leftJoinAndSelect(joinSource, aliasName);
+                        aliasMap.set(currentPath, aliasName);
+                    }
+
+                    parentPath = currentPath;
+                    parentAlias = aliasMap.get(currentPath) ?? rootAlias;
+                });
             });
         }
 

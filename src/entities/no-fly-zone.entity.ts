@@ -28,7 +28,7 @@ export class NoFlyZone {
 
     @ApiProperty({ description: 'Geometry (PostGIS Polygon SRID=4326)' })
     @Column({ type: 'geometry', spatialFeatureType: 'Polygon', srid: 4326 })
-    geometry: string;
+    geometry: any;
 
     @ApiProperty({ description: 'Description' })
     @Column({ type: 'text' })

@@ -75,9 +75,7 @@ describe('REAL Complete Drone Fleet Management Flow', () => {
         console.log('📝 This test will create REAL data in the database with prefix "test_integrate_"\n');
 
         // Track created IDs for cleanup
-        const createdIds: {
-            [key: string]: number | number[]
-        } = {};
+        const createdIds: Record<string, any> = {};
         const prefix = `test_integrate_${Date.now()}`;
 
         try {
@@ -217,7 +215,12 @@ describe('REAL Complete Drone Fleet Management Flow', () => {
                     pilotId: createdIds.pilotId,
                     licenseId: createdIds.licenseId,
                     missionName: `${prefix}_Mission`,
-                    status: 'planned' // Use lowercase
+                    status: 'planned', // Use lowercase
+                    drones: [
+                        {
+                            droneId: createdIds.droneId,
+                        },
+                    ],
                 })
                 .expect(201);
 
@@ -227,16 +230,23 @@ describe('REAL Complete Drone Fleet Management Flow', () => {
 
             expect(missionResponse.body).toHaveProperty('id');
             createdIds.missionId = missionResponse.body.id;
+            if (Array.isArray(missionResponse.body.missionDrones) && missionResponse.body.missionDrones.length > 0) {
+                createdIds.missionDroneId = missionResponse.body.missionDrones[0].id;
+            }
             console.log(`✅ Mission created: ID=${createdIds.missionId}, Name=${missionResponse.body.missionName}`);
 
             // ===== STEP 9: Create Waypoints for Mission (REAL API CALLS) =====
             console.log('\n📝 Step 9: Creating waypoints for mission...');
 
+            if (!createdIds.missionDroneId) {
+                throw new Error('Mission drone ID not found after mission creation');
+            }
+
             // Waypoint 1: Take off
             const waypoint1Response = await request(app.getHttpServer())
                 .post('/api/v1/waypoints')
                 .send({
-                    missionId: createdIds.missionId,
+                    missionDroneId: createdIds.missionDroneId,
                     seqNumber: 1,
                     geoPoint: 'POINT(106.6296 10.8231)',
                     altitudeM: 10,
@@ -252,7 +262,7 @@ describe('REAL Complete Drone Fleet Management Flow', () => {
             const waypoint2Response = await request(app.getHttpServer())
                 .post('/api/v1/waypoints')
                 .send({
-                    missionId: createdIds.missionId,
+                    missionDroneId: createdIds.missionDroneId,
                     seqNumber: 2,
                     geoPoint: 'POINT(106.6306 10.8241)',
                     altitudeM: 50,
@@ -268,7 +278,7 @@ describe('REAL Complete Drone Fleet Management Flow', () => {
             const waypoint3Response = await request(app.getHttpServer())
                 .post('/api/v1/waypoints')
                 .send({
-                    missionId: createdIds.missionId,
+                    missionDroneId: createdIds.missionDroneId,
                     seqNumber: 3,
                     geoPoint: 'POINT(106.6316 10.8251)',
                     altitudeM: 10,
@@ -286,6 +296,9 @@ describe('REAL Complete Drone Fleet Management Flow', () => {
             const getMissionResponse = await request(app.getHttpServer())
                 .get(`/api/v1/missions/${createdIds.missionId}`)
                 .expect(200);
+            if (!createdIds.missionDroneId && Array.isArray(getMissionResponse.body.missionDrones)) {
+                createdIds.missionDroneId = getMissionResponse.body.missionDrones[0]?.id;
+            }
             console.log('✅ Mission retrieved for drone assignment');
 
             // ===== STEP 11: Start Mission =====

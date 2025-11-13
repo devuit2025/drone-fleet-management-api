@@ -134,7 +134,10 @@ describe('MissionsController', () => {
 
             expect(Array.isArray(response.body)).toBe(true);
             expect(response.body.length).toBe(1);
-            expect(mockMissionsService.findAll).toHaveBeenCalledWith();
+            expect(mockMissionsService.findAll).toHaveBeenCalledWith({
+                page: 1,
+                per: 30,
+            });
         });
 
         it('should return multiple missions', async () => {
@@ -227,6 +230,7 @@ describe('MissionsController', () => {
         });
 
         it('should return mission by ID with pilot and drone relations loaded', async () => {
+            const assignedAt = new Date();
             const mockMissionWithRelations = new MissionResponseDto({
                 id: 1,
                 pilotId: 1,
@@ -243,19 +247,55 @@ describe('MissionsController', () => {
                     userId: 1,
                     status: 'active',
                 },
-                drone: {
-                    id: 1,
-                    name: 'Test Drone',
-                    serialNumber: 'DRONE-001',
-                    status: 'available',
-                },
-                waypoints: [
-                    { id: 1, missionId: 1, seqNumber: 1, geoPoint: 'POINT(106.6 10.7)', altitudeM: 50, speedMps: 10, action: 'fly_to', createdAt: new Date() },
-                    { id: 2, missionId: 1, seqNumber: 2, geoPoint: 'POINT(106.61 10.71)', altitudeM: 100, speedMps: 15, action: 'hover', createdAt: new Date() },
-                ],
-                drones: [
-                    { id: 1, name: 'Test Drone 1', serialNumber: 'DRONE-001', status: 'available' },
-                    { id: 2, name: 'Test Drone 2', serialNumber: 'DRONE-002', status: 'available' },
+                missionDrones: [
+                    {
+                        id: 10,
+                        missionId: 1,
+                        droneId: 1,
+                        assignedAt,
+                        drone: { id: 1, name: 'Test Drone 1', serialNumber: 'DRONE-001', status: 'available' } as any,
+                        waypoints: [
+                            {
+                                id: 1,
+                                missionDroneId: 10,
+                                seqNumber: 1,
+                                geoPoint: { type: 'Point', coordinates: [106.6, 10.7] },
+                                altitudeM: 50,
+                                speedMps: 10,
+                                action: 'fly_to',
+                                createdAt: new Date(),
+                            },
+                            {
+                                id: 2,
+                                missionDroneId: 10,
+                                seqNumber: 2,
+                                geoPoint: { type: 'Point', coordinates: [106.61, 10.71] },
+                                altitudeM: 100,
+                                speedMps: 15,
+                                action: 'hover',
+                                createdAt: new Date(),
+                            },
+                        ],
+                    } as any,
+                    {
+                        id: 11,
+                        missionId: 1,
+                        droneId: 2,
+                        assignedAt,
+                        drone: { id: 2, name: 'Test Drone 2', serialNumber: 'DRONE-002', status: 'available' } as any,
+                        waypoints: [
+                            {
+                                id: 3,
+                                missionDroneId: 11,
+                                seqNumber: 1,
+                                geoPoint: { type: 'Point', coordinates: [106.7, 10.72] },
+                                altitudeM: 60,
+                                speedMps: 12,
+                                action: 'fly_to',
+                                createdAt: new Date(),
+                            },
+                        ],
+                    } as any,
                 ],
                 telemetry: [
                     { id: 1, droneId: 1, missionId: 1, timestamp: new Date(), altitudeM: 100, speedMps: 10, batteryPct: 80, status: 'flying' },
@@ -284,40 +324,26 @@ describe('MissionsController', () => {
             expect(response.body.id).toBe(1);
             // Verify that relations are included in response
             expect(response.body.pilot).toBeDefined();
-            expect(response.body.drone).toBeDefined();
             expect(response.body.pilot.name).toBe('Test Pilot');
-            expect(response.body.drone.name).toBe('Test Drone');
+            // Verify missionDrones nesting
+            expect(response.body.missionDrones).toBeDefined();
+            expect(Array.isArray(response.body.missionDrones)).toBe(true);
+            expect(response.body.missionDrones.length).toBe(2);
 
-            // Verify OneToMany/ManyToMany relations with minimum 2 records and exact expected values
-            expect(response.body.waypoints).toBeDefined();
-            expect(Array.isArray(response.body.waypoints)).toBe(true);
-            expect(response.body.waypoints.length).toBe(2);
-            expect(response.body.waypoints[0].id).toBe(1);
-            expect(response.body.waypoints[0].missionId).toBe(1);
-            expect(response.body.waypoints[0].seqNumber).toBe(1);
-            expect(response.body.waypoints[0].geoPoint).toBe('POINT(106.6 10.7)');
-            expect(response.body.waypoints[0].altitudeM).toBe(50);
-            expect(response.body.waypoints[0].speedMps).toBe(10);
-            expect(response.body.waypoints[0].action).toBe('fly_to');
-            expect(response.body.waypoints[1].id).toBe(2);
-            expect(response.body.waypoints[1].missionId).toBe(1);
-            expect(response.body.waypoints[1].seqNumber).toBe(2);
-            expect(response.body.waypoints[1].geoPoint).toBe('POINT(106.61 10.71)');
-            expect(response.body.waypoints[1].altitudeM).toBe(100);
-            expect(response.body.waypoints[1].speedMps).toBe(15);
-            expect(response.body.waypoints[1].action).toBe('hover');
+            const firstMissionDrone = response.body.missionDrones[0];
+            expect(firstMissionDrone.droneId).toBe(1);
+            expect(firstMissionDrone.drone).toBeDefined();
+            expect(firstMissionDrone.drone.name).toBe('Test Drone 1');
+            expect(firstMissionDrone.assignedAt).toBeDefined();
+            expect(Array.isArray(firstMissionDrone.waypoints)).toBe(true);
+            expect(firstMissionDrone.waypoints.length).toBe(2);
+            expect(firstMissionDrone.waypoints[0].geoPoint).toBe('POINT(106.6 10.7)');
 
-            expect(response.body.drones).toBeDefined();
-            expect(Array.isArray(response.body.drones)).toBe(true);
-            expect(response.body.drones.length).toBe(2);
-            expect(response.body.drones[0].id).toBe(1);
-            expect(response.body.drones[0].name).toBe('Test Drone 1');
-            expect(response.body.drones[0].serialNumber).toBe('DRONE-001');
-            expect(response.body.drones[0].status).toBe('available');
-            expect(response.body.drones[1].id).toBe(2);
-            expect(response.body.drones[1].name).toBe('Test Drone 2');
-            expect(response.body.drones[1].serialNumber).toBe('DRONE-002');
-            expect(response.body.drones[1].status).toBe('available');
+            const secondMissionDrone = response.body.missionDrones[1];
+            expect(secondMissionDrone.droneId).toBe(2);
+            expect(secondMissionDrone.drone.name).toBe('Test Drone 2');
+            expect(secondMissionDrone.waypoints.length).toBe(1);
+            expect(secondMissionDrone.waypoints[0].geoPoint).toBe('POINT(106.7 10.72)');
 
             expect(response.body.telemetry).toBeDefined();
             expect(Array.isArray(response.body.telemetry)).toBe(true);

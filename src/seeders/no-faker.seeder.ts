@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { User, UserRole } from '../entities/user.entity';
 import { Pilot, PilotStatus } from '../entities/pilot.entity';
 import { License, LicenseType, QualificationLevel } from '../entities/license.entity';
 import { Drone, DroneStatus } from '../entities/drone.entity';
 import { Mission, MissionStatus } from '../entities/mission.entity';
+import { MissionDrone } from '../entities/mission-drone.entity';
 import { Waypoint } from '../entities/waypoint.entity';
 import { Telemetry } from '../entities/telemetry.entity';
 import { NoFlyZone, ZoneType } from '../entities/no-fly-zone.entity';
@@ -27,6 +28,8 @@ export class NoFakerSeeder {
         private readonly droneRepository: Repository<Drone>,
         @InjectRepository(Mission)
         private readonly missionRepository: Repository<Mission>,
+        @InjectRepository(MissionDrone)
+        private readonly missionDroneRepository: Repository<MissionDrone>,
         @InjectRepository(Waypoint)
         private readonly waypointRepository: Repository<Waypoint>,
         @InjectRepository(Telemetry)
@@ -275,22 +278,59 @@ export class NoFakerSeeder {
         }
 
         const missions = await this.missionRepository.find();
+        const drones = await this.droneRepository.find();
         if (missions.length === 0) {
             console.log('No missions found, skipping waypoint seeding...');
             return;
         }
 
+        if (drones.length === 0) {
+            console.log('No drones found, skipping waypoint seeding...');
+            return;
+        }
+
+        const existingMissionDrones = missions.length
+            ? await this.missionDroneRepository.find({
+                where: {
+                    missionId: In(missions.map(mission => mission.id)),
+                },
+            })
+            : [];
+        const missionDroneMap = new Map<number, MissionDrone>();
+        existingMissionDrones.forEach(md => missionDroneMap.set(md.missionId, md));
+
+        let droneIndex = 0;
+        for (const mission of missions) {
+            if (!missionDroneMap.has(mission.id)) {
+                const assignedDrone = drones[droneIndex % drones.length];
+                droneIndex += 1;
+                if (!assignedDrone) {
+                    continue;
+                }
+                const missionDrone = this.missionDroneRepository.create({
+                    missionId: mission.id,
+                    droneId: assignedDrone.id,
+                });
+                const savedMissionDrone = await this.missionDroneRepository.save(missionDrone);
+                missionDroneMap.set(mission.id, savedMissionDrone);
+            }
+        }
+
         const waypoints: Partial<Waypoint>[] = [];
 
-        missions.forEach((mission, missionIndex) => {
+        missions.forEach(mission => {
+            const missionDrone = missionDroneMap.get(mission.id);
+            if (!missionDrone) {
+                return;
+            }
             for (let i = 0; i < 3; i++) {
                 waypoints.push({
-                    missionId: mission.id,
+                    missionDroneId: missionDrone.id,
                     seqNumber: i + 1,
-                    geoPoint: JSON.stringify({
+                    geoPoint: {
                         type: 'Point',
                         coordinates: [106.6 + i * 0.01, 10.7 + i * 0.01],
-                    }),
+                    },
                     altitudeM: 100 + i * 50,
                     speedMps: 10 + i * 5,
                     action: i === 0 ? 'takeoff' : i === 2 ? 'landing' : 'waypoint',

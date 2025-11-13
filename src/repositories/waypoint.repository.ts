@@ -6,7 +6,7 @@ import { Waypoint } from '../entities/waypoint.entity';
 
 @Injectable()
 export class WaypointRepository extends BaseRepository<Waypoint> {
-  protected relations = ['mission'];
+  protected relations = ['missionDrone'];
 
   constructor(
     @InjectRepository(Waypoint)
@@ -15,10 +15,19 @@ export class WaypointRepository extends BaseRepository<Waypoint> {
     super(waypointRepository);
   }
 
-  async findByMissionId(missionId: number): Promise<Waypoint[]> {
+  async findByMissionDroneId(missionDroneId: number): Promise<Waypoint[]> {
     return await this.waypointRepository.find({
-      where: { missionId },
+      where: { missionDroneId },
       order: { seqNumber: 'ASC' },
     });
+  }
+
+  async findByMissionId(missionId: number): Promise<Waypoint[]> {
+    return await this.waypointRepository
+      .createQueryBuilder('waypoint')
+      .innerJoin('waypoint.missionDrone', 'missionDrone')
+      .where('missionDrone.missionId = :missionId', { missionId })
+      .orderBy('waypoint.seqNumber', 'ASC')
+      .getMany();
   }
 }

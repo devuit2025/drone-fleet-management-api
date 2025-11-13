@@ -1,11 +1,12 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IsNumber, IsString, IsOptional } from 'class-validator';
 import { Waypoint } from '../../../entities/waypoint.entity';
+import { formatPointGeometry } from '../../../utils/geometry';
 
 export class CreateWaypointDto {
-  @ApiProperty({ description: 'Mission ID' })
+  @ApiProperty({ description: 'Mission Drone ID' })
   @IsNumber()
-  missionId: number;
+  missionDroneId: number;
 
   @ApiProperty({ description: 'Sequence number' })
   @IsNumber()
@@ -34,8 +35,8 @@ export class WaypointResponseDto {
   @ApiProperty({ description: 'Waypoint ID' })
   id: number;
 
-  @ApiProperty({ description: 'Mission ID' })
-  missionId: number;
+  @ApiProperty({ description: 'Mission Drone ID' })
+  missionDroneId: number;
 
   @ApiProperty({ description: 'Sequence number' })
   seqNumber: number;
@@ -57,9 +58,9 @@ export class WaypointResponseDto {
 
   constructor(waypoint: Waypoint) {
     this.id = waypoint.id;
-    this.missionId = waypoint.missionId;
+    this.missionDroneId = waypoint.missionDroneId;
     this.seqNumber = waypoint.seqNumber;
-    this.geoPoint = waypoint.geoPoint;
+    this.geoPoint = formatPointGeometry(waypoint.geoPoint);
     this.altitudeM = waypoint.altitudeM;
     this.speedMps = waypoint.speedMps;
     this.action = waypoint.action;

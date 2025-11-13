@@ -7,21 +7,21 @@ import {
     JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { Mission } from './mission.entity';
+import { MissionDrone } from './mission-drone.entity';
 
-@Entity('waypoints')
+@Entity('waypoint')
 export class Waypoint {
     @ApiProperty({ description: 'Waypoint ID' })
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ApiProperty({ description: 'Mission ID' })
-    @Column({ name: 'mission_id' })
-    missionId: number;
+    @ApiProperty({ description: 'Mission Drone ID' })
+    @Column({ name: 'mission_drone_id' })
+    missionDroneId: number;
 
-    @ManyToOne(() => Mission, { createForeignKeyConstraints: false })
-    @JoinColumn({ name: 'mission_id' })
-    mission: Mission;
+    @ManyToOne(() => MissionDrone, missionDrone => missionDrone.waypoints, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'mission_drone_id' })
+    missionDrone: MissionDrone;
 
     @ApiProperty({ description: 'Sequence number' })
     @Column({ name: 'seq_number' })

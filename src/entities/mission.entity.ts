@@ -12,8 +12,7 @@ import {
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Searchable } from '../repositories/base.repository';
-import { Waypoint } from './waypoint.entity';
-import { Drone } from './drone.entity';
+import { MissionDrone } from './mission-drone.entity';
 import { Telemetry } from './telemetry.entity';
 import { FlightLog } from './flight-log.entity';
 import { MissionReport } from './mission-report.entity';
@@ -77,16 +76,8 @@ export class Mission {
     @UpdateDateColumn({ name: 'updated_at' })
     updatedAt: Date;
 
-    @OneToMany(() => Waypoint, waypoint => waypoint.mission, { createForeignKeyConstraints: false })
-    waypoints: Waypoint[];
-
-    @ManyToMany(() => Drone, drone => drone.missions, { createForeignKeyConstraints: false })
-    @JoinTable({
-        name: 'mission_drones',
-        joinColumn: { name: 'mission_id', referencedColumnName: 'id' },
-        inverseJoinColumn: { name: 'drone_id', referencedColumnName: 'id' },
-    })
-    drones: Drone[];
+    @OneToMany(() => MissionDrone, missionDrone => missionDrone.mission, { createForeignKeyConstraints: false })
+    missionDrones: MissionDrone[];
 
     @OneToMany(() => Telemetry, telemetry => telemetry.mission, { createForeignKeyConstraints: false })
     telemetry: Telemetry[];

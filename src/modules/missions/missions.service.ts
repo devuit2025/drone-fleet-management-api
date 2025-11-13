@@ -1,11 +1,13 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DeepPartial } from 'typeorm';
 import { Mission, MissionStatus } from '../../entities/mission.entity';
+import { MissionDrone } from '../../entities/mission-drone.entity';
 import { Waypoint } from '../../entities/waypoint.entity';
 import { CreateMissionDto, UpdateMissionDto } from './dto';
 import { MissionRepository } from '../../repositories/mission.repository';
 import { BaseService } from '../../common/base.service';
+import { GeometryParseError, normalizePointGeometry } from '../../utils/geometry';
 
 @Injectable()
 export class MissionsService extends BaseService<Mission> {
@@ -14,29 +16,6 @@ export class MissionsService extends BaseService<Mission> {
         private readonly missionRepository: Repository<Mission>,
         private readonly missionRepo: MissionRepository,
     ) { super(missionRepo, 'Mission'); }
-
-    private normalizeGeoPoint(input: any): { type: 'Point'; coordinates: [number, number] } {
-        if (!input) {
-            throw new BadRequestException('geoPoint is required');
-        }
-        if (typeof input === 'object' && input.type === 'Point' && Array.isArray(input.coordinates)) {
-            return {
-                type: 'Point',
-                coordinates: [Number(input.coordinates[0]), Number(input.coordinates[1])] as [number, number],
-            };
-        }
-        if (typeof input === 'string') {
-            const match = input.match(/POINT\s*\(\s*(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s*\)/i);
-            if (!match) {
-                throw new BadRequestException('Invalid geoPoint format');
-            }
-            return {
-                type: 'Point',
-                coordinates: [Number(match[1]), Number(match[2])] as [number, number],
-            };
-        }
-        throw new BadRequestException('Unsupported geoPoint format');
-    }
 
     async create(createMissionDto: CreateMissionDto): Promise<Mission> {
         return await this.missionRepository.manager.transaction(async manager => {
@@ -54,26 +33,48 @@ export class MissionsService extends BaseService<Mission> {
 
             const savedMission = await manager.save(mission);
 
-            const waypointsInput = createMissionDto.waypoints ?? [];
-            if (waypointsInput.length > 0) {
-                const waypointRepo = manager.getRepository(Waypoint);
-                const waypointEntities = waypointsInput.map(wp =>
-                    waypointRepo.create({
-                        missionId: savedMission.id,
-                        seqNumber: Number(wp.seqNumber),
-                        geoPoint: this.normalizeGeoPoint(wp.geoPoint),
-                        altitudeM: Number(wp.altitudeM),
-                        speedMps: Number(wp.speedMps),
-                        action: wp.action,
-                    } as DeepPartial<Waypoint>),
-                );
-                const savedWaypoints = await waypointRepo.save(waypointEntities);
-                (savedMission as any).waypoints = savedWaypoints;
-            } else {
-                (savedMission as any).waypoints = [];
+            const missionDroneRepo = manager.getRepository(MissionDrone);
+            const waypointRepo = manager.getRepository(Waypoint);
+
+            const dronesInput = createMissionDto.drones ?? [];
+            const missionDrones: MissionDrone[] = [];
+
+            for (const droneInput of dronesInput) {
+                const missionDrone = missionDroneRepo.create({
+                    missionId: savedMission.id,
+                    droneId: droneInput.droneId,
+                } as DeepPartial<MissionDrone>);
+                const savedMissionDrone = await missionDroneRepo.save(missionDrone);
+
+                const waypointsInput = droneInput.waypoints ?? [];
+                if (waypointsInput.length > 0) {
+                    const waypointEntities = waypointsInput.map(wp =>
+                        waypointRepo.create({
+                            missionDroneId: savedMissionDrone.id,
+                            seqNumber: Number(wp.seqNumber),
+                            geoPoint: this.normalizeGeoPointOrThrow(wp.geoPoint),
+                            altitudeM: Number(wp.altitudeM),
+                            speedMps: Number(wp.speedMps),
+                            action: wp.action,
+                        } as DeepPartial<Waypoint>),
+                    );
+                    const savedWaypoints = await waypointRepo.save(waypointEntities);
+                    savedMissionDrone.waypoints = savedWaypoints;
+                } else {
+                    savedMissionDrone.waypoints = [];
+                }
+
+                missionDrones.push(savedMissionDrone);
             }
 
-            return savedMission;
+            (savedMission as any).missionDrones = missionDrones;
+
+            const fullMission = await manager.findOne(Mission, {
+                where: { id: savedMission.id },
+                relations: ['missionDrones', 'missionDrones.drone', 'missionDrones.waypoints', 'pilot'],
+            });
+
+            return fullMission ?? savedMission;
         });
     }
 
@@ -81,11 +82,11 @@ export class MissionsService extends BaseService<Mission> {
 
     // Inherit findById
 
-    async update(id: number, updateMissionDto: Partial<Mission> & { waypoints?: any[] }): Promise<Mission> {
+    async update(id: number, updateMissionDto: Partial<Mission> & { drones?: any[] }): Promise<Mission> {
         return await this.missionRepository.manager.transaction(async manager => {
             const mission = await manager.findOne(Mission, {
                 where: { id },
-                relations: ['waypoints'],
+                relations: ['missionDrones', 'missionDrones.waypoints'],
             });
 
             if (!mission) {
@@ -107,23 +108,45 @@ export class MissionsService extends BaseService<Mission> {
                 mission.endTime = end ? new Date(end as any) : null;
             }
 
+            const missionDroneRepo = manager.getRepository(MissionDrone);
             const waypointRepo = manager.getRepository(Waypoint);
-            if (Array.isArray(updateMissionDto.waypoints)) {
-                await waypointRepo.delete({ missionId: mission.id });
 
-                const waypointsInput = updateMissionDto.waypoints;
-                if (waypointsInput.length > 0) {
-                    const waypointEntities = waypointsInput.map(wp =>
-                        waypointRepo.create({
-                            missionId: mission.id,
-                            seqNumber: Number(wp.seqNumber),
-                            geoPoint: this.normalizeGeoPoint(wp.geoPoint),
-                            altitudeM: Number(wp.altitudeM),
-                            speedMps: Number(wp.speedMps),
-                            action: wp.action,
-                        } as DeepPartial<Waypoint>),
-                    );
-                    await waypointRepo.save(waypointEntities);
+            // Update drones and waypoints if provided
+            if (Array.isArray((updateMissionDto as any).drones)) {
+                // Delete existing mission drones and their waypoints
+                if (mission.missionDrones) {
+                    for (const missionDrone of mission.missionDrones) {
+                        await waypointRepo.delete({ missionDroneId: missionDrone.id });
+                    }
+                    await missionDroneRepo.delete({ missionId: mission.id });
+                }
+
+                // Create new mission drones and waypoints
+                const dronesInput = (updateMissionDto as any).drones;
+                for (const droneInput of dronesInput) {
+                    const missionDrone = missionDroneRepo.create({
+                        missionId: mission.id,
+                        droneId: droneInput.droneId,
+                    } as DeepPartial<MissionDrone>);
+                    const savedMissionDrone = await missionDroneRepo.save(missionDrone);
+
+                    const waypointsInput = droneInput.waypoints ?? [];
+                    if (waypointsInput.length > 0) {
+                        const waypointEntities = waypointsInput.map(wp =>
+                            waypointRepo.create({
+                                missionDroneId: savedMissionDrone.id,
+                                seqNumber: Number(wp.seqNumber),
+                                geoPoint: this.normalizeGeoPointOrThrow(wp.geoPoint),
+                                altitudeM: Number(wp.altitudeM),
+                                speedMps: Number(wp.speedMps),
+                                action: wp.action,
+                            } as DeepPartial<Waypoint>),
+                        );
+                        const savedWaypoints = await waypointRepo.save(waypointEntities);
+                        savedMissionDrone.waypoints = savedWaypoints;
+                    } else {
+                        savedMissionDrone.waypoints = [];
+                    }
                 }
             }
 
@@ -137,7 +160,7 @@ export class MissionsService extends BaseService<Mission> {
 
             const refreshed = await manager.findOne(Mission, {
                 where: { id: mission.id },
-                relations: ['waypoints'],
+                relations: ['missionDrones', 'missionDrones.drone', 'missionDrones.waypoints'],
             });
 
             return refreshed ?? mission;
@@ -146,12 +169,40 @@ export class MissionsService extends BaseService<Mission> {
 
     async delete(id: number): Promise<void> {
         await this.missionRepository.manager.transaction(async manager => {
-            const exists = await manager.findOne(Mission, { where: { id } });
+            const exists = await manager.findOne(Mission, {
+                where: { id },
+                relations: ['missionDrones'],
+            });
             if (!exists) {
                 throw new NotFoundException('Mission not found');
             }
-            await manager.getRepository(Waypoint).delete({ missionId: id });
+
+            const waypointRepo = manager.getRepository(Waypoint);
+            const missionDroneRepo = manager.getRepository(MissionDrone);
+
+            // Delete waypoints for all mission drones
+            if (exists.missionDrones) {
+                for (const missionDrone of exists.missionDrones) {
+                    await waypointRepo.delete({ missionDroneId: missionDrone.id });
+                }
+            }
+
+            // Delete mission drones
+            await missionDroneRepo.delete({ missionId: id });
+
+            // Delete mission
             await manager.delete(Mission, { id });
         });
+    }
+
+    private normalizeGeoPointOrThrow(input: any): { type: 'Point'; coordinates: [number, number] } {
+        try {
+            return normalizePointGeometry(input);
+        } catch (error) {
+            if (error instanceof GeometryParseError) {
+                throw new BadRequestException(error.message);
+            }
+            throw error;
+        }
     }
 }

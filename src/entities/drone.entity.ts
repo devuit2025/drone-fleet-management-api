@@ -12,7 +12,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { Searchable } from '../repositories/base.repository';
 import { DroneModel } from './drone-model.entity';
-import { Mission } from './mission.entity';
+import { MissionDrone } from './mission-drone.entity';
 import { DroneSensor } from './drone-sensor.entity';
 import { Telemetry } from './telemetry.entity';
 
@@ -83,8 +83,8 @@ export class Drone {
     @UpdateDateColumn({ name: 'updated_at' })
     updatedAt: Date;
 
-    @ManyToMany(() => Mission, mission => mission.drones, { createForeignKeyConstraints: false })
-    missions: Mission[];
+    @OneToMany(() => MissionDrone, missionDrone => missionDrone.drone, { createForeignKeyConstraints: false })
+    missionDrones: MissionDrone[];
 
     @OneToMany(() => DroneSensor, sensor => sensor.drone, { createForeignKeyConstraints: false })
     sensors: DroneSensor[];
