@@ -81,6 +81,7 @@ import { SeederModule } from './seeders/seeder.module';
             retryAttempts: 3,
             retryDelay: 3000,
             logging: process.env.NODE_ENV === 'development',
+            ssl: false, // #Here quick setup, explicitly disable SSL
         }),
         UsersModule,
         DronesModule,

@@ -5,6 +5,7 @@
     "main": "index.js",
     "scripts": {
         "build": "nest build",
+        "dev": "nest start --watch",
         "start": "nest start",
         "start:dev": "lsof -ti:3000 | xargs kill -9 2>/dev/null || true && nest start --watch",
         "start:debug": "nest start --debug --watch",
