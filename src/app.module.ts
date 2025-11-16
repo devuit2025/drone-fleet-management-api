@@ -42,7 +42,6 @@ import { DroneCategory } from './entities/drone-category.entity';
 import { DroneModel } from './entities/drone-model.entity';
 import { DroneSensor } from './entities/drone-sensor.entity';
 import { SeederModule } from './seeders/seeder.module';
-import { MavlinkModule } from './modules/mavlink/mavlink.module';
 
 @Module({
     imports: [
@@ -102,7 +101,6 @@ import { MavlinkModule } from './modules/mavlink/mavlink.module';
         MissionReportsModule,
         SearchModule,
         SeederModule,
-        MavlinkModule,
     ],
     controllers: [AppController],
     providers: [AppService, DroneGateway],
