@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  # drone1:
+  #   image: ardupilot
+  #   container_name: drone1
+  #   stdin_open: true
+  #   tty: true
+  #   network_mode: "host"
+  #   volumes:
+  #     - ../ardupilot:/ardupilot
+  #   command: /ardupilot/Tools/autotest/sim_vehicle.py -v ArduCopter -f quad --sysid 1 --out=udp:127.0.0.1:5760
+
+  # A simple one used to test connnection
+  # orchestrator:
+  #   image: node:20-alpine
+  #   container_name: drone_fleet_orchestrator
+  #   network_mode: "host"
+  #   working_dir: /app
+  #   volumes:
+  #     - ../orchestrator_simple:/app
+  #   command: node index.js
+  orchestrator:
+    build: ../orchestrator
+    container_name: drone_fleet_orchestrator
+    network_mode: "host"
+    working_dir: /app
+    volumes:
+      - ../orchestrator:/app
+    command: node dist/index.js
