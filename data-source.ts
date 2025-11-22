@@ -18,6 +18,7 @@ import { DroneBrand } from './src/entities/drone-brand.entity';
 import { DroneCategory } from './src/entities/drone-category.entity';
 import { DroneModel } from './src/entities/drone-model.entity';
 import { DroneSensor } from './src/entities/drone-sensor.entity';
+import { MissionDrone } from './src/entities/mission-drone.entity';
 
 export default new DataSource({
   type: 'postgres',
@@ -27,7 +28,7 @@ export default new DataSource({
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_DATABASE || 'drone_fleet',
   entities: [
-    User, Pilot, License, Drone, DroneConfiguration, Mission, Waypoint,
+    User, Pilot, License, Drone, DroneConfiguration, Mission, MissionDrone, Waypoint,
     Telemetry, NoFlyZone, FlightLog, MissionReport, Simulation, Role,
     Permission, DroneBrand, DroneCategory, DroneModel, DroneSensor,
   ],
