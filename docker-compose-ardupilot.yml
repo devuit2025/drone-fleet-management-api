@@ -1,30 +1,59 @@
 version: "3.9"
 
 services:
-  # drone1:
-  #   image: ardupilot
-  #   container_name: drone1
-  #   stdin_open: true
-  #   tty: true
-  #   network_mode: "host"
-  #   volumes:
-  #     - ../ardupilot:/ardupilot
-  #   command: /ardupilot/Tools/autotest/sim_vehicle.py -v ArduCopter -f quad --sysid 1 --out=udp:127.0.0.1:5760
+  message_broker:
+    image: nats:latest
+    container_name: drone_fleet_message_broker
+    ports:
+      - "4222:4222"  # Client
+      - "6222:6222"  # Cluster routes
+      - "8222:8222"  # Monitoring
+    volumes:
+      - ./nats_data:/data
+    command: -js -m 8222 -store_dir /data
 
-  # A simple one used to test connnection
-  # orchestrator:
-  #   image: node:20-alpine
-  #   container_name: drone_fleet_orchestrator
-  #   network_mode: "host"
-  #   working_dir: /app
-  #   volumes:
-  #     - ../orchestrator_simple:/app
-  #   command: node index.js
+  websocket:
+    build:
+      context: ../websocket
+      dockerfile: Dockerfile.dev
+    container_name: drone_fleet_websocket
+    network_mode: "host"
+    volumes:
+      - ../websocket:/app
+      - ../broker-sdk:/broker-sdk
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
+    command: npm run dev
+    depends_on:
+      - message_broker
+      
+  drone1:
+    image: ardupilot
+    container_name: drone1
+    stdin_open: true
+    tty: true
+    network_mode: "host"
+    volumes:
+      - ../ardupilot:/ardupilot
+    command: /ardupilot/Tools/autotest/sim_vehicle.py -v ArduCopter -f quad --sysid 1 --out=udp:127.0.0.1:14555
+
   orchestrator:
-    build: ../orchestrator
+    build:
+      context: ../orchestrator
+      dockerfile: Dockerfile.dev
     container_name: drone_fleet_orchestrator
     network_mode: "host"
-    working_dir: /app
+    restart: unless-stopped
     volumes:
       - ../orchestrator:/app
-    command: node dist/index.js
+      - ../broker-sdk:/broker-sdk
+      - /app/node_modules
+    # ports:
+    #   - "14550:14550/udp"   # ← MAVLink UDP port can ignore if using network "host"
+    environment:
+      NODE_ENV: production
+    command: npm run dev
+    depends_on:
+      - message_broker
+
