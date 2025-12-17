@@ -246,12 +246,17 @@ export abstract class BaseRepository<T extends { id: number }> {
             queryBuilder.take(effectiveLimit);
         }
 
-        if (this.relationForList && this.relationForList.length > 0) {
+        // Use relations from options if provided, otherwise use relationForList
+        const relationsToLoad = options.relations && options.relations.length > 0
+            ? options.relations
+            : (this.relationForList && this.relationForList.length > 0 ? this.relationForList : []);
+
+        if (relationsToLoad.length > 0) {
             const rootAlias = queryBuilder.alias;
             const aliasMap = new Map<string, string>();
             aliasMap.set('', rootAlias);
 
-            this.relationForList.forEach(relation => {
+            relationsToLoad.forEach(relation => {
                 const segments = relation.split('.');
                 let parentPath = '';
                 let parentAlias = rootAlias;

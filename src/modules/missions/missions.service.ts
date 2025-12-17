@@ -80,6 +80,14 @@ export class MissionsService extends BaseService<Mission> {
 
     // Inherit findAll(per,page)
 
+    async findAllForMonitoring(): Promise<Mission[]> {
+        // Force load all relations needed for monitoring
+        return await this.missionRepo.search({
+            relations: ['pilot', 'missionDrones', 'missionDrones.drone', 'missionDrones.waypoints'],
+            per: 'all', // Get all missions
+        });
+    }
+
     // Inherit findById
 
     async update(id: number, updateMissionDto: Partial<Mission> & { drones?: any[] }): Promise<Mission> {

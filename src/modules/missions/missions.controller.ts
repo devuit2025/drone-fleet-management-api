@@ -61,6 +61,18 @@ export class MissionsController extends BaseController {
         return (data as any[]).map((mission) => new MissionResponseDto(mission as any));
     }
 
+    @Get('monitoring')
+    @ApiOperation({ summary: 'Get missions for monitoring (includes missionDrones and waypoints)' })
+    @ApiResponse({
+        status: 200,
+        description: 'Missions retrieved successfully with full relations',
+        type: [MissionResponseDto],
+    })
+    async findAllForMonitoring(): Promise<MissionResponseDto[]> {
+        const missions = await this.missionsService.findAllForMonitoring();
+        return missions.map((mission) => new MissionResponseDto(mission as any));
+    }
+
     @Get(':id')
     @ApiOperation({ summary: 'Get mission by ID' })
     @ApiResponse({
