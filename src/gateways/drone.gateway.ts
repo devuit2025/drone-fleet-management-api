@@ -28,6 +28,7 @@ import { logger } from '../utils/logger';
             'http://127.0.0.1:5500',
             'http://localhost:4173',
             'http://127.0.0.1:4173',
+            'http://192.168.0.100:5173',
             'file://'
         ],
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -41,6 +42,7 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
     server: Server;
 
     private logger: Logger = new Logger('DroneGateway');
+    private lastVideoFrameCount = 0;
 
     constructor(
         private readonly dronesService: DronesService,
@@ -218,6 +220,73 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.logger.log(`Client ${client.id} left flight ${flightId}`);
     }
 
+    @SubscribeMessage('ping')
+    handlePing(
+        @MessageBody() data: { timestamp?: string; message?: string },
+        @ConnectedSocket() client: Socket,
+    ) {
+        try {
+            const pongData = {
+                timestamp: new Date().toISOString(),
+                receivedAt: data.timestamp || new Date().toISOString(),
+                message: data.message || 'PING received',
+            };
+
+            // Send PONG back to client
+            client.emit('pong', pongData);
+
+            // Also broadcast to all clients for testing
+            this.server.emit('pong', pongData);
+
+            this.logger.log(`PING received from ${client.id}, sent PONG`);
+            logger.logWebSocket(`PING received from ${client.id}`, { clientId: client.id, pongData });
+        } catch (error) {
+            this.logger.error(`Error handling PING: ${error.message}`);
+            client.emit('error', { message: 'Failed to handle PING' });
+        }
+    }
+
+    @SubscribeMessage('drone:command')
+    handleDroneCommand(
+        @MessageBody() data: { droneId: string; command: string; timestamp?: string },
+        @ConnectedSocket() client: Socket,
+    ) {
+        try {
+            const { droneId, command, timestamp } = data;
+
+            this.logger.log(`Received command '${command}' for drone ${droneId} from ${client.id}`);
+            logger.logRealtime(`Drone command received: ${command}`, { droneId, command, clientId: client.id });
+
+            // Broadcast command to specific drone room (Android app will listen here)
+            this.server.to(`drone:${droneId}`).emit('drone:command', {
+                droneId,
+                command,
+                timestamp: timestamp || new Date().toISOString(),
+                sentAt: new Date().toISOString(),
+            });
+
+            // Also send response back to sender
+            client.emit('drone:command_response', {
+                success: true,
+                droneId,
+                command,
+                message: `Command '${command}' sent to drone ${droneId}`,
+                timestamp: new Date().toISOString(),
+            });
+
+            // Broadcast to all clients for monitoring
+            this.server.emit('drone:command_broadcast', {
+                droneId,
+                command,
+                timestamp: new Date().toISOString(),
+            });
+        } catch (error) {
+            this.logger.error(`Error handling drone command: ${error.message}`);
+            logger.error('websocket', `Error handling drone command: ${error.message}`, { error, data });
+            client.emit('error', { message: 'Failed to handle drone command' });
+        }
+    }
+
     // Method to broadcast drone updates to specific room
     broadcastDroneUpdate(droneId: string, update: any) {
         this.server.to(`drone:${droneId}`).emit('drone:update', {
@@ -234,5 +303,185 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
             update,
             timestamp: new Date(),
         });
+    }
+
+    @SubscribeMessage('mission:start')
+    async handleMissionStart(
+        @MessageBody() data: { droneId: string; mission: { waypoints: any[]; timestamp: string } },
+        @ConnectedSocket() client: Socket,
+    ) {
+        try {
+            const { droneId, mission } = data;
+
+            this.logger.log(`Mission start received for drone ${droneId} with ${mission.waypoints.length} waypoints`);
+            logger.logWebSocket(`Mission start received for drone ${droneId}`, { droneId, waypointCount: mission.waypoints.length });
+
+            // Forward mission to drone room
+            this.server.to(`drone:${droneId}`).emit('mission:start', {
+                droneId,
+                mission,
+                timestamp: new Date().toISOString(),
+            });
+
+            // Also broadcast to all clients
+            this.server.emit('mission:started', {
+                droneId,
+                waypointCount: mission.waypoints.length,
+                timestamp: new Date().toISOString(),
+            });
+
+            // Send acknowledgment to sender
+            client.emit('mission:started', {
+                droneId,
+                waypointCount: mission.waypoints.length,
+                timestamp: new Date().toISOString(),
+            });
+        } catch (error) {
+            this.logger.error(`Error handling mission start: ${error.message}`);
+            client.emit('error', { message: 'Failed to start mission' });
+        }
+    }
+
+    @SubscribeMessage('mission:end')
+    async handleMissionEnd(
+        @MessageBody() data: { droneId: string; timestamp: string },
+        @ConnectedSocket() client: Socket,
+    ) {
+        try {
+            const { droneId } = data;
+
+            this.logger.log(`Mission end received for drone ${droneId}`);
+            logger.logWebSocket(`Mission end received for drone ${droneId}`, { droneId });
+
+            // Forward mission end to drone room
+            this.server.to(`drone:${droneId}`).emit('mission:end', {
+                droneId,
+                timestamp: new Date().toISOString(),
+            });
+
+            // Also broadcast to all clients
+            this.server.emit('mission:ended', {
+                droneId,
+                timestamp: new Date().toISOString(),
+            });
+
+            // Send acknowledgment to sender
+            client.emit('mission:ended', {
+                droneId,
+                timestamp: new Date().toISOString(),
+            });
+        } catch (error) {
+            this.logger.error(`Error handling mission end: ${error.message}`);
+            client.emit('error', { message: 'Failed to end mission' });
+        }
+    }
+
+    @SubscribeMessage('telemetry:data')
+    async handleTelemetryData(
+        @MessageBody() data: { droneId: string; telemetry: any; timestamp: string },
+        @ConnectedSocket() client: Socket,
+    ) {
+        try {
+            const { droneId, telemetry } = data;
+
+            // Broadcast telemetry data to all connected clients
+            this.server.emit('telemetry:data', telemetry);
+
+            // Also send to specific drone room for monitoring
+            this.server.to(`drone:${droneId}`).emit('telemetry:data', telemetry);
+
+            // Log telemetry data (optional, can be disabled for performance)
+            // this.logger.debug(`Telemetry data received from drone ${droneId}`);
+        } catch (error) {
+            this.logger.error(`Error handling telemetry data: ${error.message}`);
+            // Don't send error back to avoid spamming
+        }
+    }
+
+    @SubscribeMessage('app:message')
+    async handleAppMessage(
+        @MessageBody() data: { droneId: string; message: string; type: string; timestamp: string },
+        @ConnectedSocket() client: Socket,
+    ) {
+        try {
+            const { droneId, message, type, timestamp } = data;
+
+            this.logger.log(`App message received from drone ${droneId}: ${message}`);
+            logger.logWebSocket(`App message received from drone ${droneId}`, { droneId, message, type });
+
+            // Broadcast message to all connected clients
+            this.server.emit('app:message', {
+                droneId,
+                message,
+                type,
+                timestamp: timestamp || new Date().toISOString(),
+            });
+
+            // Also send to specific drone room
+            this.server.to(`drone:${droneId}`).emit('app:message', {
+                droneId,
+                message,
+                type,
+                timestamp: timestamp || new Date().toISOString(),
+            });
+        } catch (error) {
+            this.logger.error(`Error handling app message: ${error.message}`);
+            // Don't send error back to avoid spamming
+        }
+    }
+
+    @SubscribeMessage('video:frame')
+    async handleVideoFrame(
+        @MessageBody() frameData: Buffer | Uint8Array,
+        @ConnectedSocket() client: Socket,
+    ) {
+        try {
+            // Ensure frameData is Buffer
+            let buffer: Buffer;
+            if (frameData instanceof Buffer) {
+                buffer = frameData;
+            } else if (frameData instanceof Uint8Array) {
+                buffer = Buffer.from(frameData);
+            } else {
+                const dataType = typeof frameData;
+                const constructorName = frameData && typeof frameData === 'object' && 'constructor' in frameData
+                    ? (frameData as any).constructor?.name
+                    : 'unknown';
+                this.logger.warn(`⚠️ Unknown frame data type: ${dataType}, ${constructorName}`);
+                return;
+            }
+
+            const frameSize = buffer.length;
+
+            // Log first frame with first bytes for debugging
+            if (this.lastVideoFrameCount === 0) {
+                const firstBytes = Array.from(buffer.slice(0, 10))
+                    .map(b => '0x' + b.toString(16).padStart(2, '0'))
+                    .join(' ');
+                const allZeros = Array.from(buffer.slice(0, 10)).every(b => b === 0);
+                this.logger.log(`📹 First video frame: ${frameSize} bytes, first 10 bytes: ${firstBytes}`);
+                if (allZeros) {
+                    this.logger.error(`❌ WARNING: First frame data is all zeros! Data may be corrupted.`);
+                }
+            }
+
+            // Log every 30th frame to avoid spam
+            if (!this.lastVideoFrameCount || this.lastVideoFrameCount % 30 === 0) {
+                this.logger.debug(`📹 Received video frame #${this.lastVideoFrameCount + 1}: ${frameSize} bytes from client ${client.id}`);
+            }
+            this.lastVideoFrameCount = (this.lastVideoFrameCount || 0) + 1;
+
+            // Broadcast video frame to all connected clients
+            // Socket.IO may have issues with binary data, so send as base64 string
+            // Client will decode it back to ArrayBuffer
+            const base64 = buffer.toString('base64');
+            this.server.emit('video:frame', base64);
+
+            // Optional: Also send to specific drone room if needed
+            // this.server.to(`drone:${droneId}`).emit('video:frame', frameData);
+        } catch (error) {
+            this.logger.error(`Error handling video frame: ${error.message}`);
+            // Don't send error back to avoid spamming
+        }
     }
 }
