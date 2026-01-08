@@ -18,6 +18,7 @@ import { DroneSensorsModule } from './modules/drone-sensors/drone-sensors.module
 import { WaypointsModule } from './modules/waypoints/waypoints.module';
 import { TelemetryModule } from './modules/telemetry/telemetry.module';
 import { NoFlyZonesModule } from './modules/no-fly-zones/no-fly-zones.module';
+import { FlightPermitsModule } from './modules/flight-permits/flight-permits.module';
 import { FlightLogsModule } from './modules/flight-logs/flight-logs.module';
 import { MissionReportsModule } from './modules/mission-reports/mission-reports.module';
 import { SearchModule } from './modules/search/search.module';
@@ -32,6 +33,7 @@ import { MissionDrone } from './entities/mission-drone.entity';
 import { Waypoint } from './entities/waypoint.entity';
 import { Telemetry } from './entities/telemetry.entity';
 import { NoFlyZone } from './entities/no-fly-zone.entity';
+import { FlightPermit } from './entities/flight-permit.entity';
 import { FlightLog } from './entities/flight-log.entity';
 import { MissionReport } from './entities/mission-report.entity';
 import { Simulation } from './entities/simulation.entity';
@@ -66,6 +68,7 @@ import { SeederModule } from './seeders/seeder.module';
                 Waypoint,
                 Telemetry,
                 NoFlyZone,
+                FlightPermit,
                 FlightLog,
                 MissionReport,
                 Simulation,
@@ -98,6 +101,7 @@ import { SeederModule } from './seeders/seeder.module';
         WaypointsModule,
         TelemetryModule,
         NoFlyZonesModule,
+        FlightPermitsModule,
         FlightLogsModule,
         MissionReportsModule,
         SearchModule,

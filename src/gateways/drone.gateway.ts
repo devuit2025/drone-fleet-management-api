@@ -384,11 +384,29 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
         try {
             const { droneId, telemetry } = data;
 
-            // Broadcast telemetry data to all connected clients
-            this.server.emit('telemetry:data', telemetry);
+            // Convert telemetry data to location update format for frontend compatibility
+            const locationUpdate = {
+                droneId,
+                location: {
+                    latitude: telemetry.latitude,
+                    longitude: telemetry.longitude,
+                    altitude: telemetry.altitude_m,
+                    heading: telemetry.heading_deg,
+                    speed: telemetry.speed_mps,
+                    battery: telemetry.battery_percent,
+                },
+                timestamp: data.timestamp || new Date().toISOString(),
+            };
+
+            // Broadcast location update to all connected clients (for map display)
+            this.server.emit('drone:location_updated', locationUpdate);
 
             // Also send to specific drone room for monitoring
-            this.server.to(`drone:${droneId}`).emit('telemetry:data', telemetry);
+            this.server.to(`drone:${droneId}`).emit('drone:location_updated', locationUpdate);
+
+            // Also emit raw telemetry data for components that need full telemetry
+            this.server.emit('telemetry:data', { droneId, telemetry, timestamp: data.timestamp });
+            this.server.to(`drone:${droneId}`).emit('telemetry:data', { droneId, telemetry, timestamp: data.timestamp });
 
             // Log telemetry data (optional, can be disabled for performance)
             // this.logger.debug(`Telemetry data received from drone ${droneId}`);
