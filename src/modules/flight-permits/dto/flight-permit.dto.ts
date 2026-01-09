@@ -117,6 +117,9 @@ export class FlightPermitResponseDto {
   @ApiProperty({ description: 'Attachments' })
   attachments?: any;
 
+  @ApiProperty({ description: 'Missions using this permit', required: false })
+  missions?: any[];
+
   @ApiProperty({ description: 'Creation date' })
   createdAt: Date;
 
@@ -142,6 +145,7 @@ export class FlightPermitResponseDto {
     this.expiryDate = permit.expiryDate;
     this.takeoffLandingLocation = permit.takeoffLandingLocation;
     this.attachments = permit.attachments;
+    this.missions = permit.missions;
     this.createdAt = permit.createdAt;
     this.updatedAt = permit.updatedAt;
   }

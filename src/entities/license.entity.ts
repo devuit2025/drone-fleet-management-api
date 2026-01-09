@@ -5,11 +5,13 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     ManyToOne,
+    OneToMany,
     JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Searchable } from '../repositories/base.repository';
 import { Pilot } from './pilot.entity';
+import { FlightPermit } from './flight-permit.entity';
 
 export enum LicenseType {
     COMMERCIAL = 'commercial',
@@ -35,6 +37,9 @@ export class License {
     @ManyToOne(() => Pilot, { createForeignKeyConstraints: false })
     @JoinColumn({ name: 'pilot_id' })
     pilot: Pilot;
+
+    @OneToMany(() => FlightPermit, (permit) => permit.license)
+    flightPermits?: FlightPermit[];
 
     @ApiProperty({ description: 'License number' })
     @Searchable({ operator: 'like' })

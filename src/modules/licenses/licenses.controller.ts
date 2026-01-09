@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { License } from '../../entities/license.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateLicenseDto, UpdateLicenseDto, LicenseResponseDto } from './dto';
+import { CreateLicenseWithPermitDto, LicenseWithPermitResponseDto } from './dto/license-with-permit.dto';
+import { LicensesService } from './licenses.service';
 
 @ApiTags('Licenses')
 @Controller('api/v1/licenses')
@@ -14,6 +16,7 @@ export class LicensesController {
   constructor(
     @InjectRepository(License)
     private readonly licenseRepository: Repository<License>,
+    private readonly licensesService: LicensesService,
   ) { }
 
   @Get()
@@ -21,7 +24,7 @@ export class LicensesController {
   @ApiResponse({ status: 200, description: 'List of all licenses', type: [LicenseResponseDto] })
   async findAll(): Promise<License[]> {
     return await this.licenseRepository.find({
-      relations: ['pilot'],
+      relations: ['pilot', 'flightPermits'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -33,7 +36,7 @@ export class LicensesController {
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<License> {
     const license = await this.licenseRepository.findOne({
       where: { id },
-      relations: ['pilot'],
+      relations: ['pilot', 'flightPermits'],
     });
     if (!license) {
       throw new NotFoundException(`License with ID ${id} not found`);
@@ -56,6 +59,13 @@ export class LicensesController {
       active: createLicenseDto.active !== undefined ? createLicenseDto.active : true,
     });
     return await this.licenseRepository.save(license);
+  }
+
+  @Post('with-permit')
+  @ApiOperation({ summary: 'Create a new license with flight permit' })
+  @ApiResponse({ status: 201, description: 'License and flight permit created successfully', type: LicenseWithPermitResponseDto })
+  async createWithPermit(@Body() dto: CreateLicenseWithPermitDto): Promise<LicenseWithPermitResponseDto> {
+    return await this.licensesService.createLicenseWithPermit(dto);
   }
 
   @Patch(':id')

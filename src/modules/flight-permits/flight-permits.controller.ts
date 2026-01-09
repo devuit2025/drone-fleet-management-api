@@ -99,6 +99,17 @@ export class FlightPermitsController extends BaseController {
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.flightPermitsService.delete(id);
   }
+
+  @Get(':id/export-data')
+  @ApiOperation({ summary: 'Get flight permit data for PDF export' })
+  @ApiResponse({
+    status: 200,
+    description: 'Flight permit data with all relations retrieved successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Flight permit not found' })
+  async getExportData(@Param('id', ParseIntPipe) id: number) {
+    return await this.flightPermitsService.getExportData(id);
+  }
 }
 
 

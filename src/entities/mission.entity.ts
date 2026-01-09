@@ -18,6 +18,7 @@ import { FlightLog } from './flight-log.entity';
 import { MissionReport } from './mission-report.entity';
 import { Simulation } from './simulation.entity';
 import { Pilot } from './pilot.entity';
+import { FlightPermit } from './flight-permit.entity';
 
 export enum MissionStatus {
     PLANNED = 'planned',
@@ -46,6 +47,17 @@ export class Mission {
         nullable: true,
     })
     licenseId: number | null;
+
+    @ApiProperty({ description: 'Flight Permit ID' })
+    @Column({
+        name: 'flight_permit_id',
+        nullable: true,
+    })
+    flightPermitId: number | null;
+
+    @ManyToOne(() => FlightPermit, (permit) => permit.missions, { createForeignKeyConstraints: false })
+    @JoinColumn({ name: 'flight_permit_id' })
+    flightPermit?: FlightPermit;
 
     @ApiProperty({ description: 'Mission name' })
     @Searchable({ operator: 'like' })

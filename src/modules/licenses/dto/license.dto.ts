@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString, IsOptional, IsEnum, IsBoolean, IsDateString } from 'class-validator';
 import { LicenseType, QualificationLevel } from '../../../entities/license.entity';
+import { FlightPermitResponseDto } from '../../flight-permits/dto/flight-permit.dto';
 
 export class CreateLicenseDto {
   @ApiProperty({ description: 'Pilot ID' })
@@ -106,6 +107,9 @@ export class LicenseResponseDto {
 
   @ApiProperty({ description: 'License is active' })
   active: boolean;
+
+  @ApiProperty({ description: 'Flight permits', type: [FlightPermitResponseDto], required: false })
+  flightPermits?: FlightPermitResponseDto[];
 
   @ApiProperty({ description: 'Creation date' })
   created_at: Date;
