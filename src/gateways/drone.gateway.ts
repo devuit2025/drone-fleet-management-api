@@ -248,19 +248,20 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     @SubscribeMessage('drone:command')
     handleDroneCommand(
-        @MessageBody() data: { droneId: string; command: string; timestamp?: string },
+        @MessageBody() data: { droneId: string; command: string; timestamp?: string; commandId?: string },
         @ConnectedSocket() client: Socket,
     ) {
         try {
-            const { droneId, command, timestamp } = data;
+            const { droneId, command, timestamp, commandId } = data;
 
-            this.logger.log(`Received command '${command}' for drone ${droneId} from ${client.id}`);
-            logger.logRealtime(`Drone command received: ${command}`, { droneId, command, clientId: client.id });
+            this.logger.log(`Received command '${command}' for drone ${droneId} from ${client.id}${commandId ? ` (ID: ${commandId})` : ''}`);
+            logger.logRealtime(`Drone command received: ${command}`, { droneId, command, commandId, clientId: client.id });
 
             // Broadcast command to specific drone room (Android app will listen here)
             this.server.to(`drone:${droneId}`).emit('drone:command', {
                 droneId,
                 command,
+                commandId,
                 timestamp: timestamp || new Date().toISOString(),
                 sentAt: new Date().toISOString(),
             });
@@ -270,6 +271,7 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
                 success: true,
                 droneId,
                 command,
+                commandId,
                 message: `Command '${command}' sent to drone ${droneId}`,
                 timestamp: new Date().toISOString(),
             });
@@ -278,12 +280,73 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
             this.server.emit('drone:command_broadcast', {
                 droneId,
                 command,
+                commandId,
                 timestamp: new Date().toISOString(),
             });
         } catch (error) {
             this.logger.error(`Error handling drone command: ${error.message}`);
             logger.error('websocket', `Error handling drone command: ${error.message}`, { error, data });
             client.emit('error', { message: 'Failed to handle drone command' });
+        }
+    }
+
+    @SubscribeMessage('command:ack')
+    handleCommandAck(
+        @MessageBody() data: { commandId: string; droneId: string; status: string; timestamp: string },
+        @ConnectedSocket() client: Socket,
+    ) {
+        try {
+            const { commandId, droneId, status } = data;
+
+            this.logger.log(`Command ACK received: ${commandId} (status: ${status}) for drone ${droneId}`);
+
+            // Forward to all clients in the drone room (Admin will receive it)
+            this.server.to(`drone:${droneId}`).emit('command:ack', data);
+
+            // Also broadcast globally for monitoring
+            this.server.emit('command:ack', data);
+        } catch (error) {
+            this.logger.error(`Error handling command:ack: ${error.message}`);
+        }
+    }
+
+    @SubscribeMessage('command:progress')
+    handleCommandProgress(
+        @MessageBody() data: { commandId: string; droneId: string; status: string; timestamp: string },
+        @ConnectedSocket() client: Socket,
+    ) {
+        try {
+            const { commandId, droneId, status } = data;
+
+            this.logger.log(`Command PROGRESS received: ${commandId} (status: ${status}) for drone ${droneId}`);
+
+            // Forward to all clients in the drone room (Admin will receive it)
+            this.server.to(`drone:${droneId}`).emit('command:progress', data);
+
+            // Also broadcast globally for monitoring
+            this.server.emit('command:progress', data);
+        } catch (error) {
+            this.logger.error(`Error handling command:progress: ${error.message}`);
+        }
+    }
+
+    @SubscribeMessage('command:result')
+    handleCommandResult(
+        @MessageBody() data: { commandId: string; droneId: string; status: string; message?: string; error?: string; timestamp: string },
+        @ConnectedSocket() client: Socket,
+    ) {
+        try {
+            const { commandId, droneId, status, message, error } = data;
+
+            this.logger.log(`Command RESULT received: ${commandId} (status: ${status}) for drone ${droneId}${message ? ` - ${message}` : ''}${error ? ` - ERROR: ${error}` : ''}`);
+
+            // Forward to all clients in the drone room (Admin will receive it)
+            this.server.to(`drone:${droneId}`).emit('command:result', data);
+
+            // Also broadcast globally for monitoring
+            this.server.emit('command:result', data);
+        } catch (error) {
+            this.logger.error(`Error handling command:result: ${error.message}`);
         }
     }
 
@@ -307,25 +370,27 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     @SubscribeMessage('mission:start')
     async handleMissionStart(
-        @MessageBody() data: { droneId: string; mission: { waypoints: any[]; timestamp: string } },
+        @MessageBody() data: { droneId: string; mission: { waypoints: any[]; timestamp: string }; commandId?: string },
         @ConnectedSocket() client: Socket,
     ) {
         try {
-            const { droneId, mission } = data;
+            const { droneId, mission, commandId } = data;
 
-            this.logger.log(`Mission start received for drone ${droneId} with ${mission.waypoints.length} waypoints`);
-            logger.logWebSocket(`Mission start received for drone ${droneId}`, { droneId, waypointCount: mission.waypoints.length });
+            this.logger.log(`Mission start received for drone ${droneId} with ${mission.waypoints.length} waypoints${commandId ? ` (ID: ${commandId})` : ''}`);
+            logger.logWebSocket(`Mission start received for drone ${droneId}`, { droneId, waypointCount: mission.waypoints.length, commandId });
 
-            // Forward mission to drone room
+            // Forward mission to drone room with commandId
             this.server.to(`drone:${droneId}`).emit('mission:start', {
                 droneId,
                 mission,
+                commandId,
                 timestamp: new Date().toISOString(),
             });
 
             // Also broadcast to all clients
             this.server.emit('mission:started', {
                 droneId,
+                commandId,
                 waypointCount: mission.waypoints.length,
                 timestamp: new Date().toISOString(),
             });
@@ -333,6 +398,7 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
             // Send acknowledgment to sender
             client.emit('mission:started', {
                 droneId,
+                commandId,
                 waypointCount: mission.waypoints.length,
                 timestamp: new Date().toISOString(),
             });
@@ -344,30 +410,33 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     @SubscribeMessage('mission:end')
     async handleMissionEnd(
-        @MessageBody() data: { droneId: string; timestamp: string },
+        @MessageBody() data: { droneId: string; timestamp: string; commandId?: string },
         @ConnectedSocket() client: Socket,
     ) {
         try {
-            const { droneId } = data;
+            const { droneId, commandId } = data;
 
-            this.logger.log(`Mission end received for drone ${droneId}`);
-            logger.logWebSocket(`Mission end received for drone ${droneId}`, { droneId });
+            this.logger.log(`Mission end received for drone ${droneId}${commandId ? ` (ID: ${commandId})` : ''}`);
+            logger.logWebSocket(`Mission end received for drone ${droneId}`, { droneId, commandId });
 
-            // Forward mission end to drone room
+            // Forward mission end to drone room with commandId
             this.server.to(`drone:${droneId}`).emit('mission:end', {
                 droneId,
+                commandId,
                 timestamp: new Date().toISOString(),
             });
 
             // Also broadcast to all clients
             this.server.emit('mission:ended', {
                 droneId,
+                commandId,
                 timestamp: new Date().toISOString(),
             });
 
             // Send acknowledgment to sender
             client.emit('mission:ended', {
                 droneId,
+                commandId,
                 timestamp: new Date().toISOString(),
             });
         } catch (error) {
