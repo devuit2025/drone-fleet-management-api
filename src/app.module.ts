@@ -22,6 +22,7 @@ import { FlightPermitsModule } from './modules/flight-permits/flight-permits.mod
 import { FlightLogsModule } from './modules/flight-logs/flight-logs.module';
 import { MissionReportsModule } from './modules/mission-reports/mission-reports.module';
 import { SearchModule } from './modules/search/search.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { DroneGateway } from './gateways/drone.gateway';
 import { User } from './entities/user.entity';
 import { Pilot } from './entities/pilot.entity';
@@ -105,6 +106,7 @@ import { SeederModule } from './seeders/seeder.module';
         FlightLogsModule,
         MissionReportsModule,
         SearchModule,
+        DashboardModule,
         SeederModule,
     ],
     controllers: [AppController],
