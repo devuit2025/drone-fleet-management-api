@@ -1,4 +1,4 @@
-# Drone Fleet Management API
+# Drone Fleet Management API (Tự làm)
 
 Ứng dụng quản lý và giám sát drone thời gian thực với NestJS, TypeScript, PostgreSQL và Socket.io.
 
