@@ -29,7 +29,7 @@ import { logger } from '../utils/logger';
             'http://localhost:4173',
             'http://127.0.0.1:4173',
             'http://192.168.0.100:5173',
-            'file://'
+            'file://',
         ],
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
@@ -47,7 +47,7 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
     constructor(
         private readonly dronesService: DronesService,
         private readonly flightsService: MissionsService,
-    ) { }
+    ) {}
 
     handleConnection(client: Socket) {
         this.logger.log(`Client connected: ${client.id}`);
@@ -107,7 +107,10 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
             logger.logRealtime(`Status updated for drone ${droneId}`, { droneId, status });
         } catch (error) {
             this.logger.error(`Error updating drone status: ${error.message}`);
-            logger.error('websocket', `Error updating drone status: ${error.message}`, { error, droneId: data.droneId });
+            logger.error('websocket', `Error updating drone status: ${error.message}`, {
+                error,
+                droneId: data.droneId,
+            });
             client.emit('error', { message: 'Failed to update drone status' });
         }
     }
@@ -239,7 +242,10 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
             this.server.emit('pong', pongData);
 
             this.logger.log(`PING received from ${client.id}, sent PONG`);
-            logger.logWebSocket(`PING received from ${client.id}`, { clientId: client.id, pongData });
+            logger.logWebSocket(`PING received from ${client.id}`, {
+                clientId: client.id,
+                pongData,
+            });
         } catch (error) {
             this.logger.error(`Error handling PING: ${error.message}`);
             client.emit('error', { message: 'Failed to handle PING' });
@@ -248,14 +254,22 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     @SubscribeMessage('drone:command')
     handleDroneCommand(
-        @MessageBody() data: { droneId: string; command: string; timestamp?: string; commandId?: string },
+        @MessageBody()
+        data: { droneId: string; command: string; timestamp?: string; commandId?: string },
         @ConnectedSocket() client: Socket,
     ) {
         try {
             const { droneId, command, timestamp, commandId } = data;
 
-            this.logger.log(`Received command '${command}' for drone ${droneId} from ${client.id}${commandId ? ` (ID: ${commandId})` : ''}`);
-            logger.logRealtime(`Drone command received: ${command}`, { droneId, command, commandId, clientId: client.id });
+            this.logger.log(
+                `Received command '${command}' for drone ${droneId} from ${client.id}${commandId ? ` (ID: ${commandId})` : ''}`,
+            );
+            logger.logRealtime(`Drone command received: ${command}`, {
+                droneId,
+                command,
+                commandId,
+                clientId: client.id,
+            });
 
             // Broadcast command to specific drone room (Android app will listen here)
             this.server.to(`drone:${droneId}`).emit('drone:command', {
@@ -285,20 +299,26 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
             });
         } catch (error) {
             this.logger.error(`Error handling drone command: ${error.message}`);
-            logger.error('websocket', `Error handling drone command: ${error.message}`, { error, data });
+            logger.error('websocket', `Error handling drone command: ${error.message}`, {
+                error,
+                data,
+            });
             client.emit('error', { message: 'Failed to handle drone command' });
         }
     }
 
     @SubscribeMessage('command:ack')
     handleCommandAck(
-        @MessageBody() data: { commandId: string; droneId: string; status: string; timestamp: string },
+        @MessageBody()
+        data: { commandId: string; droneId: string; status: string; timestamp: string },
         @ConnectedSocket() client: Socket,
     ) {
         try {
             const { commandId, droneId, status } = data;
 
-            this.logger.log(`Command ACK received: ${commandId} (status: ${status}) for drone ${droneId}`);
+            this.logger.log(
+                `Command ACK received: ${commandId} (status: ${status}) for drone ${droneId}`,
+            );
 
             // Forward to all clients in the drone room (Admin will receive it)
             this.server.to(`drone:${droneId}`).emit('command:ack', data);
@@ -312,13 +332,16 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     @SubscribeMessage('command:progress')
     handleCommandProgress(
-        @MessageBody() data: { commandId: string; droneId: string; status: string; timestamp: string },
+        @MessageBody()
+        data: { commandId: string; droneId: string; status: string; timestamp: string },
         @ConnectedSocket() client: Socket,
     ) {
         try {
             const { commandId, droneId, status } = data;
 
-            this.logger.log(`Command PROGRESS received: ${commandId} (status: ${status}) for drone ${droneId}`);
+            this.logger.log(
+                `Command PROGRESS received: ${commandId} (status: ${status}) for drone ${droneId}`,
+            );
 
             // Forward to all clients in the drone room (Admin will receive it)
             this.server.to(`drone:${droneId}`).emit('command:progress', data);
@@ -332,13 +355,23 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     @SubscribeMessage('command:result')
     handleCommandResult(
-        @MessageBody() data: { commandId: string; droneId: string; status: string; message?: string; error?: string; timestamp: string },
+        @MessageBody()
+        data: {
+            commandId: string;
+            droneId: string;
+            status: string;
+            message?: string;
+            error?: string;
+            timestamp: string;
+        },
         @ConnectedSocket() client: Socket,
     ) {
         try {
             const { commandId, droneId, status, message, error } = data;
 
-            this.logger.log(`Command RESULT received: ${commandId} (status: ${status}) for drone ${droneId}${message ? ` - ${message}` : ''}${error ? ` - ERROR: ${error}` : ''}`);
+            this.logger.log(
+                `Command RESULT received: ${commandId} (status: ${status}) for drone ${droneId}${message ? ` - ${message}` : ''}${error ? ` - ERROR: ${error}` : ''}`,
+            );
 
             // Forward to all clients in the drone room (Admin will receive it)
             this.server.to(`drone:${droneId}`).emit('command:result', data);
@@ -370,14 +403,25 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     @SubscribeMessage('mission:start')
     async handleMissionStart(
-        @MessageBody() data: { droneId: string; mission: { waypoints: any[]; timestamp: string }; commandId?: string },
+        @MessageBody()
+        data: {
+            droneId: string;
+            mission: { waypoints: any[]; timestamp: string };
+            commandId?: string;
+        },
         @ConnectedSocket() client: Socket,
     ) {
         try {
             const { droneId, mission, commandId } = data;
 
-            this.logger.log(`Mission start received for drone ${droneId} with ${mission.waypoints.length} waypoints${commandId ? ` (ID: ${commandId})` : ''}`);
-            logger.logWebSocket(`Mission start received for drone ${droneId}`, { droneId, waypointCount: mission.waypoints.length, commandId });
+            this.logger.log(
+                `Mission start received for drone ${droneId} with ${mission.waypoints.length} waypoints${commandId ? ` (ID: ${commandId})` : ''}`,
+            );
+            logger.logWebSocket(`Mission start received for drone ${droneId}`, {
+                droneId,
+                waypointCount: mission.waypoints.length,
+                commandId,
+            });
 
             // Forward mission to drone room with commandId
             this.server.to(`drone:${droneId}`).emit('mission:start', {
@@ -416,8 +460,13 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
         try {
             const { droneId, commandId } = data;
 
-            this.logger.log(`Mission end received for drone ${droneId}${commandId ? ` (ID: ${commandId})` : ''}`);
-            logger.logWebSocket(`Mission end received for drone ${droneId}`, { droneId, commandId });
+            this.logger.log(
+                `Mission end received for drone ${droneId}${commandId ? ` (ID: ${commandId})` : ''}`,
+            );
+            logger.logWebSocket(`Mission end received for drone ${droneId}`, {
+                droneId,
+                commandId,
+            });
 
             // Forward mission end to drone room with commandId
             this.server.to(`drone:${droneId}`).emit('mission:end', {
@@ -475,7 +524,9 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
             // Also emit raw telemetry data for components that need full telemetry
             this.server.emit('telemetry:data', { droneId, telemetry, timestamp: data.timestamp });
-            this.server.to(`drone:${droneId}`).emit('telemetry:data', { droneId, telemetry, timestamp: data.timestamp });
+            this.server
+                .to(`drone:${droneId}`)
+                .emit('telemetry:data', { droneId, telemetry, timestamp: data.timestamp });
 
             // Log telemetry data (optional, can be disabled for performance)
             // this.logger.debug(`Telemetry data received from drone ${droneId}`);
@@ -494,7 +545,11 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
             const { droneId, message, type, timestamp } = data;
 
             this.logger.log(`App message received from drone ${droneId}: ${message}`);
-            logger.logWebSocket(`App message received from drone ${droneId}`, { droneId, message, type });
+            logger.logWebSocket(`App message received from drone ${droneId}`, {
+                droneId,
+                message,
+                type,
+            });
 
             // Broadcast message to all connected clients
             this.server.emit('app:message', {
@@ -531,9 +586,10 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
                 buffer = Buffer.from(frameData);
             } else {
                 const dataType = typeof frameData;
-                const constructorName = frameData && typeof frameData === 'object' && 'constructor' in frameData
-                    ? (frameData as any).constructor?.name
-                    : 'unknown';
+                const constructorName =
+                    frameData && typeof frameData === 'object' && 'constructor' in frameData
+                        ? (frameData as any).constructor?.name
+                        : 'unknown';
                 this.logger.warn(`⚠️ Unknown frame data type: ${dataType}, ${constructorName}`);
                 return;
             }
@@ -546,15 +602,21 @@ export class DroneGateway implements OnGatewayConnection, OnGatewayDisconnect {
                     .map(b => '0x' + b.toString(16).padStart(2, '0'))
                     .join(' ');
                 const allZeros = Array.from(buffer.slice(0, 10)).every(b => b === 0);
-                this.logger.log(`📹 First video frame: ${frameSize} bytes, first 10 bytes: ${firstBytes}`);
+                this.logger.log(
+                    `📹 First video frame: ${frameSize} bytes, first 10 bytes: ${firstBytes}`,
+                );
                 if (allZeros) {
-                    this.logger.error(`❌ WARNING: First frame data is all zeros! Data may be corrupted.`);
+                    this.logger.error(
+                        `❌ WARNING: First frame data is all zeros! Data may be corrupted.`,
+                    );
                 }
             }
 
             // Log every 30th frame to avoid spam
             if (!this.lastVideoFrameCount || this.lastVideoFrameCount % 30 === 0) {
-                this.logger.debug(`📹 Received video frame #${this.lastVideoFrameCount + 1}: ${frameSize} bytes from client ${client.id}`);
+                this.logger.debug(
+                    `📹 Received video frame #${this.lastVideoFrameCount + 1}: ${frameSize} bytes from client ${client.id}`,
+                );
             }
             this.lastVideoFrameCount = (this.lastVideoFrameCount || 0) + 1;
 
